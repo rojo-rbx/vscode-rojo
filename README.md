@@ -34,5 +34,5 @@ Initial release of vscode-rojo
 
 ## Goals
 
-[ ] Support macOS
-[ ] Add a pop-up screen upon install telling the user to get the plugin
+- [ ] Support macOS
+- [ ] Add a pop-up screen upon install telling the user to get the plugin
