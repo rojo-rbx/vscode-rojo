@@ -1,0 +1,65 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$id": "/properties/name",
+      "type": "string",
+      "title": "Project name",
+      "default": "my-game",
+      "examples": [
+        "your-project-name"
+      ]
+    },
+    "servePort": {
+      "$id": "/properties/servePort",
+      "type": "integer",
+      "title": "Serve port",
+      "description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo.",
+      "default": 8000,
+      "examples": [
+        8000
+      ]
+    },
+    "partitions": {
+      "$id": "/properties/partitions",
+      "type": "object",
+      "title": "Sync partitions",
+      "description": "A Rojo project has one or more partitions. Partitions define how code should be transferred between the filesystem and Roblox by mapping directories and files to Roblox objects.",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "patternProperties": {
+        "^.*$": {
+          "required": ["path", "target"],
+          "properties": {
+            "path": {
+              "$id": "/properties/partitions/properties/$partition/properties/path",
+              "type": "string",
+              "title": "Filesystem path",
+              "description": "The path to a folder, relative to this file, for which to sync its contents into Studio.",
+              "default": "",
+              "examples": [
+                "./src"
+              ]
+            },
+            "target": {
+              "$id": "/properties/partitions/properties/$partition/properties/target",
+              "type": "string",
+              "title": "Studio Target",
+              "description": "A dot-separated path where the files inside of the \"path\" will be created in Studio. NOTE: Rojo will delete everything in the referenced Instance upon syncing! Use multiple, smaller partitions to avoid losing work.",
+              "default": "",
+              "examples": [
+                "ReplicatedStorage.My Game Scripts"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "servePort",
+    "partitions"
+  ]
+}
