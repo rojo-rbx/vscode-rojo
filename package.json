@@ -11,7 +11,7 @@
     "categories": [
         "Extension Packs"
     ],
-    "icon": "./assets/extension-icon.png",
+    "icon": "assets/extension-icon.png",
     "activationEvents": [
         "workspaceContains:rojo.json",
         "onCommand:rojo.init",
