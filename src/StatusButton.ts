@@ -3,16 +3,31 @@ import * as Strings from './Strings'
 
 export enum ButtonState { Start, Running, Downloading, Updating, Hidden }
 
+/**
+ * A class to manage our status bar button.
+ * @export
+ * @class StatusButton
+ */
 export default class StatusButton {
   private button: vscode.StatusBarItem
 
+  /**
+   * Creates the status bar item and sets it to its default state.
+   * @memberof StatusButton
+   */
   constructor () {
     this.button = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 200)
 
     this.setState(ButtonState.Start)
   }
 
-  setState (state: ButtonState, version: string = ''): void {
+  /**
+   * Updates the button state to show what's going on right now.
+   * @param {ButtonState} state The button state to show
+   * @param {string} [version=''] The running state displays the version to the user.
+   * @memberof StatusButton
+   */
+  public setState (state: ButtonState, version: string = ''): void {
     this.button.show()
 
     switch (state) {
@@ -33,6 +48,7 @@ export default class StatusButton {
         this.button.command = undefined
         break
       default:
+        // Handles ButtonState.Hidden along with any other unimplemented states
         this.button.hide()
         break
     }

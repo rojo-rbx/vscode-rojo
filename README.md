@@ -34,7 +34,8 @@ Initial release of vscode-rojo
 
 ## Goals
 
-- [ ] Add comments to code before I forget how it works
+- [x] Add comments to code before I forget how it works
+- [ ] Move hard coded strings into Strings.ts
 - [ ] Support macOS
 - [ ] Add a pop-up screen upon install telling the user to get the plugin
   - [ ] Investigate auto-installing plugin with rbxmx to skip this step
