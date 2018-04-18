@@ -34,5 +34,7 @@ Initial release of vscode-rojo
 
 ## Goals
 
+- [ ] Add comments to code before I forget how it works
 - [ ] Support macOS
 - [ ] Add a pop-up screen upon install telling the user to get the plugin
+  - [ ] Investigate auto-installing plugin with rbxmx to skip this step
