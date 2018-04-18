@@ -8,8 +8,9 @@
         "vscode": "^1.22.0"
     },
     "categories": [
-        "Other"
+        "Extension Packs"
     ],
+    "icon": "./assets/extension-icon.png",
     "activationEvents": [
         "workspaceContains:rojo.json",
         "onCommand:rojo.init",
