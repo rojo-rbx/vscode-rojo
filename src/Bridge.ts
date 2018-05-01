@@ -179,7 +179,7 @@ export class Bridge {
 
     // Update the saved version text to reflect what version we have now.
     // TODO: ensure the download finishes before setting this.
-    this.version = this.version
+    this.version = version
     this.context.globalState.update('rojoVersion', version)
 
     // Get an array of all of the assets included with the latest release, and look for one that matches `rojo.exe`.
