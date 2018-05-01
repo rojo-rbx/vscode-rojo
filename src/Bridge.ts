@@ -130,7 +130,7 @@ export class Bridge {
   private doesNeedInstall (): boolean {
     if (os.platform() === 'win32') {
       const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
-      return !fs.existsSync(this.rojoPath) || Date.now() - lastFetched > 86400000
+      return !fs.existsSync(this.rojoPath) || Date.now() - lastFetched > 3600000
     }
 
     return true
