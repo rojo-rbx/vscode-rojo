@@ -171,6 +171,7 @@ export class Bridge {
     // Check if the version we have now is still current. If it is, no need to download again.
     if (fs.existsSync(this.rojoPath) && version === this.context.globalState.get('rojoVersion')) {
       console.log('Version match, skipping download.')
+      this.button.setState(ButtonState.Start)
       return true
     }
 
