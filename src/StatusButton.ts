@@ -8,7 +8,7 @@ export enum ButtonState { Start, Running, Downloading, Updating, Hidden }
  * @export
  * @class StatusButton
  */
-export default class StatusButton {
+export default class StatusButton extends vscode.Disposable {
   private button: vscode.StatusBarItem
 
   /**
@@ -16,9 +16,19 @@ export default class StatusButton {
    * @memberof StatusButton
    */
   constructor () {
+    super(() => this.dispose())
+
     this.button = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 200)
 
     this.setState(ButtonState.Start)
+  }
+
+  /**
+   * Cleans up the button.
+   * @memberof StatusButton
+   */
+  public dispose (): void {
+    this.button.dispose()
   }
 
   /**

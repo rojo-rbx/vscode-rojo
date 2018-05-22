@@ -9,13 +9,15 @@ import * as path from 'path'
  * @abstract
  * @class Rojo
  */
-export abstract class Rojo {
+export abstract class Rojo extends vscode.Disposable {
   protected workspace: vscode.WorkspaceFolder
   protected workspacePath: string
   protected configPath: string
   protected outputChannel: vscode.OutputChannel
 
   constructor (workspace: vscode.WorkspaceFolder) {
+    super(() => this.dispose())
+
     this.workspace = workspace
     this.workspacePath = workspace.uri.fsPath
     this.configPath = path.join(this.workspacePath, 'rojo.json')

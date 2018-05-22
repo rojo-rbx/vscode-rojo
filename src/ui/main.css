@@ -1,0 +1,140 @@
+body {
+  font-size: 15px;
+}
+
+body .container a {
+  color: rgb(89, 174, 226);
+  text-decoration: none;
+}
+
+body .container a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 1000px;
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 6em;
+  min-width: 450px;
+}
+
+header {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+header img {
+  width: 175px;
+}
+
+header p {
+  min-width: 345px;
+  font-weight: 200;
+  /* font-size: 1.2em; */
+  margin: -1em 0 0 2em;
+  flex: 55% 2 1;
+}
+
+h2 {
+  font-size: 2.5em;
+}
+
+h3 {
+  font-size: 2em;
+}
+
+h2, h3 {
+  font-weight: 200;
+  line-height: normal;
+}
+
+section {
+  margin-top: 5em;
+}
+
+.buttons {
+  text-align: center;
+  margin-top: 2em;
+}
+
+body .container .buttons .button {
+  display: inline-block;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  font-size: 1.1em;
+  border-radius: 3px;
+  margin: 1em .5em;
+  padding: 1.2em 1.9em;
+  letter-spacing: 0.06em;
+  font-weight: 200;
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+  color: white;
+  transition: all 250ms;
+  vertical-align: middle;
+  line-height: 100%;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", HelveticaNeue-Light, Ubuntu, "Droid Sans", sans-serif;
+  outline: none !important;
+}
+
+body .container .buttons .button:active {
+  outline: none;
+}
+
+body .container .buttons .button:hover, body .container .buttons .button.active {
+  background: white;
+  color: black;
+}
+
+code {
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  font-family: consolas, monospace;
+  color: wheat;
+}
+
+pre {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  border-radius: 5px;
+}
+
+p.alert {
+  background-color: hsla(348, 90%, 27%, 1);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"/><path fill="white" d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>');
+  padding: 15px 25px;
+  border-radius: 5px;
+  margin: 2.5em 0;
+  background-repeat: no-repeat;
+  background-position: 10px;
+  padding-left: 42px;
+}
+
+p.hidden {
+  opacity: 0;
+  max-height: 0;
+}
+
+.transition {
+  transition: all 500ms;
+  max-height: 50px;
+}
+
+p#must-choose {
+  display: inline-block;
+  margin-top: 0;
+  margin-bottom: 1em;
+  padding: 15px 25px;
+}
+
+
+p#must-choose.alert {
+  padding-left: 40px;
+}

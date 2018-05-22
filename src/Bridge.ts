@@ -5,9 +5,9 @@ import * as vscode from 'vscode'
 import axios from 'axios'
 import { Rojo, RojoWin32 } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-
-const RELEASE_URL = 'https://api.github.com/repos/LPGhatguy/rojo/releases/latest'
-const BINARY_NAME = 'rojo.exe'
+import { RELEASE_URL, BINARY_NAME, PLUGIN_PATTERN } from './Strings'
+import { getPluginIsManaged, getLocalPluginPath, promisifyStream } from './Util'
+import Telemetry, { TelemetryEvent } from './Telemetry'
 
 interface GithubAsset {
   name: string,
@@ -16,32 +16,21 @@ interface GithubAsset {
 }
 
 /**
- * A utility function that takes a stream and converts it into a promise.
- * Resolves on stream end, or rejects on stream error.
- * @param {fs.WriteStream} stream The stream to promisify
- * @returns {Promise<any>} A promise that resolves or rejects based on the status of the stream.
- */
-function promisifyStream (stream: fs.WriteStream): Promise<any> {
-  return new Promise((resolve, reject) => {
-    stream.on('end', resolve)
-    stream.on('error', reject)
-  })
-}
-
-/**
  * A bridge between our extension and Rojo, which handles installing, preparing, and giving access to Rojo.
  * @export
  * @class Bridge
  */
-export class Bridge {
+export class Bridge extends vscode.Disposable {
   public ready: boolean = false
   public version: string
+  public context: vscode.ExtensionContext
   private button: StatusButton
-  private context: vscode.ExtensionContext
   private rojoPath: string
   private rojoMap: Map<vscode.WorkspaceFolder, Rojo> = new Map()
 
   constructor (context: vscode.ExtensionContext, button: StatusButton) {
+    super(() => this.dispose())
+
     // Store the extension context and status button for use later.
     this.context = context
     this.button = button
@@ -73,6 +62,13 @@ export class Bridge {
     return rojoBridge
   }
 
+  public get pluginPath () {
+    // Rojo is sometimes released as rbxm, sometimes rbxmx.
+    // Luckily, Studio doesn't rely on the file extension at all,
+    // only that it's either rbxm or rbxmx.
+    return path.join(getLocalPluginPath(), 'rojo.rbxm')
+  }
+
   /**
    * Gets or creates the proper Rojo instance for the given workspace folder.
    * Only usable when the bridge is ready.
@@ -91,6 +87,43 @@ export class Bridge {
     }
 
     return this.rojoMap.get(workspace) as Rojo
+  }
+
+  /**
+   * Forcefully reinstalls Rojo.
+   * @returns {Promise<boolean>} Successful?
+   * @memberof Bridge
+   */
+  public async reinstall (clearVersionCache = false): Promise<boolean> {
+    if (clearVersionCache) {
+      await this.context.globalState.update('rojoVersion', undefined)
+      await this.context.globalState.update('rojoFetched', undefined)
+    }
+
+    return this.install()
+  }
+
+  /**
+   * Whether or not the local plugin is installed in the plugins folder.
+   * @returns {boolean}
+   * @memberof Bridge
+   */
+  public isPluginInstalled (): boolean {
+    return fs.existsSync(this.pluginPath)
+  }
+
+  /**
+   * Uninstalls the plugin from the plugins folder.
+   * @returns {boolean} Successful?
+   * @memberof Bridge
+   */
+  public uninstallPlugin (): boolean {
+    if (this.isPluginInstalled()) {
+      fs.unlinkSync(this.pluginPath)
+      vscode.window.showInformationMessage('Successfully uninstalled the local plugin from Roblox Studio.')
+      return true
+    }
+    return false
   }
 
   /**
@@ -115,7 +148,7 @@ export class Bridge {
    */
   private async prepare (): Promise<void> {
     if (this.doesNeedInstall()) {
-      this.ready = await this.installRojo()
+      this.ready = await this.install()
     } else {
       this.ready = true
     }
@@ -139,10 +172,12 @@ export class Bridge {
   /**
    * Determines the correct platform and then dispatches the installer for that platform.
    * @private
-   * @returns {boolean} Whether or not installation was successful.
+   * @returns {boolean} Successful?
    * @memberof Bridge
    */
-  private async installRojo (): Promise<boolean> {
+  private async install (): Promise<boolean> {
+    Telemetry.trackEvent(TelemetryEvent.Installation, 'Before installation', os.platform())
+
     if (os.platform() === 'win32') {
       return this.installWin32()
     }
@@ -152,12 +187,54 @@ export class Bridge {
   }
 
   /**
+   * Installs the Studio plugin from a GitHub release.
+   * @private
+   * @param {GithubAsset[]} assets The assets from the GitHub release.
+   * @returns {Promise<boolean>} Successful?
+   * @memberof Bridge
+   */
+  private async installPlugin (assets: GithubAsset[]): Promise<boolean> {
+    const plugin = assets.find(file => file.name.match(PLUGIN_PATTERN) != null && file.content_type === 'application/octet-stream')
+
+    if (!plugin) {
+      vscode.window.showWarningMessage("Couldn't fetch latest Rojo plugin: couldn't finding a matching plugin file in the latest release.")
+      Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Plugin not found', this.version)
+      return false
+    }
+
+    this.button.setState(ButtonState.Downloading)
+
+    const download = await axios.get(plugin.browser_download_url, {
+      responseType: 'stream'
+    })
+
+    const writeStream = fs.createWriteStream(this.pluginPath)
+    download.data.pipe(writeStream)
+
+    try {
+      await promisifyStream(download.data)
+
+      writeStream.close()
+    } catch (e) {
+      console.log(e)
+
+      vscode.window.showErrorMessage("Couldn't fetch latest Rojo plugin: an error ocurred while downloading the file.")
+      Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Plugin download fail', this.version)
+      Telemetry.trackException(e)
+      return false
+    }
+
+    return true
+  }
+
+  /**
    * Rojo installer for Windows platforms.
    * @private
-   * @returns {boolean} Whether or not installation was successful.
+   * @returns {boolean} Successful?
    * @memberof Bridge
    */
   private async installWin32 (): Promise<boolean > {
+    // TODO: Better support for button state when bailing out with returns
     // Update our user-facing button to indicate we're checking for an update.
     this.button.setState(ButtonState.Updating)
 
@@ -168,59 +245,78 @@ export class Bridge {
     this.context.globalState.update('rojoFetched', Date.now())
     const version = response.data.tag_name
 
-    // Check if the version we have now is still current. If it is, no need to download again.
-    if (fs.existsSync(this.rojoPath) && version === this.context.globalState.get('rojoVersion')) {
-      console.log('Version match, skipping download.')
-      this.button.setState(ButtonState.Start)
-      return true
-    }
-
-    // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
-    this.button.setState(ButtonState.Downloading)
-
-    // Update the saved version text to reflect what version we have now.
-    // TODO: ensure the download finishes before setting this.
-    this.version = version
-    this.context.globalState.update('rojoVersion', version)
-
-    // Get an array of all of the assets included with the latest release, and look for one that matches `rojo.exe`.
+    // Get an array of all of the assets included with the latest release, and
     const assets: GithubAsset[] = response.data.assets
-    const file = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
+    let installedBinary = false
 
-    // If no matching file is found, just give up for now.
-    // TODO: Add better stability to this area so it can fallback to older known working binaries.
-    if (!file) {
-      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: can't find a binary in the latest release.")
-      return false
+    // Check if the version we have now is still current. If it is, no need to download again.
+    if (fs.existsSync(this.rojoPath) === false || version !== this.context.globalState.get('rojoVersion')) {
+      // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
+      this.button.setState(ButtonState.Downloading)
+
+      // Update the saved version text to reflect what version we have now.
+      // TODO: ensure the download finishes before setting this.
+      this.version = version
+      this.context.globalState.update('rojoVersion', version)
+
+      // Look for one that matches `rojo.exe`.
+      const binary = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
+
+      // If no matching file is found, just give up for now.
+      // TODO: Add better stability to this area so it can fallback to older known working binaries.
+      if (!binary) {
+        Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary not found', this.version)
+        vscode.window.showErrorMessage("Couldn't fetch latest Rojo: can't find a binary in the latest release.")
+        this.button.setState(ButtonState.Start)
+        return false
+      }
+
+      // Start the download of the binary as a stream
+      const download = await axios.get(binary.browser_download_url, {
+        responseType: 'stream'
+      })
+
+      const writeStream = fs.createWriteStream(this.rojoPath)
+      download.data.pipe(writeStream)
+
+      // Wrap in a try/catch because lots of things can go wrong when downloading files.
+      try {
+        // Wait for the download to complete (or fail)
+        await promisifyStream(download.data)
+
+        // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
+        // If we don't close the stream, the file will still be marked as busy.
+        writeStream.close()
+      } catch (e) {
+        console.log(e)
+        Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary download fail', this.version)
+        Telemetry.trackException(e)
+        vscode.window.showErrorMessage("Couldn't fetch latest Rojo: an error occurred while downloading the latest binary.")
+        this.button.setState(ButtonState.Hidden)
+        return false
+      }
+
+      installedBinary = true
     }
 
-    // Start the download of the binary as a stream
-    const download = await axios.get(file.browser_download_url, {
-      responseType: 'stream'
-    })
+    // Now handle the plugin business
+    let installedPlugin = false
+    if ((installedBinary || !this.isPluginInstalled()) && getPluginIsManaged()) {
+      installedPlugin = await this.installPlugin(assets)
+    }
 
-    const writeStream = fs.createWriteStream(this.rojoPath)
-    download.data.pipe(writeStream)
-
-    // Wrap in a try/catch because lots of things can go wrong when downloading files.
-    try {
-      // Wait for the download to complete (or fail)
-      await promisifyStream(download.data)
-
-      // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
-      // If we don't close the stream, the file will still be marked as busy.
-      writeStream.close()
-    } catch (e) {
-      console.log(e)
-      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: an error occurred while downloading the latest binary.")
-      this.button.setState(ButtonState.Hidden)
-      return false
+    if (installedBinary) {
+      vscode.window.showInformationMessage(`Successfully installed Rojo ${this.version}`)
+    } else if (installedPlugin) {
+      vscode.window.showInformationMessage(`Successfully installed Roblox Studio plugin from release ${this.version}`)
     }
 
     // Even though the commands handle setting the button state themselves, we need to set it back to "Start" here in case
     // one of the commands bails out early. We don't want it to say "Downloading..." forever, when the real problem is just
     // that rojo.json doesn't exist so the "Rojo: Start server" command dropped out before setting the button.
     this.button.setState(ButtonState.Start)
+
+    Telemetry.trackEvent(TelemetryEvent.InstallationSuccess, 'After installation', this.version)
 
     return true
   }

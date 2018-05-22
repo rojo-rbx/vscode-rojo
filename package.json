@@ -2,11 +2,11 @@
     "name": "vscode-rojo",
     "displayName": "Rojo - Roblox Studio Sync",
     "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "repository": "https://github.com/evaera/vscode-rojo",
     "publisher": "evaera",
     "engines": {
-        "vscode": "^1.22.0"
+        "vscode": "^1.23.0"
     },
     "categories": [
         "Extension Packs"
@@ -15,7 +15,8 @@
     "activationEvents": [
         "workspaceContains:rojo.json",
         "onCommand:rojo.init",
-        "onCommand:rojo.start"
+        "onCommand:rojo.start",
+        "onCommand:rojo.welcome"
     ],
     "main": "./out/extension",
     "contributes": {
@@ -34,8 +35,33 @@
                 "command": "rojo.stop",
                 "title": "Stop server",
                 "category": "Rojo"
+            },
+            {
+                "command": "rojo.welcome",
+                "title": "Show welcome screen",
+                "category": "Rojo"
             }
         ],
+        "configuration": {
+            "title": "Rojo configuration",
+            "properties": {
+                "rojo.pluginManagement": {
+                    "type": "boolean",
+                    "default": null,
+                    "description": "Whether or not Rojo will manage installing the Rojo plugin rbxmx file into the Roblox Studio plugins folder or not."
+                },
+                "rojo.robloxStudioPluginsPath": {
+                    "type": "string",
+                    "default": "%localappdata%/Roblox/Plugins",
+                    "description": "The plugins for for Roblox Studio, if this extension is managaging plugin installation."
+                },
+                "rojo.enableTelemetry": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether or not to send basic, anonymous usage reports to this extension's maintainer (does not gather any information about your files or game)."
+                }
+            }
+        },
         "jsonValidation": [
             {
                 "fileMatch": "rojo.json",
@@ -50,14 +76,18 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^7.0.43",
+        "@types/universal-analytics": "^0.4.2",
+        "@types/uuid": "^3.4.3",
         "tslint": "^5.8.0",
         "tslint-config-standard": "^7.0.0",
-        "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.17"
     },
     "dependencies": {
-        "axios": "^0.18.0"
+        "axios": "^0.18.0",
+        "universal-analytics": "^0.4.16",
+        "uuid": "^3.2.1"
     }
 }

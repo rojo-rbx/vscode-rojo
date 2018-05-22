@@ -1,40 +1,17 @@
-import * as vscode from 'vscode'
 import * as fs from 'fs'
+import * as os from 'os'
 import * as path from 'path'
+import * as vscode from 'vscode'
 import BridgeFactory from './Bridge'
 import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-
-interface WorkspaceFolderItem extends vscode.QuickPickItem {
-  folder: vscode.WorkspaceFolder
-}
+import { createOrShowInterface, getPluginIsManaged, pickFolder } from './Util'
+import Telemetry, { TelemetryEvent } from './Telemetry'
 
 interface PickRojoOptions {
   noFoldersError: string,
   prompt: string,
   allowUninitialized?: boolean
-}
-
-/**
- * Creates a picker menu so that the user can select which workspace root folder they want to use.
- * If there's only one root, it will return instantly with that folder.
- * @param {vscode.WorkspaceFolder[]} folders The list of WorkspaceFolders to pick from.
- * @param {string} placeHolder The prompt that's in the box so the user knows what's up.
- * @returns {(Thenable<vscode.WorkspaceFolder | undefined>)} The chosen folder, or undefined if it was closed.
- */
-function pickFolder (folders: vscode.WorkspaceFolder[], placeHolder: string): Thenable<vscode.WorkspaceFolder | undefined> {
-  if (folders.length === 1) {
-    return Promise.resolve(folders[0])
-  }
-  return vscode.window.showQuickPick(
-		folders.map<WorkspaceFolderItem>((folder) => { return { label: folder.name, description: folder.uri.fsPath, folder: folder } }),
-		{ placeHolder: placeHolder }
-	).then((selected) => {
-  if (!selected) {
-    return undefined
-  }
-  return selected.folder
-})
 }
 
 /**
@@ -45,6 +22,11 @@ function pickFolder (folders: vscode.WorkspaceFolder[], placeHolder: string): Th
 export function activate (context: vscode.ExtensionContext) {
   console.log('"vscode-rojo" is now active!')
   console.log(`Storage directory: ${context.extensionPath}`)
+
+  // context.globalState.update('rojoFetched', undefined)
+  // context.globalState.update('rojoVersion', undefined)
+
+  Telemetry.initialize(context)
 
   const statusButton = new StatusButton()
 
@@ -130,12 +112,15 @@ export function activate (context: vscode.ExtensionContext) {
       rojo.serve()
     } catch (e) {
       console.log(e)
+      Telemetry.trackEvent(TelemetryEvent.RuntimeError, 'Rojo spawn exception', os.platform())
+      Telemetry.trackException(e)
       vscode.window.showErrorMessage('An error occurred while spawning Rojo.')
       return
     }
     // One final check to make sure that `rojo.serving` is true. If it's not, something caused the serve function to stop prematurely.
     if (!rojo.serving) {
       vscode.window.showErrorMessage('An error occurred while spawning Rojo.')
+      Telemetry.trackEvent(TelemetryEvent.RuntimeError, 'Rojo not serving', os.platform())
     }
     rojoStack.push(rojo)
 
@@ -158,9 +143,18 @@ export function activate (context: vscode.ExtensionContext) {
     }
   })
 
+  /**
+   * Rojo: Show welcome screen.
+   */
+  const welcomeCommand = vscode.commands.registerCommand('rojo.welcome', () => createOrShowInterface(context, getBridge))
+
   // Tell VS Code about our disposable commands so they get cleaned up when VS Code reloads.
   // TODO: Add our own disposables here too
-  context.subscriptions.push(initCommand, startCommand, stopCommand)
+  context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand)
+
+  if (getPluginIsManaged() === null) {
+    createOrShowInterface(context, getBridge)
+  }
 }
 
 export function deactivate () {

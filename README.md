@@ -4,17 +4,22 @@ This is a VS Code extension that gives you [Rojo](https://github.com/LPGhatguy/r
 
 Only works on Windows (for now).
 
+## How to use
+
+- **If you are a new user**, please open the command panel (`Ctrl+Shift+P`) and run `Rojo: Open welcome screen` to see a guide.
+- Otherwise, the extension will automatically activate whenever you have a `rojo.json` file in the root of your workspace or when you run a Rojo command.
+
 ## Features
 
 - Automatically downloads the latest version of Rojo and keeps you up to date.
+- Can automatically install the Roblox Studio plugin as well.
 - Start and stop Rojo in one click, no need to touch the command line.
-- Generates and provides schema helpers for rojo.json.
-- Activates when you have a "rojo.json" file in your workspace folder, or when you use the "Rojo: Initialize" command in the command menu.
+- Generates (and provides schema helpers for) rojo.json.
+- Includes a quick start guide to help new users get started (`Rojo: Open welcome screen`)
 
 ## Requirements
 
 - Windows
-- You need to have the [Roblox Studio plugin](https://www.roblox.com/library/1211549683/Rojo-Studio-Plugin-0-4-4) installed in order to connect to Rojo.
 
 ## Acknowledgements
 
@@ -26,7 +31,15 @@ Only works on Windows (for now).
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 1.2.0
+
+- Added new welcome screen with quick-start guide.
+  - Forces users to pick if they want to manage the plugin, or if they want the extension to.
+- Added plugin management and installation.
+  - New setting `rojo.robloxStudioPluginsPath` if you have a weird plugins folder (default should be correct for 99% of people)/
+- Added event logging to help track down any loose bugs that are encountered in the wild and for automatic detection of an invalid release.
+  - Opt-out with `rojo.enableTelemetry` set to `false`.
+- General code restructuring and improvements under the hood.
 
 ### 1.0.0
 
@@ -35,7 +48,7 @@ Initial release of vscode-rojo
 ## Goals
 
 - [x] Add comments to code before I forget how it works
-- [ ] Move hard coded strings into Strings.ts
 - [ ] Support macOS
-- [ ] Add a pop-up screen upon install telling the user to get the plugin
-  - [ ] Investigate auto-installing plugin with rbxmx to skip this step
+- [ ] Better stability with fallback to known working binaries
+- [x] Add a pop-up screen upon install telling the user to get the plugin
+  - [x] Investigate auto-installing plugin with rbxmx to skip this step
