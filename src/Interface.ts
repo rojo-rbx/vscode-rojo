@@ -59,8 +59,8 @@ export default class Interface extends vscode.Disposable {
     })
 
     // Open the HTML and send it to the webview to load.
-    const doc = await vscode.workspace.openTextDocument(this.context.asAbsolutePath('src/ui/index.html'))
+    const doc = await vscode.workspace.openTextDocument(this.context.asAbsolutePath('ui/index.html'))
     // Replace {{root}} with an absolute path to our resources folder.
-    this.panel.webview.html = doc.getText().replace(/{{root}}/g, vscode.Uri.file(this.context.asAbsolutePath('./src/ui/')).with({ scheme: 'vscode-resource' }).toString())
+    this.panel.webview.html = doc.getText().replace(/{{root}}/g, vscode.Uri.file(this.context.asAbsolutePath('./ui/')).with({ scheme: 'vscode-resource' }).toString())
   }
 }
