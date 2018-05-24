@@ -50,5 +50,6 @@ Initial release of vscode-rojo
 - [x] Add comments to code before I forget how it works
 - [ ] Support macOS
 - [ ] Better stability with fallback to known working binaries
+- [ ] Add "New partition" action
 - [x] Add a pop-up screen upon install telling the user to get the plugin
   - [x] Investigate auto-installing plugin with rbxmx to skip this step

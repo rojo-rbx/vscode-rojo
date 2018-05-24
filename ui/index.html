@@ -32,35 +32,35 @@
       <p class="alert hidden" id="folder-alert"><strong>You must open a folder to follow this guide.</strong> This extension will only work if you have opened a folder through File &gt; Open Folder. For this guide, you should create a fresh folder and open it in VS Code, then come back here with <code>Ctrl+Shift+P</code> and enter <code>Rojo: Show welcome screen</code>. <span>&mdash; <strong>Yeah, we're talking to you, buster.</strong> This message only shows up if you don't have a folder open! 😉</span></p>
       <ol>
         <li>
-          <p>To start using Rojo, you need a Rojo configuration file in the top level of your currently-opened workspace. You can generate one of these files by opening the command panel (<code >Ctrl+Shift+P</code>) and entering <code>Rojo: Initialize</code>.</p>
-          <p>You will see that a <code>rojo.json</code> file has been generated in your workspace. Right-click on the file in the Explorer panel and click "Open to the side" (so we don't lose you!)</p>
+          <p>To start using Rojo, you need a Rojo configuration file in the top level of your currently-opened workspace. You can generate one of these files by <strong>opening</strong> the command panel (<code >Ctrl+Shift+P</code>) and <strong>entering</strong> <code>Rojo: Initialize</code>.</p>
+          <p>You will see that a <code>rojo.json</code> file has been generated in your workspace. <strong>Right-click</strong> on the file in the Explorer panel and <strong>click</strong> "Open to the side" (so we don't lose you!)</p>
         </li>
         <li>
           <p>In this file, you will define how Rojo should take files from your computer and put them into Roblox Studio. The default configuration doesn't do anything, so we should tell Rojo where your code is, and where we want to put it in Roblox.</p>
-          <p>First, change the <code>name</code> property to something that represents your project. Leave <code>servePort</code> at its default value (only port 8000 is supported at the time of writing).</p>
-          <p>Now, let's get our workspace ready with some sample code. Using the New Folder button in VS Code, create a new folder (we will be using <code>src</code> in this example) to contain your Lua files. Then, inside your new folder, create a simple Lua file (like <code>HelloWorld.lua</code>) and write whatever you want inside.</p>
+          <p>First, <strong>change</strong> the <code>name</code> property to something that represents your project. Leave <code>servePort</code> at its default value (only port 8000 is supported at the time of writing).</p>
+          <p>Now, let's get our workspace ready with some sample code. Using the New Folder button in VS Code, <strong>create</strong> a new folder (we will be using <code>Game</code> in this example) to contain your Lua files. Then, inside your new folder, <strong>create</strong> a simple Lua file (like <code>HelloWorld.lua</code>) and write whatever you want inside.</p>
         </li>
         <li>
-          <p>Next, you will create your first <em>partition</em>. A partition defines how code should be transferred between the filesystem and Roblox by mapping directories and files to Roblox objects. A Rojo project can (and should) be made up of many, smaller partitions. We will change <code>partitions</code> object to match the following:</p>
+          <p>Next, you will be creating your first <em>partition</em>. A partition defines how code should be transferred between the filesystem and Roblox by mapping directories and files to Roblox objects. A Rojo project can (and should) be made up of many, smaller partitions. <strong>Change</strong> the <code>partitions</code> object to match the following:</p>
           <pre>
 "partitions": {
-  "src": {
-      "path": "./src",
+  "My first paritition": {
+      "path": "./Game",
       "target": "ServerScriptService.Project"
   }
 }</pre>
           <p>Each partition has:</p>
-          <ol>
-            <li>A name (the key in the <code>partitions</code> object), which is used for debugging and can be whatever you wish.</li>
-            <li><code>path</code>, a relative path from <code>rojo.json</code> to a folder containing your game files.</li>
-            <li><code>target</code>, a location in Roblox, relative to <code>game</code></li>
-          </ol>
+          <ul>
+            <li>A key name (the key in the <code>partitions</code> object, <code>My first partition</code> in this case), which is used for labelling and debugging and can be whatever you wish.</li>
+            <li><code>path</code>, a relative path from the <code>rojo.json</code> file to a folder containing your Lua files.</li>
+            <li><code>target</code>, a dot-separated location in Roblox, relative to <code>game</code>. (<code>StarterPlayer.StarterCharacterScripts.MyFolder</code> is a valid example)</li>
+          </ul>
           <p class="alert">Anything inside of a partition will be made to match what's on disk <em>exactly</em>, so that means Rojo <strong>will delete</strong> objects in Roblox that don't exist on disk. You should use lots of smaller partitions if necessary so you're only managing the scripts/objects you <em>really</em> care about.</p>
         </li>
         <li>
-          <p>Now, it's time for the magic. Look in the bottom-right corner of VS Code (on the blue bar), and you should see a button that says "Start Rojo". You'll need to toggle this button on whenever you want to work on your game so Rojo knows to send your files to Roblox Studio. When it's on, you'll see the lightning bolt icon change to an eye icon, indicating it's watching for your changes. 👀</p>
-          <p class="alert">Open a fresh instance of Studio to ensure the plugin has installed correctly.</p>
-          <p>Open Roblox Studio, and create a new, blank place. Go to the plugins tab, and find the Rojo section. Click the "Sync In" button.</p>
+          <p>Now, it's time for the magic. Look in the bottom-right corner of VS Code (on the bar), and you should see a button that says "Start Rojo". You'll need to <strong>click</strong> this button whenever you want to work on your game so Rojo knows to send your files to Roblox Studio. When it's on, you'll see the lightning bolt icon change to an eye icon, indicating it's watching for your changes. 👀</p>
+          <p class="alert">Make sure you've opened a fresh instance of Roblox Studio to ensure the plugin has installed correctly.</p>
+          <p><strong>Open</strong> Roblox Studio, and <strong>create</strong> a new, blank place. <strong>Click</strong> on the plugins tab, and find the Rojo buttons. <strong>Click</strong> the "Sync In" button. (For automatic syncing, you can use "Toggle Polling" instead.)</p>
           <p>You should now see your Lua file inside a folder called "Project" in ServerScriptService! Now you're all set up to continue working on your awesome game.</p>
         </li>
       </ol>
@@ -72,6 +72,7 @@
     <section>
       <h2>Tips and Tricks</h2>
       <ul>
+        <li>Use the "Toggle Polling" button in Roblox Studio to enable automatic syncing whenever you make a file change in VS Code.</li>
         <li><strong>Want to have more than one Rojo project open at once?</strong> VS Code allows you to add multiple root folders to your workspace, and this extension supports that out of the box! Right-click on a blank background portion of the Explorer panel, and click "Add folders to workspace". As long as a <code>rojo.json</code> file exists at the top level of that folder, you'll be able to use this extension seamlessly.</li>
         <li>You can and definitely should be using Git to keep your project under source control. This gives you <em>tons</em> of benefits, like...</li>
         <li>Add open-source modules (like <a href="https://github.com/Roblox/Roact" target="_blank">Roact</a>) to your game easily by adding them as a <a href="https://gist.github.com/gitaarik/8735255" target="_blank">Git submodule</a>.</li>
