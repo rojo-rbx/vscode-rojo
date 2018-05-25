@@ -40,6 +40,10 @@ export function createOrShowInterface (context: vscode.ExtensionContext, getBrid
   context.subscriptions.push(currentInterface)
 }
 
+export function isInterfaceOpened (): boolean {
+  return currentInterface != null
+}
+
 /**
  * A utility function that takes a stream and converts it into a promise.
  * Resolves on stream end, or rejects on stream error.

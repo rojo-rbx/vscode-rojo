@@ -2,6 +2,7 @@ import * as childProcess from 'child_process'
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { isInterfaceOpened } from './Util'
 
 /**
  * An abstract class that the platform-specific Rojo instances should inherit from.
@@ -73,7 +74,8 @@ export class RojoWin32 extends Rojo {
       cwd: this.workspacePath
     })
 
-    vscode.workspace.openTextDocument(this.configPath).then(doc => vscode.window.showTextDocument(doc))
+    // Open in column #2 if the interface is open so we don't make people lose progress on the guide
+    vscode.workspace.openTextDocument(this.configPath).then(doc => vscode.window.showTextDocument(doc, isInterfaceOpened() ? vscode.ViewColumn.Two : undefined))
   }
 
   /**

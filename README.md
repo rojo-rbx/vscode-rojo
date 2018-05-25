@@ -31,6 +31,10 @@ Only works on Windows (for now).
 
 ## Release Notes
 
+### 1.2.1 - 1.2.4
+
+- Adjusted welcome screen guide contents.
+
 ### 1.2.0
 
 - Added new welcome screen with quick-start guide.
