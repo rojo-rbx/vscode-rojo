@@ -10,3 +10,5 @@ export const TEXT_RUNNING = '$(eye) Rojo'
 export const RELEASE_URL = 'https://api.github.com/repos/LPGhatguy/rojo/releases/latest'
 export const BINARY_NAME = 'rojo.exe'
 export const PLUGIN_PATTERN = /.+\.rbxmx?/
+
+export const VALID_SERVICES = ['AssetService', 'BadgeService', 'ChangeHistoryService', 'Chat', 'CollectionService', 'ContentProvider', 'ContextActionService', 'CoreGui', 'DataStoreService', 'Debris', 'GamePassService', 'GroupService', 'GuiService', 'HapticService', 'HttpService', 'InsertService', 'JointsService', 'KeyboardService', 'KeyframeSequenceProvider', 'Lighting', 'LogService', 'MarketplaceService', 'MouseService', 'NetworkClient', 'NetworkServer', 'PathfindingService', 'PhysicsService', 'Players', 'PointsService', 'ReplicatedFirst', 'ReplicatedStorage', 'RunService', 'ScriptContext', 'Selection', 'ServerScriptService', 'ServerStorage', 'SoundService', 'StarterGui', 'StarterPack', 'StarterPlayer', 'Stats', 'Teams', 'TeleportService', 'TestService', 'TextService', 'TweenService', 'UserInputService', 'VRService', 'Workspace']

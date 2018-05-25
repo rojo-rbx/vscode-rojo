@@ -33,26 +33,19 @@
       <ol>
         <li>
           <p>To start using Rojo, you need a Rojo configuration file in the top level of your currently-opened workspace. You can generate one of these files by <strong>opening</strong> the command panel (<code >Ctrl+Shift+P</code>) and <strong>choosing</strong> <code>Rojo: Initialize</code>.</p>
-          <p>You will see that a <code>rojo.json</code> file has been generated in your workspace. <strong>Right-click</strong> on the file in the Explorer panel and <strong>click</strong> "Open to the side" (so we don't lose you!)</p>
+          <p>You will see that a <code>rojo.json</code> file has been generated in your workspace. And it should have opened automatically, right over there! 👉</p>
         </li>
         <li>
           <p>In this file, you will define how Rojo should take files from your computer and put them into Roblox Studio. The default configuration doesn't do anything, so we should tell Rojo where your code is, and where we want to put it in Roblox.</p>
           <p>First, <strong>change</strong> the <code>name</code> property to something that represents your project. Leave <code>servePort</code> at its default value (only port 8000 is supported at the time of writing).</p>
-          <p>Now, let's get our workspace ready with some sample code. Using the New Folder button in VS Code, <strong>create</strong> a new folder (we will be naming our folder <code>Game</code> in this example) to contain your Lua files. Then, inside your new folder, <strong>create</strong> a simple Lua file (like <code>HelloWorld.lua</code>) and write whatever you want inside.</p>
+          <p>Now, let's get our workspace ready with some sample code. Using the New Folder button in VS Code, <strong>create</strong> a new folder in the same directory that your <code>rojo.json</code> is in to contain your Lua files. (We will be naming our folder <code>Game</code> in this example.) Then, inside your new folder, <strong>create</strong> a simple Lua file (like <code>HelloWorld.lua</code>) and write whatever you want inside.</p>
         </li>
         <li>
-          <p>Next, you will be creating your first <em>partition</em>. A partition defines how code should be transferred between the filesystem and Roblox by mapping directories and files to Roblox objects. A Rojo project can (and should) be made up of many, smaller partitions. You can create as many partitions as you want.</p>
-          <p>Go back to your <code>rojo.json</code> file and <strong>change</strong> the <code>partitions</code> object to match the following:</p>
-          <pre>
-"partitions": {
-  "Main game code": {
-      "path": "./Game",
-      "target": "ServerScriptService.My Project"
-  }
-}</pre>
+          <p>Next, you will be creating your first <em>partition</em>. Partitions define how code should be transferred between the filesystem and Roblox by mapping directories and files to Roblox objects. A Rojo project can (and should) be made up of many, smaller partitions. You can create as many partitions as you want.</p>
+          <p><strong>Right-click</strong> on the folder you created in the last step ("Game" in our case) in the VS Code Explorer panel, and <strong>choose</strong> "Rojo: Create partition here...". In the input box that shows up in the top-center of your screen, <strong>type</strong> <code>ServerScriptService.My Project</code> and press Enter.</p>
           <p>Each partition has:</p>
           <ul>
-            <li>A key name (the key in the <code>partitions</code> object, <code>Main game code</code> in this case), which is used for labelling and debugging and can be whatever you wish.</li>
+            <li>A key name (the key in the <code>partitions</code> object), which is used for labelling and debugging and can be whatever you wish.</li>
             <li><code>path</code>, a relative path from <code>rojo.json</code> to a folder containing your Lua files.</li>
             <li><code>target</code>, a dot-separated location in Roblox, relative to <code>game</code>. (<code>StarterPlayer.StarterCharacterScripts.MyFolder</code> is a valid example)</li>
           </ul>
@@ -68,7 +61,13 @@
       </ol>
 
       <h2>Next steps</h2>
-      <p>Now that you've got the hang of using Rojo, you should take a look at the <a href="https://lpghatguy.github.io/rojo/sync-details/" target="_blank">official documentation</a> which dives in deeper on some more advanced features of Rojo that you'll definitely want to know about!</p>
+      <p>Now that you've got the hang of using Rojo, you should take a look at the <a href="https://lpghatguy.github.io/rojo/sync-details/" target="_blank">official documentation</a> which dives in deeper on some more advanced features of Rojo that you'll <strong>definitely</strong> want to know about! Learn how to:</p>
+      <ul>
+        <li>Make your scripts become server Scripts and LocalScripts.</li>
+        <li>Represent other instances (like RemoteEvents or *Value objects) as files on your computer, and have them be synced in next to your code.</li>
+        <li>Have scripts inside of other scripts.</li>
+        <li>And more!</li>
+      </ul>
     </section>
 
     <section>

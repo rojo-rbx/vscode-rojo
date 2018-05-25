@@ -2,7 +2,7 @@
     "name": "vscode-rojo",
     "displayName": "Rojo - Roblox Studio Sync",
     "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
-    "version": "1.2.4",
+    "version": "1.2.5",
     "repository": "https://github.com/evaera/vscode-rojo",
     "publisher": "evaera",
     "engines": {
@@ -40,8 +40,27 @@
                 "command": "rojo.welcome",
                 "title": "Show welcome screen",
                 "category": "Rojo"
+            },
+            {
+                "command": "rojo.createPartition",
+                "title": "Rojo: Create partition here...",
+                "category": "Rojo"
             }
         ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "rojo.createPartition",
+                    "group": "2_workspace"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "rojo.createPartition",
+                    "when": "never"
+                }
+            ]
+        },
         "configuration": {
             "title": "Rojo configuration",
             "properties": {

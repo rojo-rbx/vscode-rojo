@@ -30,6 +30,16 @@ export abstract class Rojo extends vscode.Disposable {
   public abstract serve (): void
   public abstract stop (): void
   public abstract dispose (): void
+  public abstract createPartition (partitionPath: string, partitionTarget: string): boolean
+
+  /**
+   * Opens the current rojo.json file in the editor.
+   * @memberof Rojo
+   */
+  public openConfiguration (): void {
+    // Open in column #2 if the interface is open so we don't make people lose progress on the guide
+    vscode.workspace.openTextDocument(this.configPath).then(doc => vscode.window.showTextDocument(doc, isInterfaceOpened() ? vscode.ViewColumn.Two : undefined))
+  }
 }
 
 /**
@@ -74,8 +84,7 @@ export class RojoWin32 extends Rojo {
       cwd: this.workspacePath
     })
 
-    // Open in column #2 if the interface is open so we don't make people lose progress on the guide
-    vscode.workspace.openTextDocument(this.configPath).then(doc => vscode.window.showTextDocument(doc, isInterfaceOpened() ? vscode.ViewColumn.Two : undefined))
+    this.openConfiguration()
   }
 
   /**
@@ -133,6 +142,45 @@ export class RojoWin32 extends Rojo {
     if (this.server) {
       this.stop()
     }
+  }
+
+  /**
+   * Creates a partition in the rojo.json file.
+   * @param {string} partitionPath The partition path
+   * @param {string} partitionTarget The partition target
+   * @returns {boolean} Successful?
+   * @memberof RojoWin32
+   */
+  public createPartition (partitionPath: string, partitionTarget: string): boolean {
+    const currentConfigString = fs.readFileSync(this.configPath, 'utf8')
+    let currentConfig: {partitions: {[index: string]: {path: string, target: string}}}
+
+    try {
+      currentConfig = JSON.parse(currentConfigString)
+    } catch (e) {
+      return false
+    }
+
+    let newName = path.basename(partitionPath, '.lua')
+
+    while (currentConfig.partitions[newName] != null) {
+      const numberPattern = / \((\d+)\)/
+      const numberMatch = newName.match(numberPattern)
+      if (numberMatch) {
+        newName = newName.replace(numberPattern, ` (${(parseInt(numberMatch[1], 10) + 1).toString()})`)
+      } else {
+        newName += ' (2)'
+      }
+    }
+
+    currentConfig.partitions[newName] = {
+      path: path.relative(path.dirname(this.configPath), partitionPath).replace(/\\/g, '/'),
+      target: partitionTarget
+    }
+
+    fs.writeFileSync(this.configPath, JSON.stringify(currentConfig, undefined, 2))
+
+    return true
   }
 
   /**

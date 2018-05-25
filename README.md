@@ -31,6 +31,10 @@ Only works on Windows (for now).
 
 ## Release Notes
 
+### 1.2.5
+
+- Added "Rojo: Create partition here..." context menu entry when right-clicking files or folders in the explorer.
+
 ### 1.2.1 - 1.2.4
 
 - Adjusted welcome screen guide contents.
