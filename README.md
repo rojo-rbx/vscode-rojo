@@ -2,7 +2,7 @@
 
 This is a VS Code extension that gives you [Rojo](https://github.com/LPGhatguy/rojo) automatic installation and integration.
 
-Works on Windows and macOS.
+Works on both Windows and macOS.
 
 ## How to use
 
@@ -19,7 +19,7 @@ Works on Windows and macOS.
 
 ## Requirements
 
-- Windows
+- Windows, or
 - macOS with [cargo installed](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 
 ## Acknowledgements
@@ -31,6 +31,10 @@ Works on Windows and macOS.
 - None yet
 
 ## Release Notes
+
+### 1.3.0
+
+- macOS support thanks to a PR from [Anton Matosov](https://github.com/anton-matosov).
 
 ### 1.2.5
 
@@ -53,12 +57,3 @@ Works on Windows and macOS.
 ### 1.0.0
 
 Initial release of vscode-rojo
-
-## Goals
-
-- [x] Add comments to code before I forget how it works
-- [ ] Support macOS
-- [ ] Better stability with fallback to known working binaries
-- [ ] Add "New partition" action
-- [x] Add a pop-up screen upon install telling the user to get the plugin
-  - [x] Investigate auto-installing plugin with rbxmx to skip this step
