@@ -2,7 +2,7 @@
 
 This is a VS Code extension that gives you [Rojo](https://github.com/LPGhatguy/rojo) automatic installation and integration.
 
-Only works on Windows (for now).
+Works on Windows and macOS.
 
 ## How to use
 
@@ -20,6 +20,7 @@ Only works on Windows (for now).
 ## Requirements
 
 - Windows
+- macOS with [cargo installed](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 
 ## Acknowledgements
 

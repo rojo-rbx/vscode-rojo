@@ -2,7 +2,7 @@
     "name": "vscode-rojo",
     "displayName": "Rojo - Roblox Studio Sync",
     "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
-    "version": "1.2.5",
+    "version": "1.3.0",
     "repository": "https://github.com/evaera/vscode-rojo",
     "publisher": "evaera",
     "engines": {
@@ -71,8 +71,13 @@
                 },
                 "rojo.robloxStudioPluginsPath": {
                     "type": "string",
-                    "default": "%localappdata%/Roblox/Plugins",
+                    "default": "",
                     "description": "The plugins for for Roblox Studio, if this extension is managaging plugin installation."
+                },
+                "rojo.cargo": {
+                    "type": "string",
+                    "default": "cargo",
+                    "description": "Name or full path `cargo` executable used to build and install Rojo from source on macOS"
                 },
                 "rojo.enableTelemetry": {
                     "type": "boolean",
@@ -96,17 +101,18 @@
     },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
-        "@types/node": "^7.0.43",
+        "@types/node": "^8.0",
         "@types/universal-analytics": "^0.4.2",
-        "@types/uuid": "^3.4.3",
-        "tslint": "^5.8.0",
-        "tslint-config-standard": "^7.0.0",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.17"
+        "@types/uuid": "^3.4.4",
+        "dts-gen": "^0.5.7",
+        "tslint": "^5.11.0",
+        "tslint-config-standard": "^7.1.0",
+        "typescript": "^3.1.3",
+        "vscode": "^1.1.21"
     },
     "dependencies": {
         "axios": "^0.18.0",
-        "universal-analytics": "^0.4.16",
-        "uuid": "^3.2.1"
+        "universal-analytics": "^0.4.17",
+        "uuid": "^3.3.2"
     }
 }

@@ -4,9 +4,11 @@
 
 export const TEXT_DOWNLOADING = '$(cloud-download) Downloading Rojo...'
 export const TEXT_UPDATING = '$(sync) Checking for Rojo update...'
+export const TEXT_INSTALLING = '$(sync) Installing Rojo using cargo...'
 export const TEXT_START = '$(zap) Start Rojo'
 export const TEXT_RUNNING = '$(eye) Rojo'
 
+export const ROJO_GIT_URL = 'https://github.com/LPGhatguy/rojo.git'
 export const RELEASE_URL = 'https://api.github.com/repos/LPGhatguy/rojo/releases/latest'
 export const BINARY_NAME = 'rojo.exe'
 export const PLUGIN_PATTERN = /.+\.rbxmx?/
