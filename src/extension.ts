@@ -16,7 +16,7 @@ interface PickRojoOptions {
 }
 
 /**
- * The main exetension activation function that is called by VS Code when the extenion starts.
+ * The main extension activation function that is called by VS Code when the extension starts.
  * @export
  * @param {vscode.ExtensionContext} context The ExtensionContext provided by VS Code.
  */

@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import * as util from 'util';
+import * as util from 'util'
 import * as vscode from 'vscode'
 import * as childProcess from 'child_process'
 import axios from 'axios'
@@ -50,11 +50,11 @@ export class Bridge extends vscode.Disposable {
   }
 
   /**
-   * A static asyncrhonous bootstrapper for this class to allow instantiation to be `await`ed.
+   * A static asynchronous bootstrapper for this class to allow instantiation to be `await`ed.
    * Calls and waits for the `prepare` method before returning the class.
    * @static
    * @param {vscode.ExtensionContext} context The extension context from the `activate` function.
-   * @param {StatusButton} button An instance of our StatusButotn class
+   * @param {StatusButton} button An instance of our StatusButton class
    * @returns {Promise<Bridge>} A new Bridge which has been prepared.
    * @memberof Bridge
    */

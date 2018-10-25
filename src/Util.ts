@@ -11,11 +11,11 @@ export function getConfiguration (): vscode.WorkspaceConfiguration {
 
 export function getLocalPluginPath (): string {
   let pluginsPath = getConfiguration().get('robloxStudioPluginsPath') as string
-  if (!pluginsPath || pluginsPath.length == 0) {
+  if (!pluginsPath || pluginsPath.length === 0) {
     if (os.platform() === 'win32') {
-      pluginsPath = "$LOCALAPPDATA/Roblox/Plugins"
+      pluginsPath = '$LOCALAPPDATA/Roblox/Plugins'
     } else {
-      pluginsPath = "$HOME/Documents/Roblox/Plugins"
+      pluginsPath = '$HOME/Documents/Roblox/Plugins'
     }
   }
   return path.resolve(expandenv(pluginsPath))
@@ -25,8 +25,8 @@ export function getCargoPath (): string {
   return expandenv(getConfiguration().get('cargo') as string)
 }
 
-export function expandenv(input: string): string {
-  return input.replace(/\$[\w]+/g, function(match: string) {
+export function expandenv (input: string): string {
+  return input.replace(/\$[\w]+/g, function (match: string) {
     return process.env[match.replace('$', '')] || match
   })
 }
