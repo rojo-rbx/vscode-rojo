@@ -71,8 +71,13 @@
                 },
                 "rojo.robloxStudioPluginsPath": {
                     "type": "string",
-                    "default": "${HOME}/Documents/Roblox/Plugins",
+                    "default": "$HOME/Documents/Roblox/Plugins",
                     "description": "The plugins for for Roblox Studio, if this extension is managaging plugin installation."
+                },
+                "rojo.cargo": {
+                    "type": "string",
+                    "default": "cargo",
+                    "description": "Name or full path `cargo` executable used to build and install rojo from source on non Windows platforms"
                 },
                 "rojo.enableTelemetry": {
                     "type": "boolean",

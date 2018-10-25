@@ -9,8 +9,11 @@ export function getConfiguration (): vscode.WorkspaceConfiguration {
 }
 
 export function getLocalPluginPath (): string {
-  return path.resolve(
-    expandenv(getConfiguration().get('robloxStudioPluginsPath') as string))
+  return path.resolve(expandenv(getConfiguration().get('robloxStudioPluginsPath') as string))
+}
+
+export function getCargoPath (): string {
+  return expandenv(getConfiguration().get('cargo') as string)
 }
 
 export function expandenv(input: string): string {

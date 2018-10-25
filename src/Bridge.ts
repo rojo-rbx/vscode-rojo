@@ -8,7 +8,7 @@ import axios from 'axios'
 import { Rojo, RojoWin32 } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
 import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN } from './Strings'
-import { getPluginIsManaged, getLocalPluginPath, promisifyStream } from './Util'
+import { getPluginIsManaged, getCargoPath, getLocalPluginPath, promisifyStream } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
 
 interface GithubAsset {
@@ -223,7 +223,7 @@ export class Bridge extends vscode.Disposable {
     this.button.setState(ButtonState.Installing)
 
     try {
-      await util.promisify(childProcess.execFile)('cargo', ['install',
+      await util.promisify(childProcess.execFile)(getCargoPath(), ['install',
         '--git', ROJO_GIT_URL,
         '--tag', version,
         '--root', this.context.extensionPath])
