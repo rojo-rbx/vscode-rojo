@@ -1,11 +1,13 @@
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
+import * as util from 'util';
 import * as vscode from 'vscode'
+import * as childProcess from 'child_process'
 import axios from 'axios'
 import { Rojo, RojoWin32 } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-import { RELEASE_URL, BINARY_NAME, PLUGIN_PATTERN } from './Strings'
+import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN } from './Strings'
 import { getPluginIsManaged, getLocalPluginPath, promisifyStream } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
 
@@ -44,7 +46,7 @@ export class Bridge extends vscode.Disposable {
       fs.mkdirSync(storePath)
     }
 
-    this.rojoPath = path.join(storePath, 'rojo.exe')
+    this.rojoPath = path.join(storePath, (os.platform() === 'win32') ? 'rojo.exe' : 'rojo')
   }
 
   /**
@@ -161,12 +163,8 @@ export class Bridge extends vscode.Disposable {
    * @memberof Bridge
    */
   private doesNeedInstall (): boolean {
-    if (os.platform() === 'win32') {
-      const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
-      return !fs.existsSync(this.rojoPath) || Date.now() - lastFetched > 3600000
-    }
-
-    return true
+    const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
+    return !fs.existsSync(this.rojoPath) || Date.now() - lastFetched > 3600000
   }
 
   /**
@@ -178,12 +176,7 @@ export class Bridge extends vscode.Disposable {
   private async install (): Promise<boolean> {
     Telemetry.trackEvent(TelemetryEvent.Installation, 'Before installation', os.platform())
 
-    if (os.platform() === 'win32') {
-      return this.installWin32()
-    }
-
-    vscode.window.showErrorMessage('This extension only supports Windows right now.')
-    return false
+    return this.installRojoBinary()
   }
 
   /**
@@ -226,14 +219,74 @@ export class Bridge extends vscode.Disposable {
 
     return true
   }
+  private async installBinaryViaCargo (version: string): Promise<boolean> {
+    this.button.setState(ButtonState.Installing)
 
+    try {
+      await util.promisify(childProcess.execFile)('cargo', ['install',
+        '--git', ROJO_GIT_URL,
+        '--tag', version,
+        '--root', this.context.extensionPath])
+    } catch (e) {
+      console.log(e)
+      Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Rojo installation failed', this.version)
+      Telemetry.trackException(e)
+      vscode.window.showErrorMessage("Couldn't install latest Rojo: an error occurred while compiling the latest binary.")
+      this.button.setState(ButtonState.Hidden)
+      return false
+    }
+
+    return fs.existsSync(this.rojoPath)
+  }
+
+  private async installWin32Binary (assets: GithubAsset[], version: string): Promise<boolean > {
+
+    // Look for one that matches `rojo.exe`.
+    const binary = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
+
+    // If no matching file is found, just give up for now.
+    // TODO: Add better stability to this area so it can fallback to older known working binaries.
+    if (!binary) {
+      Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary not found', this.version)
+      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: can't find a binary in the latest release.")
+      this.button.setState(ButtonState.Start)
+      return false
+    }
+
+    // Start the download of the binary as a stream
+    const download = await axios.get(binary.browser_download_url, {
+      responseType: 'stream'
+    })
+
+    const writeStream = fs.createWriteStream(this.rojoPath)
+    download.data.pipe(writeStream)
+
+    // Wrap in a try/catch because lots of things can go wrong when downloading files.
+    try {
+      // Wait for the download to complete (or fail)
+      await promisifyStream(download.data)
+
+      // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
+      // If we don't close the stream, the file will still be marked as busy.
+      writeStream.close()
+    } catch (e) {
+      console.log(e)
+      Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary download fail', this.version)
+      Telemetry.trackException(e)
+      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: an error occurred while downloading the latest binary.")
+      this.button.setState(ButtonState.Hidden)
+      return false
+    }
+
+    return true
+  }
   /**
    * Rojo installer for Windows platforms.
    * @private
    * @returns {boolean} Successful?
    * @memberof Bridge
    */
-  private async installWin32 (): Promise<boolean > {
+  private async installRojoBinary (): Promise<boolean > {
     // TODO: Better support for button state when bailing out with returns
     // Update our user-facing button to indicate we're checking for an update.
     this.button.setState(ButtonState.Updating)
@@ -259,44 +312,11 @@ export class Bridge extends vscode.Disposable {
       this.version = version
       this.context.globalState.update('rojoVersion', version)
 
-      // Look for one that matches `rojo.exe`.
-      const binary = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
-
-      // If no matching file is found, just give up for now.
-      // TODO: Add better stability to this area so it can fallback to older known working binaries.
-      if (!binary) {
-        Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary not found', this.version)
-        vscode.window.showErrorMessage("Couldn't fetch latest Rojo: can't find a binary in the latest release.")
-        this.button.setState(ButtonState.Start)
-        return false
+      if (os.platform() === 'win32') {
+        installedBinary = await this.installWin32Binary(assets, version)
+      } else {
+        installedBinary = await this.installBinaryViaCargo(version)
       }
-
-      // Start the download of the binary as a stream
-      const download = await axios.get(binary.browser_download_url, {
-        responseType: 'stream'
-      })
-
-      const writeStream = fs.createWriteStream(this.rojoPath)
-      download.data.pipe(writeStream)
-
-      // Wrap in a try/catch because lots of things can go wrong when downloading files.
-      try {
-        // Wait for the download to complete (or fail)
-        await promisifyStream(download.data)
-
-        // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
-        // If we don't close the stream, the file will still be marked as busy.
-        writeStream.close()
-      } catch (e) {
-        console.log(e)
-        Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary download fail', this.version)
-        Telemetry.trackException(e)
-        vscode.window.showErrorMessage("Couldn't fetch latest Rojo: an error occurred while downloading the latest binary.")
-        this.button.setState(ButtonState.Hidden)
-        return false
-      }
-
-      installedBinary = true
     }
 
     // Now handle the plugin business
