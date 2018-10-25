@@ -9,7 +9,14 @@ export function getConfiguration (): vscode.WorkspaceConfiguration {
 }
 
 export function getLocalPluginPath (): string {
-  return path.resolve((getConfiguration().get('robloxStudioPluginsPath') as string).replace(/%localappdata%/gi, process.env.LOCALAPPDATA))
+  return path.resolve(
+    expandenv(getConfiguration().get('robloxStudioPluginsPath') as string))
+}
+
+export function expandenv(input: string): string {
+  return input.replace(/\$[\w]+/g, function(match: string) {
+    return process.env[match.replace('$', '')] || match
+  })
 }
 
 export function getPluginIsManaged (): boolean | null {
