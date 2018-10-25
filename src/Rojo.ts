@@ -5,62 +5,30 @@ import * as path from 'path'
 import { isInterfaceOpened } from './Util'
 
 /**
- * An abstract class that the platform-specific Rojo instances should inherit from.
- * @export
- * @abstract
- * @class Rojo
- */
-export abstract class Rojo extends vscode.Disposable {
-  protected workspace: vscode.WorkspaceFolder
-  protected workspacePath: string
-  protected configPath: string
-  protected outputChannel: vscode.OutputChannel
-
-  constructor (workspace: vscode.WorkspaceFolder) {
-    super(() => this.dispose())
-
-    this.workspace = workspace
-    this.workspacePath = workspace.uri.fsPath
-    this.configPath = path.join(this.workspacePath, 'rojo.json')
-    this.outputChannel = vscode.window.createOutputChannel(`Rojo: ${workspace.name}`)
-  }
-
-  public abstract get serving (): boolean
-  public abstract init (): void
-  public abstract serve (): void
-  public abstract stop (): void
-  public abstract dispose (): void
-  public abstract createPartition (partitionPath: string, partitionTarget: string): boolean
-
-  /**
-   * Opens the current rojo.json file in the editor.
-   * @memberof Rojo
-   */
-  public openConfiguration (): void {
-    // Open in column #2 if the interface is open so we don't make people lose progress on the guide
-    vscode.workspace.openTextDocument(this.configPath).then(doc => vscode.window.showTextDocument(doc, isInterfaceOpened() ? vscode.ViewColumn.Two : undefined))
-  }
-}
-
-/**
  * Windows-specific Rojo instance. Handles interfacing with the binary.
  * @export
- * @class RojoWin32
- * @extends {Rojo}
+ * @class Rojo
  */
-export class RojoWin32 extends Rojo {
+export class Rojo extends vscode.Disposable {
   private rojoPath: string
   private server?: childProcess.ChildProcess
   private watcher?: fs.FSWatcher
+  private workspacePath: string
+  private configPath: string
+  private outputChannel: vscode.OutputChannel
 
   /**
    * Creates an instance of RojoWin32.
    * @param {vscode.WorkspaceFolder} workspace The workspace folder for which this Rojo instance belongs.
    * @param {string} rojoPath The path to the rojo binary.
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   constructor (workspace: vscode.WorkspaceFolder, rojoPath: string) {
-    super(workspace)
+    super(() => this.dispose())
+
+    this.workspacePath = workspace.uri.fsPath
+    this.configPath = path.join(this.workspacePath, 'rojo.json')
+    this.outputChannel = vscode.window.createOutputChannel(`Rojo: ${workspace.name}`)
 
     this.rojoPath = rojoPath
   }
@@ -69,7 +37,7 @@ export class RojoWin32 extends Rojo {
    * Determines if this instance is currently serving with "rojo serve.
    * @readonly
    * @type {boolean}
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   public get serving (): boolean {
     return !!this.server
@@ -77,7 +45,7 @@ export class RojoWin32 extends Rojo {
 
   /**
    * A wrapper for "rojo init".
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   public init (): void {
     childProcess.execFileSync(this.rojoPath, ['init'], {
@@ -90,7 +58,7 @@ export class RojoWin32 extends Rojo {
   /**
    * A wrapper for "rojo serve".
    * Also adds a watcher to "rojo.json" and reloads the server if it changes.
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   public serve (): void {
     if (this.server) {
@@ -117,7 +85,7 @@ export class RojoWin32 extends Rojo {
   /**
    * Stops "rojo serve" if it's currently serving.
    * Also handles closing out the file watcher.
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   public stop (): void {
     if (!this.server) return
@@ -134,7 +102,7 @@ export class RojoWin32 extends Rojo {
   /**
    * A method to be called when cleaning up this instance.
    * Terminates the file watcher and the server, if it's running.
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   public dispose (): void {
     this.outputChannel.dispose()
@@ -149,7 +117,7 @@ export class RojoWin32 extends Rojo {
    * @param {string} partitionPath The partition path
    * @param {string} partitionTarget The partition target
    * @returns {boolean} Successful?
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   public createPartition (partitionPath: string, partitionTarget: string): boolean {
     const currentConfigString = fs.readFileSync(this.configPath, 'utf8')
@@ -186,7 +154,7 @@ export class RojoWin32 extends Rojo {
   /**
    * Called internally by "serve". Handles setting up the file watcher for "rojo.json".
    * @private
-   * @memberof RojoWin32
+   * @memberof Rojo
    */
   private watch (): void {
     this.watcher = fs.watch(this.configPath, () => {
@@ -194,5 +162,14 @@ export class RojoWin32 extends Rojo {
       this.outputChannel.appendLine('rojo.json changed, reloading Rojo.')
       this.serve()
     })
+  }
+
+  /**
+   * Opens the current rojo.json file in the editor.
+   * @memberof Rojo
+   */
+  public openConfiguration (): void {
+    // Open in column #2 if the interface is open so we don't make people lose progress on the guide
+    vscode.workspace.openTextDocument(this.configPath).then(doc => vscode.window.showTextDocument(doc, isInterfaceOpened() ? vscode.ViewColumn.Two : undefined))
   }
 }

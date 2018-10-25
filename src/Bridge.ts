@@ -5,7 +5,7 @@ import * as util from 'util'
 import * as vscode from 'vscode'
 import * as childProcess from 'child_process'
 import axios from 'axios'
-import { Rojo, RojoWin32 } from './Rojo'
+import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
 import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN } from './Strings'
 import { getPluginIsManaged, getCargoPath, getLocalPluginPath, promisifyStream } from './Util'
@@ -84,8 +84,7 @@ export class Bridge extends vscode.Disposable {
     }
 
     if (!this.rojoMap.has(workspace)) {
-      // TODO: determine the proper platform here and instantiate that.
-      this.rojoMap.set(workspace, new RojoWin32(workspace, this.rojoPath))
+      this.rojoMap.set(workspace, new Rojo(workspace, this.rojoPath))
     }
 
     return this.rojoMap.get(workspace) as Rojo
