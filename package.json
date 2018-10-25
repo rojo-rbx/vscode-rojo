@@ -77,7 +77,7 @@
                 "rojo.cargo": {
                     "type": "string",
                     "default": "cargo",
-                    "description": "Name or full path `cargo` executable used to build and install rojo from source on non Windows platforms"
+                    "description": "Name or full path `cargo` executable used to build and install Rojo from source on macOS"
                 },
                 "rojo.enableTelemetry": {
                     "type": "boolean",
