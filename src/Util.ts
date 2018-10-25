@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as fs from 'fs'
+import * as os from 'os'
 import * as vscode from 'vscode'
 import Interface from './Interface'
 import { Bridge } from './Bridge'
@@ -9,7 +10,15 @@ export function getConfiguration (): vscode.WorkspaceConfiguration {
 }
 
 export function getLocalPluginPath (): string {
-  return path.resolve(expandenv(getConfiguration().get('robloxStudioPluginsPath') as string))
+  let pluginsPath = getConfiguration().get('robloxStudioPluginsPath') as string
+  if (!pluginsPath || pluginsPath.length == 0) {
+    if (os.platform() === 'win32') {
+      pluginsPath = "$LOCALAPPDATA/Roblox/Plugins"
+    } else {
+      pluginsPath = "$HOME/Documents/Roblox/Plugins"
+    }
+  }
+  return path.resolve(expandenv(pluginsPath))
 }
 
 export function getCargoPath (): string {

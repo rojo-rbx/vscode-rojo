@@ -71,7 +71,7 @@
                 },
                 "rojo.robloxStudioPluginsPath": {
                     "type": "string",
-                    "default": "$HOME/Documents/Roblox/Plugins",
+                    "default": "",
                     "description": "The plugins for for Roblox Studio, if this extension is managaging plugin installation."
                 },
                 "rojo.cargo": {
