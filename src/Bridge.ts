@@ -41,7 +41,7 @@ export class Bridge extends vscode.Disposable {
     // version number is preserved across Code restarts.
     // Sets to "unknown" if we've never downloaded Rojo before, but this gets re-set correctly in the installation methods.
 
-    this.setVersion(this.context.globalState.get('rojoVersion') || 'unknown')
+    this.setVersion(getTargetVersion() || this.context.globalState.get('rojoVersion') || 'unknown')
   }
 
   /**
@@ -180,8 +180,9 @@ export class Bridge extends vscode.Disposable {
    * @memberof Bridge
    */
   private doesNeedInstall (): boolean {
-    // const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
-    return !fs.existsSync(this.rojoPath) //// || Date.now() - lastFetched > 3600000
+    return true
+    //// const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
+    //// return !fs.existsSync(this.rojoPath) || Date.now() - lastFetched > 3600000
   }
 
   /**
@@ -328,7 +329,7 @@ export class Bridge extends vscode.Disposable {
     let installedBinary = false
 
     // Check if the version we have now is still current. If it is, no need to download again.
-    if (fs.existsSync(this.rojoPath) === false || version !== this.context.globalState.get('rojoVersion')) {
+    if (fs.existsSync(this.rojoPath) === false) {
       // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
       this.button.setState(ButtonState.Downloading)
 
