@@ -5,7 +5,7 @@ import * as vscode from 'vscode'
 import BridgeFactory from './Bridge'
 import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-import { createOrShowInterface, getPluginIsManaged, pickFolder } from './Util'
+import { createOrShowInterface, getPluginIsManaged, pickFolder, shouldShowNews } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
 import { VALID_SERVICES } from './Strings'
 
@@ -61,8 +61,8 @@ export function activate (context: vscode.ExtensionContext) {
     if (!folder) return
 
     // Ensure `rojo.json` exists in the workspace unless allowUnitialized is true.
-    if (!options.allowUninitialized && !fs.existsSync(path.join(folder.uri.fsPath, 'rojo.json'))) {
-      vscode.window.showErrorMessage('rojo.json is missing from this workspace.', 'Create now')
+    if (!options.allowUninitialized && !fs.existsSync(path.join(folder.uri.fsPath, bridge.getConfigFileName()))) {
+      vscode.window.showErrorMessage('Configuration file is missing from this workspace.', 'Create now')
       .then(createNow => {
         // createNow will be the string of the button text that they clicked.
         if (createNow) {
@@ -180,7 +180,7 @@ export function activate (context: vscode.ExtensionContext) {
   // TODO: Add our own disposables here too
   context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand, createPartitionCommand)
 
-  if (getPluginIsManaged() === null) {
+  if (getPluginIsManaged() === null || shouldShowNews('rojo0.5support', context)) {
     createOrShowInterface(context, getBridge)
   }
 }

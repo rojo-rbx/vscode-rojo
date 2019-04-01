@@ -3,6 +3,7 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { isInterfaceOpened } from './Util'
+import { Bridge } from './Bridge'
 
 /**
  * Windows-specific Rojo instance. Handles interfacing with the binary.
@@ -23,14 +24,14 @@ export class Rojo extends vscode.Disposable {
    * @param {string} rojoPath The path to the rojo binary.
    * @memberof Rojo
    */
-  constructor (workspace: vscode.WorkspaceFolder, rojoPath: string) {
+  constructor (workspace: vscode.WorkspaceFolder, private bridge: Bridge) {
     super(() => this.dispose())
 
     this.workspacePath = workspace.uri.fsPath
-    this.configPath = path.join(this.workspacePath, 'rojo.json')
+    this.configPath = path.join(this.workspacePath, bridge.getConfigFileName())
     this.outputChannel = vscode.window.createOutputChannel(`Rojo: ${workspace.name}`)
 
-    this.rojoPath = rojoPath
+    this.rojoPath = bridge.rojoPath
   }
 
   /**
@@ -112,16 +113,9 @@ export class Rojo extends vscode.Disposable {
     }
   }
 
-  /**
-   * Creates a partition in the rojo.json file.
-   * @param {string} partitionPath The partition path
-   * @param {string} partitionTarget The partition target
-   * @returns {boolean} Successful?
-   * @memberof Rojo
-   */
-  public createPartition (partitionPath: string, partitionTarget: string): boolean {
+  public loadProjectConfig<T extends object> () {
     const currentConfigString = fs.readFileSync(this.configPath, 'utf8')
-    let currentConfig: {partitions: {[index: string]: {path: string, target: string}}}
+    let currentConfig: T
 
     try {
       currentConfig = JSON.parse(currentConfigString)
@@ -129,10 +123,20 @@ export class Rojo extends vscode.Disposable {
       return false
     }
 
-    let newName = path.basename(partitionPath, '.lua')
+    return currentConfig
+  }
 
+  public createPartitionRojo04 (partitionPath: string, partitionTarget: string): boolean {
+    const currentConfig = this.loadProjectConfig<{partitions: {[index: string]: {path: string, target: string}}}>()
+
+    if (!currentConfig) {
+      return false
+    }
+
+    let newName = path.basename(partitionPath, '.lua')
     while (currentConfig.partitions[newName] != null) {
       const numberPattern = / \((\d+)\)/
+
       const numberMatch = newName.match(numberPattern)
       if (numberMatch) {
         newName = newName.replace(numberPattern, ` (${(parseInt(numberMatch[1], 10) + 1).toString()})`)
@@ -149,6 +153,59 @@ export class Rojo extends vscode.Disposable {
     fs.writeFileSync(this.configPath, JSON.stringify(currentConfig, undefined, 2))
 
     return true
+  }
+
+  /**
+   * Creates a partition in the rojo.json file.
+   * @param {string} partitionPath The partition path
+   * @param {string} partitionTarget The partition target
+   * @returns {boolean} Successful?
+   * @memberof Rojo
+   */
+  public createPartitionEpiphany (partitionPath: string, partitionTarget: string): boolean {
+    type treeBranch = { [index: string]: treeBranch | string }
+    const currentConfig = this.loadProjectConfig<{
+      tree?: treeBranch
+    }>()
+
+    if (!currentConfig || currentConfig.tree === undefined) {
+      return false
+    }
+
+    if (currentConfig.tree.$className !== 'DataModel') {
+      vscode.window.showErrorMessage('Cannot automatically create partitions when tree root is not DataModel')
+      return false
+    }
+
+    const ancestors = partitionTarget.split('.')
+    let parent = currentConfig.tree
+
+    while (ancestors.length > 0) {
+      const name = ancestors.shift()!
+      if (!parent[name]) {
+        parent[name] = {
+          ...parent === currentConfig.tree && {
+            $className: name
+          }
+        } as treeBranch
+      }
+
+      parent = parent[name] as treeBranch
+    }
+
+    parent.$path = path.relative(path.dirname(this.configPath), partitionPath).replace(/\\/g, '/')
+
+    fs.writeFileSync(this.configPath, JSON.stringify(currentConfig, undefined, 2))
+
+    return true
+  }
+
+  public createPartition (partitionPath: string, partitionTarget: string): boolean {
+    if (this.bridge.isEpiphany()) {
+      return this.createPartitionEpiphany(partitionPath, partitionTarget)
+    } else {
+      return this.createPartitionRojo04(partitionPath, partitionTarget)
+    }
   }
 
   /**

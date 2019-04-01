@@ -32,6 +32,13 @@ Works on both Windows and macOS.
 
 ## Release Notes
 
+### 1.4.0
+
+- Rojo v0.5.x is now supported! Check out [this page](https://lpghatguy.github.io/rojo/migrating-to-epiphany/) for details on how to migrate your project.
+- To enable automatic pre-release downloads, open the extension settings panel and select the "pre-release" release type. Note: VS Code may need to be reloaded after this change.
+- You can now target a specific Rojo version instead of the latest. Change the targetVersion setting to the tag name of the release you want to install (for example, v0.4.13). You can change this at the workspace level to lock projects to specific Rojo versions for compatibility.
+- The "Rojo: Create Partition Here" context menu entry is now "Sync from here" and is compatible with both Rojo v0.4.x and v0.5.x.
+
 ### 1.3.0
 
 - macOS support thanks to a PR from [Anton Matosov](https://github.com/anton-matosov).

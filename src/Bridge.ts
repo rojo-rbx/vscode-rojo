@@ -7,8 +7,8 @@ import * as childProcess from 'child_process'
 import axios from 'axios'
 import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN } from './Strings'
-import { getPluginIsManaged, getCargoPath, getLocalPluginPath, promisifyStream } from './Util'
+import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN, RELEASES_URL, RELEASE_URL_TAG, CONFIG_NAME_04, CONFIG_NAME_05 } from './Strings'
+import { getPluginIsManaged, getCargoPath, getLocalPluginPath, promisifyStream, isPreRelease, getTargetVersion } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
 
 interface GithubAsset {
@@ -24,10 +24,10 @@ interface GithubAsset {
  */
 export class Bridge extends vscode.Disposable {
   public ready: boolean = false
-  public version: string
+  public version!: string
   public context: vscode.ExtensionContext
   private button: StatusButton
-  private rojoPath: string
+  public rojoPath!: string
   private rojoMap: Map<vscode.WorkspaceFolder, Rojo> = new Map()
 
   constructor (context: vscode.ExtensionContext, button: StatusButton) {
@@ -36,17 +36,12 @@ export class Bridge extends vscode.Disposable {
     // Store the extension context and status button for use later.
     this.context = context
     this.button = button
-    // Attempt to load the version from our extension settings. This way, the version number is preserved across Code restarts.
-    // Sets to "unknown version" if we've never downloaded Rojo before, but this gets re-set correctly in the installation methods.
-    this.version = this.context.globalState.get('rojoVersion') || 'unknown version'
 
-    // Some windows-specific settings for Rojo binaries, may need to refactor this later.
-    const storePath = path.join(this.context.extensionPath, 'bin')
-    if (!fs.existsSync(storePath)) {
-      fs.mkdirSync(storePath)
-    }
+    // Attempt to load the version from our extension settings. This way, the
+    // version number is preserved across Code restarts.
+    // Sets to "unknown" if we've never downloaded Rojo before, but this gets re-set correctly in the installation methods.
 
-    this.rojoPath = path.join(storePath, (os.platform() === 'win32') ? 'rojo.exe' : 'rojo')
+    this.setVersion(this.context.globalState.get('rojoVersion') || 'unknown')
   }
 
   /**
@@ -84,7 +79,7 @@ export class Bridge extends vscode.Disposable {
     }
 
     if (!this.rojoMap.has(workspace)) {
-      this.rojoMap.set(workspace, new Rojo(workspace, this.rojoPath))
+      this.rojoMap.set(workspace, new Rojo(workspace, this))
     }
 
     return this.rojoMap.get(workspace) as Rojo
@@ -97,8 +92,7 @@ export class Bridge extends vscode.Disposable {
    */
   public async reinstall (clearVersionCache = false): Promise<boolean> {
     if (clearVersionCache) {
-      await this.context.globalState.update('rojoVersion', undefined)
-      await this.context.globalState.update('rojoFetched', undefined)
+      this.context.globalState.update('rojoFetched', undefined)
     }
 
     return this.install()
@@ -140,6 +134,30 @@ export class Bridge extends vscode.Disposable {
     this.ready = false
   }
 
+  public isEpiphany () {
+    return !this.version.startsWith('v0.4')
+  }
+
+  public getConfigFileName (): string {
+    return this.isEpiphany()
+      ? CONFIG_NAME_05
+      : CONFIG_NAME_04
+  }
+
+  private setVersion (version: string) {
+    this.version = version
+
+    const storePath = path.join(this.context.extensionPath, 'bin')
+    if (!fs.existsSync(storePath)) {
+      fs.mkdirSync(storePath)
+    }
+
+    this.rojoPath = path.join(
+      storePath,
+      `rojo-${version}${os.platform() === 'win32' ? '.exe' : ''}`
+    )
+  }
+
   /**
    * A method called internally by the static `new` method that handles preparing the bridge for use,
    * including installation.
@@ -162,8 +180,8 @@ export class Bridge extends vscode.Disposable {
    * @memberof Bridge
    */
   private doesNeedInstall (): boolean {
-    const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
-    return !fs.existsSync(this.rojoPath) || Date.now() - lastFetched > 3600000
+    // const lastFetched: number = this.context.globalState.get('rojoFetched') || 0
+    return !fs.existsSync(this.rojoPath) //// || Date.now() - lastFetched > 3600000
   }
 
   /**
@@ -199,8 +217,8 @@ export class Bridge extends vscode.Disposable {
     const download = await axios.get(plugin.browser_download_url, {
       responseType: 'stream'
     })
-
     const writeStream = fs.createWriteStream(this.pluginPath)
+
     download.data.pipe(writeStream)
 
     try {
@@ -244,10 +262,9 @@ export class Bridge extends vscode.Disposable {
     const binary = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
 
     // If no matching file is found, just give up for now.
-    // TODO: Add better stability to this area so it can fallback to older known working binaries.
     if (!binary) {
       Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary not found', this.version)
-      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: can't find a binary in the latest release.")
+      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: can't find a binary in the latest release. Try setting the targetVersion in extension settings.")
       this.button.setState(ButtonState.Start)
       return false
     }
@@ -291,14 +308,23 @@ export class Bridge extends vscode.Disposable {
     this.button.setState(ButtonState.Updating)
 
     // Fetch the latest release from Rojo's releases page.
-    const response = await axios.get(RELEASE_URL)
+
+    const targetVersion = getTargetVersion()
+    let release
+    if (targetVersion) {
+      release = (await axios.get(RELEASE_URL_TAG.replace('TAG', targetVersion))).data
+    } else if (isPreRelease()) {
+      release = (await axios.get(RELEASES_URL)).data[0]
+    } else {
+      release = (await axios.get(RELEASE_URL)).data
+    }
 
     // Save the current timestamp as the last time we fetched.
     this.context.globalState.update('rojoFetched', Date.now())
-    const version = response.data.tag_name
+    const version = release.tag_name
 
     // Get an array of all of the assets included with the latest release, and
-    const assets: GithubAsset[] = response.data.assets
+    const assets: GithubAsset[] = release.assets
     let installedBinary = false
 
     // Check if the version we have now is still current. If it is, no need to download again.
@@ -308,7 +334,8 @@ export class Bridge extends vscode.Disposable {
 
       // Update the saved version text to reflect what version we have now.
       // TODO: ensure the download finishes before setting this.
-      this.version = version
+      this.setVersion(version)
+
       this.context.globalState.update('rojoVersion', version)
 
       if (os.platform() === 'win32') {

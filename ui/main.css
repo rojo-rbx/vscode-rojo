@@ -139,3 +139,15 @@ p#must-choose {
 p#must-choose.alert {
   padding-left: 40px;
 }
+
+
+.news {
+  background: rgba(40, 175, 255, 0.1);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+.news h2 {
+  margin-top: 0;
+  padding-top: 0;
+}

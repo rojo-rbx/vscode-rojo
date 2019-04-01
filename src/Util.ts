@@ -39,8 +39,27 @@ export function setPluginIsManaged (isManaged: boolean): void {
   getConfiguration().update('pluginManagement', isManaged, true)
 }
 
+export function isPreRelease (): boolean {
+  return getConfiguration().get('releaseType') === 'pre-release'
+}
+
+export function getTargetVersion (): string | undefined {
+  return getConfiguration().get('targetVersion')
+}
+
 export function isTelemetryEnabled (): boolean {
   return getConfiguration().get('enableTelemetry') as boolean
+}
+
+export function shouldShowNews (news: string, context: vscode.ExtensionContext): boolean {
+  const key = `news::${news}`
+  const hasSeen = context.globalState.get(key)
+
+  if (!hasSeen) {
+    context.globalState.update(key, true)
+  }
+
+  return !hasSeen
 }
 
 let currentInterface: Interface | undefined
