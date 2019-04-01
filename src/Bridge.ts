@@ -338,14 +338,14 @@ export class Bridge extends vscode.Disposable {
     const assets: GithubAsset[] = release.assets
     let installedBinary = false
 
+    // TODO: ensure the download finishes before setting this.
+    this.setVersion(version)
     // Check if the version we have now is still current. If it is, no need to download again.
     if (fs.existsSync(this.rojoPath) === false) {
       // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
       this.button.setState(ButtonState.Downloading)
 
       // Update the saved version text to reflect what version we have now.
-      // TODO: ensure the download finishes before setting this.
-      this.setVersion(version)
 
       this.context.globalState.update('rojoVersion', version)
 
