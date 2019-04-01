@@ -2,7 +2,7 @@
     "name": "vscode-rojo",
     "displayName": "Rojo - Roblox Studio Sync",
     "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "repository": "https://github.com/evaera/vscode-rojo",
     "publisher": "evaera",
     "engines": {
@@ -86,14 +86,17 @@
                     "description": "Whether or not to send basic, anonymous usage reports to this extension's maintainer (does not gather any information about your files or game)."
                 },
                 "rojo.releaseType": {
-                  "type": "string",
-                  "enum": ["release", "pre-release"],
-                  "default": "release",
-                  "description": "The release type to install. Pre-release may offer newer but potentially unstable versions."
+                    "type": "string",
+                    "enum": [
+                        "release",
+                        "pre-release"
+                    ],
+                    "default": "release",
+                    "description": "The release type to install. Pre-release may offer newer but potentially unstable versions."
                 },
                 "rojo.targetVersion": {
-                  "type": "string",
-                  "description": "The target version tag to install. Unless set, the latest version is downloaded based on your configured release type setting."
+                    "type": "string",
+                    "description": "The target version tag to install. Unless set, the latest version is downloaded based on your configured release type setting."
                 }
             }
         },
