@@ -154,8 +154,16 @@ export class Bridge extends vscode.Disposable {
 
     this.rojoPath = path.join(
       storePath,
-      `rojo-${version}${os.platform() === 'win32' ? '.exe' : ''}`
+      `rojo-${version}${os.platform() === 'win32' ? '.exe' : '/rojo'}`
     )
+
+    if (os.platform() !== 'win32') {
+      const folderPath = path.dirname(this.rojoPath)
+
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath)
+      }
+    }
   }
 
   /**
@@ -241,10 +249,12 @@ export class Bridge extends vscode.Disposable {
     this.button.setState(ButtonState.Installing)
 
     try {
-      await util.promisify(childProcess.execFile)(getCargoPath(), ['install',
+      await util.promisify(childProcess.execFile)(getCargoPath(), [
+        'install',
         '--git', ROJO_GIT_URL,
         '--tag', version,
-        '--root', this.context.extensionPath])
+        '--root', path.dirname(this.rojoPath)
+      ])
     } catch (e) {
       console.log(e)
       Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Rojo installation failed', this.version)
