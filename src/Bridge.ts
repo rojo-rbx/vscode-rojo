@@ -364,6 +364,8 @@ export class Bridge extends vscode.Disposable {
 
     if (installedBinary) {
       vscode.window.showInformationMessage(`Successfully installed Rojo ${this.version}`)
+
+      Telemetry.trackEvent(TelemetryEvent.InstallationSuccess, 'After installation', this.version)
     } else if (installedPlugin) {
       vscode.window.showInformationMessage(`Successfully installed Roblox Studio plugin from release ${this.version}`)
     }
@@ -372,8 +374,6 @@ export class Bridge extends vscode.Disposable {
     // one of the commands bails out early. We don't want it to say "Downloading..." forever, when the real problem is just
     // that rojo.json doesn't exist so the "Rojo: Start server" command dropped out before setting the button.
     this.button.setState(ButtonState.Start)
-
-    Telemetry.trackEvent(TelemetryEvent.InstallationSuccess, 'After installation', this.version)
 
     return true
   }
