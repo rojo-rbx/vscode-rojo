@@ -231,7 +231,7 @@ export class Bridge extends vscode.Disposable {
     download.data.pipe(writeStream)
 
     try {
-      await promisifyStream(download.data)
+      await promisifyStream(writeStream)
 
       writeStream.close()
     } catch (e) {
