@@ -34,7 +34,7 @@
             },
             {
                 "command": "rojo.build",
-                "title": "Build Place File",
+                "title": "Build place/model file",
                 "category": "Rojo"
             },
             {
@@ -107,6 +107,11 @@
                 "rojo.targetVersion": {
                     "type": "string",
                     "description": "The target version tag to install. Unless set, the latest version is downloaded based on your configured release type setting."
+                },
+                "rojo.buildOutputPath": {
+                  "type": "string",
+                  "default": "build",
+                  "description": "The output path of the build command, relative to your root folder."
                 }
             }
         },
@@ -124,6 +129,7 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
+        "@types/fs-extra": "^5.0.5",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.45",
         "@types/universal-analytics": "^0.4.2",
@@ -136,6 +142,7 @@
     },
     "dependencies": {
         "axios": "^0.18.0",
+        "fs-extra": "^7.0.1",
         "universal-analytics": "^0.4.20",
         "uuid": "^3.3.2"
     }

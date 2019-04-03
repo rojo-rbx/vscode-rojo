@@ -221,7 +221,7 @@ export class Bridge extends vscode.Disposable {
       return false
     }
 
-    await fs.ensureDir(this.pluginPath)
+    await fs.ensureDir(path.dirname(this.pluginPath))
 
     this.button.setState(ButtonState.Downloading)
 

@@ -1,9 +1,11 @@
 import * as childProcess from 'child_process'
 import * as vscode from 'vscode'
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import * as path from 'path'
-import { isInterfaceOpened } from './Util'
+import { isInterfaceOpened, getConfiguration } from './Util'
 import { Bridge } from './Bridge'
+
+type treeBranch = { [index: string]: treeBranch | string }
 
 /**
  * Windows-specific Rojo instance. Handles interfacing with the binary.
@@ -57,6 +59,43 @@ export class Rojo extends vscode.Disposable {
   }
 
   /**
+   * A wrapper for "rojo build".
+   * @memberof Rojo
+   */
+  public async build (): Promise<void> {
+    if (!this.bridge.isEpiphany()) {
+      vscode.window.showErrorMessage('Rojo Build is only supported on 0.5.x or newer.')
+      return
+    }
+
+    const outputConfig = getConfiguration().get('buildOutputPath') as string
+    const outputFile = `${outputConfig}.${this.isConfigRootDataModel() ? 'rbxl' : 'rbxm'}`
+    const outputPath = path.join(this.workspacePath, outputFile)
+
+    await fs.ensureDir(path.dirname(outputPath))
+
+    try {
+      this.sendToOutput(
+        childProcess.execFileSync(this.rojoPath, ['build', '-o', outputPath], {
+          cwd: this.workspacePath
+        }),
+        true
+      )
+    } catch(e) {
+      this.sendToOutput(e.toString(), true)
+    }
+
+  }
+
+  private sendToOutput (data: string | Buffer, show?: boolean) {
+    this.outputChannel.append(data.toString())
+
+    if (show) {
+      this.outputChannel.show()
+    }
+  }
+
+  /**
    * A wrapper for "rojo serve".
    * Also adds a watcher to "rojo.json" and reloads the server if it changes.
    * @memberof Rojo
@@ -70,11 +109,8 @@ export class Rojo extends vscode.Disposable {
       cwd: this.workspacePath
     })
 
-    // A helper function so we can send the output from Rojo right on over to the VS Code output.
-    const sendToOutput = (data: string | Buffer) => this.outputChannel.append(data.toString())
-
-    this.server.stdout.on('data', sendToOutput)
-    this.server.stderr.on('data', sendToOutput)
+    this.server.stdout.on('data', this.sendToOutput)
+    this.server.stderr.on('data', this.sendToOutput)
 
     // This is what makes the output channel snap open we start serving.
     this.outputChannel.show()
@@ -155,6 +191,22 @@ export class Rojo extends vscode.Disposable {
     return true
   }
 
+  private isConfigRootDataModel (): boolean {
+    if (!this.bridge.isEpiphany()) {
+      throw new Error('Attempt to check if root is DataModel on 0.4.x')
+    }
+
+    const config = this.loadProjectConfigEpiphany()
+
+    return config && config.tree && config.tree.$className === 'DataModel' || false
+  }
+
+  private loadProjectConfigEpiphany () {
+    return this.loadProjectConfig<{
+      tree?: treeBranch
+    }>()
+  }
+
   /**
    * Creates a partition in the rojo.json file.
    * @param {string} partitionPath The partition path
@@ -163,16 +215,13 @@ export class Rojo extends vscode.Disposable {
    * @memberof Rojo
    */
   public createPartitionEpiphany (partitionPath: string, partitionTarget: string): boolean {
-    type treeBranch = { [index: string]: treeBranch | string }
-    const currentConfig = this.loadProjectConfig<{
-      tree?: treeBranch
-    }>()
-
+    const currentConfig = this.loadProjectConfigEpiphany()
     if (!currentConfig || currentConfig.tree === undefined) {
       return false
     }
 
-    if (currentConfig.tree.$className !== 'DataModel') {
+    // TODO: Lift this restriction. Need to update the picker too.
+    if (this.isConfigRootDataModel()) {
       vscode.window.showErrorMessage('Cannot automatically create partitions when tree root is not DataModel')
       return false
     }

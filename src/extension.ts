@@ -113,6 +113,20 @@ export function activate (context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage(output)
   })
 
+  /**
+   * Rojo: Convert from 0.4.x to 0.5.x command.
+   */
+  const buildCommand = vscode.commands.registerCommand('rojo.build', async () => {
+    const rojo = await pickRojo({
+      noFoldersError: 'You must open a workspace folder to build.',
+      prompt: 'Select a folder to build.'
+    })
+
+    if (!rojo) return
+
+    await rojo.build()
+  })
+
   // A stack used for managing the button state. This way, if the user manually starts multiple instances of Rojo,
   // the button will only switch back to "Start rojo" once all instances are stopped.
   const rojoStack: Rojo[] = []
@@ -199,7 +213,7 @@ export function activate (context: vscode.ExtensionContext) {
 
   // Tell VS Code about our disposable commands so they get cleaned up when VS Code reloads.
   // TODO: Add our own disposables here too
-  context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand, createPartitionCommand, convertCommand)
+  context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand, createPartitionCommand, convertCommand, buildCommand)
 
   if (getPluginIsManaged() === null || shouldShowNews('rojo0.5support', context)) {
     createOrShowInterface(context, getBridge)
