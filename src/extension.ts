@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as childProcess from 'child_process'
 import * as os from 'os'
 import * as path from 'path'
 import * as vscode from 'vscode'
@@ -92,6 +93,26 @@ export function activate (context: vscode.ExtensionContext) {
     rojo.init()
   })
 
+  /**
+   * Rojo: Convert from 0.4.x to 0.5.x command.
+   */
+  const convertCommand = vscode.commands.registerCommand('rojo.convert', async () => {
+    const rojo = await pickRojo({
+      noFoldersError: 'You must open a workspace folder to convert configurations.',
+      prompt: 'Select a folder to convert rojo.json from.',
+      allowUninitialized: true
+    })
+
+    if (!rojo) return
+
+    const output = childProcess.execSync('npx rojo-convert', {
+      cwd: rojo.workspacePath,
+      encoding: 'utf8'
+    })
+
+    vscode.window.showInformationMessage(output)
+  })
+
   // A stack used for managing the button state. This way, if the user manually starts multiple instances of Rojo,
   // the button will only switch back to "Start rojo" once all instances are stopped.
   const rojoStack: Rojo[] = []
@@ -178,7 +199,7 @@ export function activate (context: vscode.ExtensionContext) {
 
   // Tell VS Code about our disposable commands so they get cleaned up when VS Code reloads.
   // TODO: Add our own disposables here too
-  context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand, createPartitionCommand)
+  context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand, createPartitionCommand, convertCommand)
 
   if (getPluginIsManaged() === null || shouldShowNews('rojo0.5support', context)) {
     createOrShowInterface(context, getBridge)

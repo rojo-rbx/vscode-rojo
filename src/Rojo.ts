@@ -11,10 +11,10 @@ import { Bridge } from './Bridge'
  * @class Rojo
  */
 export class Rojo extends vscode.Disposable {
+  public workspacePath: string
   private rojoPath: string
   private server?: childProcess.ChildProcess
   private watcher?: fs.FSWatcher
-  private workspacePath: string
   private configPath: string
   private outputChannel: vscode.OutputChannel
 

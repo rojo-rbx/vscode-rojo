@@ -28,6 +28,11 @@
                 "category": "Rojo"
             },
             {
+                "command": "rojo.convert",
+                "title": "Convert rojo.json to default.project.json",
+                "category": "Rojo"
+            },
+            {
                 "command": "rojo.start",
                 "title": "Start server",
                 "category": "Rojo"
