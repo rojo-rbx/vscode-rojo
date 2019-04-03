@@ -291,7 +291,7 @@ export class Bridge extends vscode.Disposable {
     // Wrap in a try/catch because lots of things can go wrong when downloading files.
     try {
       // Wait for the download to complete (or fail)
-      await promisifyStream(download.data)
+      await promisifyStream(writeStream)
 
       // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
       // If we don't close the stream, the file will still be marked as busy.
