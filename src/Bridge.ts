@@ -1,4 +1,4 @@
-import * as fs from 'fs'
+import * as fs from 'fs-extra'
 import * as os from 'os'
 import * as path from 'path'
 import * as util from 'util'
@@ -220,6 +220,8 @@ export class Bridge extends vscode.Disposable {
       Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Plugin not found', this.version)
       return false
     }
+
+    await fs.ensureDir(this.pluginPath)
 
     this.button.setState(ButtonState.Downloading)
 
