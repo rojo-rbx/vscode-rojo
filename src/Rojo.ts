@@ -87,7 +87,7 @@ export class Rojo extends vscode.Disposable {
 
   }
 
-  private sendToOutput (data: string | Buffer, show?: boolean) {
+  public sendToOutput (data: string | Buffer, show?: boolean) {
     this.outputChannel.append(data.toString())
 
     if (show) {

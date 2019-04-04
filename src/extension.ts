@@ -8,7 +8,7 @@ import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
 import { createOrShowInterface, getPluginIsManaged, pickFolder, shouldShowNews } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
-import { VALID_SERVICES } from './Strings'
+import { VALID_SERVICES, CONFIG_NAME_05 } from './Strings'
 
 interface PickRojoOptions {
   noFoldersError: string,
@@ -105,12 +105,19 @@ export function activate (context: vscode.ExtensionContext) {
 
     if (!rojo) return
 
+    if (fs.existsSync(path.join(rojo.workspacePath, CONFIG_NAME_05))) {
+      vscode.window.showErrorMessage('default.project.json already exists in this workspace.')
+      return
+    }
+
+    rojo.sendToOutput('Converting...', true)
+
     const output = childProcess.execSync('npx rojo-convert', {
       cwd: rojo.workspacePath,
       encoding: 'utf8'
     })
 
-    vscode.window.showInformationMessage(output)
+    rojo.sendToOutput(output || 'Converted')
   })
 
   /**
