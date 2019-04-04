@@ -81,7 +81,7 @@ export class Rojo extends vscode.Disposable {
         }),
         true
       )
-    } catch(e) {
+    } catch (e) {
       this.sendToOutput(e.toString(), true)
     }
 
@@ -109,8 +109,8 @@ export class Rojo extends vscode.Disposable {
       cwd: this.workspacePath
     })
 
-    this.server.stdout.on('data', this.sendToOutput)
-    this.server.stderr.on('data', this.sendToOutput)
+    this.server.stdout.on('data', data => this.sendToOutput(data))
+    this.server.stderr.on('data', data => this.sendToOutput(data))
 
     // This is what makes the output channel snap open we start serving.
     this.outputChannel.show()
