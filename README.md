@@ -32,6 +32,11 @@ Works on both Windows and macOS.
 
 ## Release Notes
 
+### 1.5.0
+
+- Add Rojo build command
+- Add convert from rojo.json to default.project.json
+
 ### 1.4.0
 
 - Rojo v0.5.x is now supported! Check out [this page](https://lpghatguy.github.io/rojo/migrating-to-epiphany/) for details on how to migrate your project.
