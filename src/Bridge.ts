@@ -1,16 +1,15 @@
+import axios from 'axios'
+import * as childProcess from 'child_process'
 import * as fs from 'fs-extra'
 import * as os from 'os'
 import * as path from 'path'
-import * as util from 'util'
 import * as vscode from 'vscode'
-import * as childProcess from 'child_process'
-import axios from 'axios'
+import { outputChannel, sendToOutput } from './extension'
 import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN, RELEASES_URL, RELEASE_URL_TAG, CONFIG_NAME_04, CONFIG_NAME_05 } from './Strings'
-import { getPluginIsManaged, getCargoPath, getLocalPluginPath, promisifyStream, isPreRelease, getTargetVersion } from './Util'
+import { BINARY_NAME, CONFIG_NAME_04, CONFIG_NAME_05, PLUGIN_PATTERN, RELEASES_URL, RELEASE_URL, RELEASE_URL_TAG, ROJO_GIT_URL } from './Strings'
 import Telemetry, { TelemetryEvent } from './Telemetry'
-import { sendToOutput, outputChannel } from './extension'
+import { getCargoPath, getLocalPluginPath, getPluginIsManaged, getTargetVersion, isPreRelease, promisifyStream } from './Util'
 
 interface GithubAsset {
   name: string,
