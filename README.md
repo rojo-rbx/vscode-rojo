@@ -32,6 +32,12 @@ Works on both Windows and macOS.
 
 ## Release Notes
 
+### 1.6.0
+
+- Add "View release notes" button when Rojo updates
+- Add "Convert rojo.json" button when trying to start the server when default.project.json doesn't exist but rojo.json does
+- Now functional on macOS again.
+
 ### 1.5.0
 
 - Add Rojo build command
