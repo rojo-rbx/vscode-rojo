@@ -332,7 +332,7 @@ export class Bridge extends vscode.Disposable {
     // Fetch the latest release from Rojo's releases page.
 
     const targetVersion = getTargetVersion()
-    let release
+    let release: any
     if (targetVersion) {
       release = (await axios.get(RELEASE_URL_TAG.replace('TAG', targetVersion))).data
     } else if (isPreRelease()) {
@@ -374,7 +374,11 @@ export class Bridge extends vscode.Disposable {
     }
 
     if (installedBinary) {
-      vscode.window.showInformationMessage(`Successfully installed Rojo ${this.version}`)
+      vscode.window.showInformationMessage(`Successfully installed Rojo ${this.version}`, 'View Release Notes').then(viewNotes => {
+        if (viewNotes) {
+          vscode.env.openExternal(vscode.Uri.parse(release.html_url))
+        }
+      })
 
       Telemetry.trackEvent(TelemetryEvent.InstallationSuccess, 'After installation', this.version)
     } else if (installedPlugin) {
