@@ -230,3 +230,6 @@ export function activate (context: vscode.ExtensionContext) {
 export function deactivate () {
   console.log('"vscode-rojo" has deactivated.')
 }
+
+export const outputChannel = vscode.window.createOutputChannel(`Rojo: Installation`)
+export const sendToOutput = (data: string | Buffer) => outputChannel.append(data.toString())

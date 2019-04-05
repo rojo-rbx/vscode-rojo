@@ -10,6 +10,7 @@ import StatusButton, { ButtonState } from './StatusButton'
 import { RELEASE_URL, ROJO_GIT_URL, BINARY_NAME, PLUGIN_PATTERN, RELEASES_URL, RELEASE_URL_TAG, CONFIG_NAME_04, CONFIG_NAME_05 } from './Strings'
 import { getPluginIsManaged, getCargoPath, getLocalPluginPath, promisifyStream, isPreRelease, getTargetVersion } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
+import { sendToOutput, outputChannel } from './extension'
 
 interface GithubAsset {
   name: string,
@@ -28,6 +29,7 @@ export class Bridge extends vscode.Disposable {
   public context: vscode.ExtensionContext
   private button: StatusButton
   public rojoPath!: string
+  private rojoInstallPath!: string
   private rojoMap: Map<vscode.WorkspaceFolder, Rojo> = new Map()
 
   constructor (context: vscode.ExtensionContext, button: StatusButton) {
@@ -154,15 +156,14 @@ export class Bridge extends vscode.Disposable {
 
     this.rojoPath = path.join(
       storePath,
-      `rojo-${version}${os.platform() === 'win32' ? '.exe' : '/rojo'}`
+      `rojo-${version}${os.platform() === 'win32' ? '.exe' : ''}`
     )
 
     if (os.platform() !== 'win32') {
-      const folderPath = path.dirname(this.rojoPath)
+      this.rojoInstallPath = this.rojoPath
+      this.rojoPath = this.rojoPath + '/bin/rojo'
 
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath)
-      }
+      fs.ensureDirSync(this.rojoInstallPath)
     }
   }
 
@@ -250,13 +251,22 @@ export class Bridge extends vscode.Disposable {
   private async installBinaryViaCargo (version: string): Promise<boolean> {
     this.button.setState(ButtonState.Installing)
 
+    const compileProcess = childProcess.spawn(getCargoPath(), [
+      'install',
+      '--git', ROJO_GIT_URL,
+      '--tag', version,
+      '--root', this.rojoInstallPath
+    ])
+
+    compileProcess.stdout.on('data', data => sendToOutput(data))
+    compileProcess.stderr.on('data', data => sendToOutput(data))
+    outputChannel.show()
+
     try {
-      await util.promisify(childProcess.execFile)(getCargoPath(), [
-        'install',
-        '--git', ROJO_GIT_URL,
-        '--tag', version,
-        '--root', path.dirname(this.rojoPath)
-      ])
+      await (new Promise((resolve, reject) => {
+        compileProcess.on('exit', resolve)
+        compileProcess.on('error', reject)
+      }))
     } catch (e) {
       console.log(e)
       Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Rojo installation failed', this.version)
@@ -269,7 +279,7 @@ export class Bridge extends vscode.Disposable {
     return fs.existsSync(this.rojoPath)
   }
 
-  private async installWin32Binary (assets: GithubAsset[], version: string): Promise<boolean > {
+  private async installWin32Binary (assets: GithubAsset[], version: string): Promise < boolean > {
 
     // Look for one that matches `rojo.exe`.
     const binary = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
@@ -293,7 +303,7 @@ export class Bridge extends vscode.Disposable {
     // Wrap in a try/catch because lots of things can go wrong when downloading files.
     try {
       // Wait for the download to complete (or fail)
-      await promisifyStream(download.data)
+      await promisifyStream(download .data)
 
       // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
       // If we don't close the stream, the file will still be marked as busy.
@@ -315,7 +325,7 @@ export class Bridge extends vscode.Disposable {
    * @returns {boolean} Successful?
    * @memberof Bridge
    */
-  private async installRojoBinary (): Promise<boolean > {
+  private async installRojoBinary (): Promise < boolean > {
     // TODO: Better support for button state when bailing out with returns
     // Update our user-facing button to indicate we're checking for an update.
     this.button.setState(ButtonState.Updating)
