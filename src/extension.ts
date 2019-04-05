@@ -8,7 +8,7 @@ import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
 import { createOrShowInterface, getPluginIsManaged, pickFolder, shouldShowNews } from './Util'
 import Telemetry, { TelemetryEvent } from './Telemetry'
-import { VALID_SERVICES, CONFIG_NAME_05 } from './Strings'
+import { VALID_SERVICES, CONFIG_NAME_05, CONFIG_NAME_04 } from './Strings'
 
 interface PickRojoOptions {
   noFoldersError: string,
@@ -63,11 +63,20 @@ export function activate (context: vscode.ExtensionContext) {
 
     // Ensure `rojo.json` exists in the workspace unless allowUnitialized is true.
     if (!options.allowUninitialized && !fs.existsSync(path.join(folder.uri.fsPath, bridge.getConfigFileName()))) {
-      vscode.window.showErrorMessage('Configuration file is missing from this workspace.', 'Create now')
-      .then(createNow => {
-        // createNow will be the string of the button text that they clicked.
-        if (createNow) {
-          vscode.commands.executeCommand('rojo.init')
+      const config04Exists = fs.existsSync(path.join(folder.uri.fsPath, CONFIG_NAME_04))
+
+      vscode.window.showErrorMessage(`${bridge.getConfigFileName()} is missing from this workspace.`, ...[
+        'Initialize',
+        ...config04Exists ? ['Convert rojo.json'] : []
+      ])
+      .then(button => {
+        switch (button) {
+          case 'Initialize':
+            vscode.commands.executeCommand('rojo.init')
+            break
+          case 'Convert rojo.json':
+            vscode.commands.executeCommand('rojo.convert')
+            break
         }
       })
       return
