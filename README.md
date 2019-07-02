@@ -1,6 +1,6 @@
 # Rojo for VS Code
 
-This is a VS Code extension that gives you [Rojo](https://github.com/LPGhatguy/rojo) automatic installation and integration.
+This is a VS Code extension that gives you [Rojo](https://github.com/rojo-rbx/rojo) automatic installation and integration.
 
 Works on both Windows and macOS.
 
