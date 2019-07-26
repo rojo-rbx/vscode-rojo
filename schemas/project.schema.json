@@ -1,0 +1,40 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"required": ["name", "tree"],
+	"type": "object",
+	"properties": {
+		"name": {
+      "type": "string",
+      "title": "Project name",
+      "examples": [
+        "your-project-name"
+      ]
+		},
+		"servePort": {
+      "type": "integer",
+      "title": "Serve port",
+      "description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo."
+		},
+		"tree": {
+			"$id": "/properties/tree",
+			"type": "object",
+			"properties": {
+				"$className": {
+					"type": "string"
+				},
+				"$ignoreUnknownInstances": {
+					"type": "boolean"
+				},
+				"$path": {
+					"type": "string"
+				},
+				"$properties": {
+					"type": "object"
+				}
+			},
+			"patternProperties": {
+				"^[^\\$].*$": { "$ref": "#/properties/tree" }
+			}
+		}
+	}
+}

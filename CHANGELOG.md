@@ -3,6 +3,7 @@
 # Next
 
 - Changing release type or target version no longer requires a reload to take effect.
+- Provides a JSON validator for *.project.json files
 
 # 1.6.0
 

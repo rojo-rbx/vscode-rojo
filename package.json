@@ -119,6 +119,10 @@
             {
                 "fileMatch": "rojo.json",
                 "url": "./schemas/rojo.schema.json"
+            },
+            {
+                "fileMatch": "*.project.json",
+                "url": "./schemas/project.schema.json"
             }
         ]
     },
