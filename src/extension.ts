@@ -32,7 +32,7 @@ export function activate (context: vscode.ExtensionContext) {
 
   const statusButton = new StatusButton()
 
-  const getBridge = BridgeFactory(context, statusButton)
+  let getBridge = BridgeFactory(context, statusButton)
 
   /**
    * This function is an extension of the pickFolder function; it returns a Rojo instance based on what
@@ -227,9 +227,31 @@ export function activate (context: vscode.ExtensionContext) {
    */
   const welcomeCommand = vscode.commands.registerCommand('rojo.welcome', () => createOrShowInterface(context, getBridge))
 
+  // Listen to configuration changes
+  const configurationChangeSignal = vscode.workspace.onDidChangeConfiguration(e => {
+    if (
+      e.affectsConfiguration('rojo.releaseType') ||
+      e.affectsConfiguration('rojo.targetVersion')
+    ) {
+      rojoStack.forEach(rojo => rojo.stop())
+      rojoStack.length = 0
+
+      getBridge = BridgeFactory(context, statusButton)
+    }
+  })
+
   // Tell VS Code about our disposable commands so they get cleaned up when VS Code reloads.
   // TODO: Add our own disposables here too
-  context.subscriptions.push(initCommand, startCommand, stopCommand, welcomeCommand, createPartitionCommand, convertCommand, buildCommand)
+  context.subscriptions.push(
+    initCommand,
+    startCommand,
+    stopCommand,
+    welcomeCommand,
+    createPartitionCommand,
+    convertCommand,
+    buildCommand,
+    configurationChangeSignal
+  )
 
   if (getPluginIsManaged() === null || shouldShowNews('rojo0.5support', context)) {
     createOrShowInterface(context, getBridge)

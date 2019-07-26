@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Changing release type or target version no longer requires a reload to take effect.
+
 # 1.6.0
 
 - Add "View release notes" button when Rojo updates
