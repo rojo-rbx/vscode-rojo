@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.7.1
+
+- Fix issue with Sync From Here not working on 0.5.x
+
 # 1.7.0
 
 - Changing release type or target version no longer requires a reload to take effect.

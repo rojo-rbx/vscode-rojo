@@ -221,7 +221,7 @@ export class Rojo extends vscode.Disposable {
     }
 
     // TODO: Lift this restriction. Need to update the picker too.
-    if (this.isConfigRootDataModel()) {
+    if (!this.isConfigRootDataModel()) {
       vscode.window.showErrorMessage('Cannot automatically create partitions when tree root is not DataModel')
       return false
     }
