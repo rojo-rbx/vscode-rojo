@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Network errors when fetching new Rojo version are caught and the extension can now fall back to a previously installed version.
+
 # 1.7.1
 
 - Fix issue with Sync From Here not working on 0.5.x

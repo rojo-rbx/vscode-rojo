@@ -333,12 +333,28 @@ export class Bridge extends vscode.Disposable {
 
     const targetVersion = getTargetVersion()
     let release: any
-    if (targetVersion) {
-      release = (await axios.get(RELEASE_URL_TAG.replace('TAG', targetVersion))).data
-    } else if (isPreRelease()) {
-      release = (await axios.get(RELEASES_URL)).data[0]
-    } else {
-      release = (await axios.get(RELEASE_URL)).data
+
+    try {
+      if (targetVersion) {
+        release = (await axios.get(RELEASE_URL_TAG.replace('TAG', targetVersion))).data
+      } else if (isPreRelease()) {
+        release = (await axios.get(RELEASES_URL)).data[0]
+      } else {
+        release = (await axios.get(RELEASE_URL)).data
+      }
+    } catch (e) {
+      console.error(e)
+      sendToOutput(e)
+      outputChannel.show()
+      this.button.setState(ButtonState.Start)
+
+      if (this.rojoPath && fs.existsSync(this.rojoPath)) {
+        vscode.window.showWarningMessage('Unable to check for latest version, falling back to installed version.')
+        return true
+      } else {
+        vscode.window.showErrorMessage('Unable to check for latest version and no previous version is installed. Please try again later.')
+        return false
+      }
     }
 
     // Save the current timestamp as the last time we fetched.
