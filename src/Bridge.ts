@@ -148,10 +148,8 @@ export class Bridge extends vscode.Disposable {
   private setVersion (version: string) {
     this.version = version
 
-    const storePath = path.join(this.context.extensionPath, 'bin')
-    if (!fs.existsSync(storePath)) {
-      fs.mkdirSync(storePath)
-    }
+    const storePath = this.context.globalStoragePath
+    fs.ensureDirSync(storePath)
 
     this.rojoPath = path.join(
       storePath,

@@ -3,6 +3,7 @@
 # Next
 
 - Network errors when fetching new Rojo version are caught and the extension can now fall back to a previously installed version.
+- Move install directory to a global folder outside of the extension installation.
 
 # 1.7.1
 
