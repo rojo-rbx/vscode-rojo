@@ -265,7 +265,7 @@ export class Rojo extends vscode.Disposable {
   private watch (): void {
     this.watcher = fs.watch(this.configPath, () => {
       this.stop()
-      this.outputChannel.appendLine('rojo.json/default.project.json changed, reloading Rojo.')
+        this.outputChannel.appendLine('Project configuration changed, reloading Rojo.')
       this.serve()
     })
   }
