@@ -8,10 +8,10 @@ export const TEXT_INSTALLING = '$(sync) Installing Rojo using cargo...'
 export const TEXT_START = '$(zap) Start Rojo'
 export const TEXT_RUNNING = '$(eye) Rojo'
 
-export const ROJO_GIT_URL = 'https://github.com/LPGhatguy/rojo.git'
-export const RELEASE_URL = 'https://api.github.com/repos/LPGhatguy/rojo/releases/latest'
-export const RELEASES_URL = 'https://api.github.com/repos/LPGhatguy/rojo/releases'
-export const RELEASE_URL_TAG = 'https://api.github.com/repos/LPGhatguy/rojo/releases/tags/TAG'
+export const ROJO_GIT_URL = 'https://github.com/rojo-rbx/rojo.git'
+export const RELEASE_URL = 'https://api.github.com/repos/rojo-rbx/rojo/releases/latest'
+export const RELEASES_URL = 'https://api.github.com/repos/rojo-rbx/rojo/releases'
+export const RELEASE_URL_TAG = 'https://api.github.com/repos/rojo-rbx/rojo/releases/tags/TAG'
 export const BINARY_NAME = 'rojo.exe'
 export const PLUGIN_PATTERN = /.+\.rbxmx?/
 
