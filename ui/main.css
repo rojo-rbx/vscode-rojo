@@ -116,7 +116,7 @@ p.alert {
   padding-left: 42px;
 }
 
-p.hidden {
+.hidden {
   opacity: 0;
   max-height: 0;
   margin: 0;

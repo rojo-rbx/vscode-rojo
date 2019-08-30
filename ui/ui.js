@@ -1,4 +1,6 @@
-(function() {
+/* global acquireVsCodeApi */
+
+(function () {
   const vscode = acquireVsCodeApi()
 
   let state = {
@@ -7,7 +9,7 @@
     isFolderOpen: true
   }
 
-  function updateButton(element, state) {
+  function updateButton (element, state) {
     if (state) {
       element.classList.add('active')
     } else {
@@ -21,6 +23,7 @@
 
     const pluginsPath = document.querySelector('#plugins-path')
     const mustChoose = document.querySelector('#must-choose')
+    const news = document.querySelector('#news')
 
     if (state.pluginManagement === false) {
       pluginsPath.parentElement.classList.add('hidden')
@@ -31,8 +34,10 @@
 
     if (state.pluginManagement === null) {
       mustChoose.classList.add('alert')
+      news.classList.add('hidden')
     } else {
       mustChoose.classList.remove('alert')
+      news.classList.remove('hidden')
     }
 
     const folderAlert = document.querySelector('#folder-alert')

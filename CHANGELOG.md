@@ -6,6 +6,7 @@
 - "Sync from here" option can now be used when the tree root is not DataModel.
 - Fixed a bug where "Sync from here" did not add $className: Folder. (#16)
 - Remove releaseType option, add releaseBranch option.
+- Updated welcome screen with new content.
 
 # 1.8.0
 

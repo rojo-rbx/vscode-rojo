@@ -11,14 +11,17 @@
   <div class="container">
     <header>
       <img src="{{root}}/images/logo.png" alt="ROJO" class="logo">
-      <p><strong>Build robust Roblox games</strong> using <a href="https://github.com/rojo-rbx/rojo" target="_blank"><strong>Rojo</strong></a> directly from Visual Studio Code and <strong>sync your files in</strong> to Roblox Studio. This extension will <strong>keep Rojo up-to-date</strong> and acts as a pass through to the managed Rojo binary seamlessly behind the scenes. You can <strong>start and stop Rojo with one click</strong>, while still harnessing all of the power that Rojo has to offer.</p>
+      <p><strong>Build Roblox games</strong> using <a href="https://github.com/rojo-rbx/rojo" target="_blank"><strong>Rojo</strong></a> directly from Visual Studio Code and <strong>sync your files in</strong> to Roblox Studio. This extension will <strong>keep Rojo up-to-date</strong> and acts as a pass through to the managed Rojo binary seamlessly behind the scenes. You can <strong>start and stop Rojo with one click</strong>, while still harnessing all of the power that Rojo has to offer.</p>
+      <p style="margin-top: 50px" align="center">Please <a href="https://www.patreon.com/erynlynn">Support Development on Patreon</a> if you've found this extension useful!</p>
     </header>
 
-    <section class="news">
+    <section class="news" id="news">
       <h2>News</h2>
       <ul>
-        <li><strong>Rojo v0.5.x is now supported!</strong> Check out <a href="https://rojo.space/docs/latest/guide/migrating-to-epiphany/">this page</a> for details on how to migrate your project.</li>
-        <li>At the time of writing, v0.5.x is a pre-release. To enable automatic pre-release downloads, open the extension settings panel and select the "pre-release" release type.</li>
+        <li><strong>Rojo v0.5.x is now out of alpha!</strong> Check out <a href="https://rojo.space/docs/latest/guide/migrating-to-epiphany/">this page</a> for details on how to migrate your project.</li>
+        <li>You can use the "Rojo: Convert rojo.json to default.project.json" option in the Command Panel (Ctrl+Shift+P) to attempt to migrate automatically.</li>
+        <li>The "releaseType" option which previously allowed you to select pre-release or release has been removed in favor of a "releaseBranch" setting which allows you to specify the major release version you want to use. 0.5.x is now the default major release version.</li>
+        <li>You can still bind projects to specific Rojo versions by setting the "targetVersion" option at the workspace level.</li>
       </ul>
     </section>
 
@@ -36,54 +39,31 @@
     </section>
 
     <section>
-      <h2>Rojo Quick-Start Guide</h2>
-      <p class="alert hidden" id="folder-alert"><strong>You must open a folder to follow this guide.</strong> This extension will only work if you have opened a folder through File &gt; Open Folder. For this guide, you should create a fresh folder and open it in VS Code, then come back here with <code>Ctrl+Shift+P</code> and enter <code>Rojo: Show welcome screen</code>. <span>&mdash; <strong>Yeah, we're talking to you, buster.</strong> This message only shows up if you don't have a folder open! 😉</span></p>
-      <ol>
-        <li>
-          <p>To start using Rojo, you need a Rojo configuration file in the top level of your currently-opened workspace. You can generate one of these files by <strong>opening</strong> the command panel (<code >Ctrl+Shift+P</code>) and <strong>choosing</strong> <code>Rojo: Initialize</code>.</p>
-          <p>You will see that a <code>rojo.json</code> file has been generated in your workspace. And it should have opened automatically, right over there! 👉</p>
-        </li>
-        <li>
-          <p>In this file, you will define how Rojo should take files from your computer and put them into Roblox Studio. The default configuration doesn't do anything, so we should tell Rojo where your code is, and where we want to put it in Roblox.</p>
-          <p>First, <strong>change</strong> the <code>name</code> property to something that represents your project. Leave <code>servePort</code> at its default value (only port 8000 is supported at the time of writing).</p>
-          <p>Now, let's get our workspace ready with some sample code. Using the New Folder button in VS Code, <strong>create</strong> a new folder in the same directory that your <code>rojo.json</code> is in to contain your Lua files. (We will be naming our folder <code>Game</code> in this example.) Then, inside your new folder, <strong>create</strong> a simple Lua file (like <code>HelloWorld.lua</code>) and write whatever you want inside.</p>
-        </li>
-        <li>
-          <p>Next, you will be creating your first <em>partition</em>. Partitions define how code should be transferred between the filesystem and Roblox by mapping directories and files to Roblox objects. A Rojo project can (and should) be made up of many, smaller partitions. You can create as many partitions as you want.</p>
-          <p><strong>Right-click</strong> on the folder you created in the last step ("Game" in our case) in the VS Code Explorer panel, and <strong>choose</strong> "Rojo: Sync from here...". In the input box that shows up in the top-center of your screen, <strong>type</strong> <code>ServerScriptService.My Project</code> and press Enter.</p>
-          <p>Each partition has:</p>
-          <ul>
-            <li>A key name (the key in the <code>partitions</code> object), which is used for labelling and debugging and can be whatever you wish.</li>
-            <li><code>path</code>, a relative path from <code>rojo.json</code> to a folder containing your Lua files.</li>
-            <li><code>target</code>, a dot-separated location in Roblox, relative to <code>game</code>. (<code>StarterPlayer.StarterCharacterScripts.MyFolder</code> is a valid example)</li>
-          </ul>
-          <p class="alert">Anything inside of a partition will be made to match what's on disk <em>exactly</em>, so that means Rojo <strong>will delete</strong> objects in Roblox that don't exist on disk. You should use lots of smaller partitions if necessary so you're only managing the scripts/objects you <em>really</em> care about.</p>
-        </li>
-        <li>
-          <p>Now, it's time for the magic. Look in the bottom-right corner of VS Code (on the bar), and you should see a button that says "Start Rojo". You'll need to <strong>click</strong> this button whenever you want to work on your game so Rojo knows to send your files to Roblox Studio. When it's on, you'll see the lightning bolt icon change to an eye icon, indicating it's watching for your changes. 👀</p>
-          <p class="alert">Make sure you've opened a fresh instance of Roblox Studio to ensure the plugin has installed correctly.</p>
-          <p><strong>Open</strong> Roblox Studio, and <strong>create</strong> a new, blank place. <strong>Click</strong> on "Game Settings" on the Home tab, click "Security", and then <strong>change</strong> "Allow HTTP requests" to "on".</p>
-          <p>Finally, <strong>click</strong> on the plugins tab, and find the Rojo buttons. <strong>Click</strong> the "Sync In" button. (For automatic syncing, you can use "Toggle Polling" instead.)</p>
-          <p>You should now see your Lua file inside a folder called "My Project" in ServerScriptService! Now you're all set up to continue working on your awesome game.</p>
-        </li>
-      </ol>
+      <h2>Where do I go from here?</h2>
+      <p>If you want to learn more about how to use Rojo, check out the official docs:</p>
 
-      <h2>Next steps</h2>
-      <p>Now that you've got the hang of using Rojo, you should take a look at the <a href="https://rojo.space/docs/latest/reference/sync-details/" target="_blank">official documentation</a> which dives in deeper on some more advanced features of Rojo that you'll <strong>definitely</strong> want to know about! Learn how to:</p>
       <ul>
-        <li>Make your scripts become server Scripts and LocalScripts.</li>
-        <li>Represent other instances (like RemoteEvents or *Value objects) as files on your computer, and have them be synced in next to your code.</li>
-        <li>Have scripts inside of other scripts.</li>
-        <li>And more!</li>
+        <li><a href="https://rojo.space/docs/0.5.x/reference/project-format/">Project file format</a></li>
+        <li><a href="https://rojo.space/docs/0.5.x/reference/sync-details/">Sync details</a></li>
       </ul>
     </section>
 
     <section>
-      <h2>Tips and Tricks</h2>
+      <h2>Recommended Extensions</h2>
+      <p>Here are some extensions that work well with vscode-rojo. Search them in the extensions panel to install.</p>
       <ul>
-        <li>Use the "Toggle Polling" button in Roblox Studio to enable automatic syncing whenever you make a file change in VS Code.</li>
-        <li><strong>Want to have more than one Rojo project open at once?</strong> VS Code allows you to add multiple root folders to your workspace, and this extension supports that out of the box! Right-click on a blank background portion of the Explorer panel, and click "Add folders to workspace". As long as a <code>rojo.json</code> file exists at the top level of that folder, you'll be able to use this extension with as many Rojo projects as you want to have open at once.</li>
-        <li>Search for "Lua" extensions to give you Lua linting, snippets, and automatic syntax error checking.</li>
+        <li>Roblox Lua Autocompletes by Kampfkarren</li>
+        <li>vscode-rbxlua by AmaranthineCodices</li>
+        <li>Lua by sumneko</li>
+        <li>vscode-lua by trixnz</li>
+        <li>TabNine by TabNine</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Tips</h2>
+      <ul>
+        <li>Want to have more than one Rojo project open at once? VS Code allows you to add multiple root folders to your workspace, and this extension supports that out of the box! Right-click on a blank background portion of the Explorer panel, and click "Add folders to workspace". As long as a <code>default.project.json</code> file exists at the top level of that folder, you'll be able to use this extension with as many Rojo projects as you want to have open at once.</li>
         <li>You can and definitely should be using Git to keep your project under source control. This gives you <em>tons</em> of benefits, like...</li>
         <li>Add open-source modules (like <a href="https://github.com/Roblox/Roact" target="_blank">Roact</a>) to your game easily by adding them as a <a href="https://gist.github.com/gitaarik/8735255" target="_blank">Git submodule</a>.</li>
       </ul>

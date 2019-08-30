@@ -256,7 +256,7 @@ export function activate (context: vscode.ExtensionContext) {
     configurationChangeSignal
   )
 
-  if (getPluginIsManaged() === null || shouldShowNews('rojo0.5support', context)) {
+  if (getPluginIsManaged() === null || shouldShowNews('rojo0.5release', context)) {
     createOrShowInterface(context, getBridge)
   }
 }
