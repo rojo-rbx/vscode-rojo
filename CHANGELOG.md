@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Add $path or $className required to schema validator for .project.json(c) files
+
 # 1.8.0
 
 - Network errors when fetching new Rojo version are caught and the extension can now fall back to a previously installed version.
