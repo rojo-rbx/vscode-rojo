@@ -191,7 +191,7 @@ export class Rojo extends vscode.Disposable {
     return true
   }
 
-  private isConfigRootDataModel (): boolean {
+  public isConfigRootDataModel (): boolean {
     if (!this.bridge.isEpiphany()) {
       throw new Error('Attempt to check if root is DataModel on 0.4.x')
     }
@@ -220,11 +220,7 @@ export class Rojo extends vscode.Disposable {
       return false
     }
 
-    // TODO: Lift this restriction. Need to update the picker too.
-    if (!this.isConfigRootDataModel()) {
-      vscode.window.showErrorMessage('Cannot automatically create partitions when tree root is not DataModel')
-      return false
-    }
+    const isConfigRootDataModel = this.isConfigRootDataModel()
 
     const ancestors = partitionTarget.split('.')
     let parent = currentConfig.tree
@@ -233,8 +229,10 @@ export class Rojo extends vscode.Disposable {
       const name = ancestors.shift()!
       if (!parent[name]) {
         parent[name] = {
-          ...parent === currentConfig.tree && {
+          ...(parent === currentConfig.tree && isConfigRootDataModel) ? {
             $className: name
+          } : {
+            $className: 'Folder'
           }
         } as treeBranch
       }

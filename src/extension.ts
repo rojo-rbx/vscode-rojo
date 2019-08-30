@@ -208,6 +208,9 @@ export function activate (context: vscode.ExtensionContext) {
     const target = await vscode.window.showInputBox({
       prompt: 'Enter the Roblox target for this partition. (Example: ReplicatedStorage.My Code)',
       validateInput: input => {
+        if (!rojo.isConfigRootDataModel()) {
+          return
+        }
         if (input.startsWith('game.')) {
           return 'Partition targets should omit "game", and begin with the top-level service. For example, "ReplicatedStorage.Folder" is valid.'
         } else if (VALID_SERVICES.indexOf(input.split('.')[0]) === -1) {
