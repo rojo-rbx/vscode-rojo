@@ -2,9 +2,10 @@
 
 # Next
 
-- Add $path or $className required to schema validator for .project.json(c) files
-- "Sync from here" option can now be used when the tree root is not DataModel
+- Add $path or $className required to schema validator for .project.json(c) files.
+- "Sync from here" option can now be used when the tree root is not DataModel.
 - Fixed a bug where "Sync from here" did not add $className: Folder. (#16)
+- Remove releaseType option, add releaseBranch option.
 
 # 1.8.0
 

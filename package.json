@@ -95,18 +95,18 @@
                     "default": true,
                     "description": "Whether or not to send basic, anonymous usage reports to this extension's maintainer (does not gather any information about your files or game)."
                 },
-                "rojo.releaseType": {
+                "rojo.releaseBranch": {
                     "type": "string",
                     "enum": [
-                        "release",
-                        "pre-release"
+                        "0.4.x",
+                        "0.5.x"
                     ],
-                    "default": "release",
-                    "description": "The release type to install. Pre-release may offer newer but potentially unstable versions."
+                    "default": "0.5.x",
+                    "description": "The release branch to install."
                 },
                 "rojo.targetVersion": {
                     "type": "string",
-                    "description": "The target version tag to install. Unless set, the latest version is downloaded based on your configured release type setting."
+                    "description": "The specific target version tag to install. This setting overrides the releaseBranch setting."
                 },
                 "rojo.buildOutputPath": {
                     "type": "string",

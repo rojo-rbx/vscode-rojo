@@ -39,12 +39,12 @@ export function setPluginIsManaged (isManaged: boolean): void {
   getConfiguration().update('pluginManagement', isManaged, true)
 }
 
-export function isPreRelease (): boolean {
-  return getConfiguration().get('releaseType') === 'pre-release'
-}
-
 export function getTargetVersion (): string | undefined {
   return getConfiguration().get('targetVersion')
+}
+
+export function getReleaseBranch (): string | undefined {
+  return getConfiguration().get('releaseBranch')
 }
 
 export function isTelemetryEnabled (): boolean {

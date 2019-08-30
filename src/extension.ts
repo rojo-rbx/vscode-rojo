@@ -233,7 +233,7 @@ export function activate (context: vscode.ExtensionContext) {
   // Listen to configuration changes
   const configurationChangeSignal = vscode.workspace.onDidChangeConfiguration(e => {
     if (
-      e.affectsConfiguration('rojo.releaseType') ||
+      e.affectsConfiguration('rojo.releaseBranch') ||
       e.affectsConfiguration('rojo.targetVersion')
     ) {
       rojoStack.forEach(rojo => rojo.stop())

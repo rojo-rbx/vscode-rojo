@@ -9,9 +9,7 @@ export const TEXT_START = '$(zap) Start Rojo'
 export const TEXT_RUNNING = '$(eye) Rojo'
 
 export const ROJO_GIT_URL = 'https://github.com/rojo-rbx/rojo.git'
-export const RELEASE_URL = 'https://api.github.com/repos/rojo-rbx/rojo/releases/latest'
-export const RELEASES_URL = 'https://api.github.com/repos/rojo-rbx/rojo/releases'
-export const RELEASE_URL_TAG = 'https://api.github.com/repos/rojo-rbx/rojo/releases/tags/TAG'
+export const RELEASE_URL = 'https://latest-rojo-release.3.workers.dev'
 export const BINARY_NAME = 'rojo.exe'
 export const PLUGIN_PATTERN = /.+\.rbxmx?/
 

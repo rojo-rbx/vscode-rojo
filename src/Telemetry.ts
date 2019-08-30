@@ -1,4 +1,4 @@
-import * as ua from 'universal-analytics'
+import ua from 'universal-analytics'
 import { ExtensionContext, extensions, Extension } from 'vscode'
 import { v4 as generateUUID } from 'uuid'
 import { isTelemetryEnabled } from './Util'

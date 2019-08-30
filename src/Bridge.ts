@@ -7,9 +7,10 @@ import * as vscode from 'vscode'
 import { outputChannel, sendToOutput } from './extension'
 import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-import { BINARY_NAME, CONFIG_NAME_04, CONFIG_NAME_05, PLUGIN_PATTERN, RELEASES_URL, RELEASE_URL, RELEASE_URL_TAG, ROJO_GIT_URL } from './Strings'
+import { BINARY_NAME, CONFIG_NAME_04, CONFIG_NAME_05, PLUGIN_PATTERN, RELEASE_URL, ROJO_GIT_URL } from './Strings'
 import Telemetry, { TelemetryEvent } from './Telemetry'
-import { getCargoPath, getLocalPluginPath, getPluginIsManaged, getTargetVersion, isPreRelease, promisifyStream } from './Util'
+import { getCargoPath, getLocalPluginPath, getPluginIsManaged, getTargetVersion, getReleaseBranch, promisifyStream } from './Util'
+import assert from 'assert'
 
 interface GithubAsset {
   name: string,
@@ -322,7 +323,7 @@ export class Bridge extends vscode.Disposable {
    * @returns {boolean} Successful?
    * @memberof Bridge
    */
-  private async installRojoBinary (): Promise < boolean > {
+  private async installRojoBinary (): Promise<boolean>  {
     // TODO: Better support for button state when bailing out with returns
     // Update our user-facing button to indicate we're checking for an update.
     this.button.setState(ButtonState.Updating)
@@ -330,16 +331,17 @@ export class Bridge extends vscode.Disposable {
     // Fetch the latest release from Rojo's releases page.
 
     const targetVersion = getTargetVersion()
+    const releaseBranch = getReleaseBranch()
     let release: any
 
     try {
       if (targetVersion) {
-        release = (await axios.get(RELEASE_URL_TAG.replace('TAG', targetVersion))).data
-      } else if (isPreRelease()) {
-        release = (await axios.get(RELEASES_URL)).data[0]
+        release = (await axios.get(`${RELEASE_URL}/${targetVersion}$`)).data
       } else {
-        release = (await axios.get(RELEASE_URL)).data
+        release = (await axios.get(`${RELEASE_URL}/${releaseBranch}`)).data
       }
+
+      assert(release != null)
     } catch (e) {
       console.error(e)
       sendToOutput(e)
