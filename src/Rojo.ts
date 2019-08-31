@@ -2,7 +2,7 @@ import * as childProcess from 'child_process'
 import * as vscode from 'vscode'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import { isInterfaceOpened, getConfiguration } from './Util'
+import { isInterfaceOpened, getConfiguration, callWithCounter } from './Util'
 import { Bridge } from './Bridge'
 
 type treeBranch = { [index: string]: treeBranch | string }
@@ -109,11 +109,23 @@ export class Rojo extends vscode.Disposable {
       cwd: this.workspacePath
     })
 
-    this.server.stdout.on('data', data => this.sendToOutput(data))
-    this.server.stderr.on('data', data => this.sendToOutput(data))
+    this.server.stdout.on('data', callWithCounter((count, data) => {
+      this.sendToOutput(data)
 
-    // This is what makes the output channel snap open we start serving.
-    this.outputChannel.show()
+      if (count === 0) {
+        vscode.window.showInformationMessage(data.toString())
+      } else if (count === 1) {
+        this.outputChannel.show()
+      }
+    }))
+
+    this.server.stderr.on('data', callWithCounter((count, data) => {
+      this.sendToOutput(data)
+
+      if (count === 0) {
+        this.outputChannel.show()
+      }
+    }))
 
     // Start watching for "rojo.json" changes.
     this.watch()

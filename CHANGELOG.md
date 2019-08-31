@@ -7,6 +7,7 @@
 - Fixed a bug where "Sync from here" did not add $className: Folder. (#16)
 - Remove releaseType option, add releaseBranch option.
 - Updated welcome screen with new content.
+- A notification is now shown instead of opening the output window when starting Rojo. Errors will still cause the output window to open.
 
 # 1.8.0
 

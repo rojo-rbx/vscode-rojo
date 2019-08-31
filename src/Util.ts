@@ -120,3 +120,11 @@ export function pickFolder (folders: vscode.WorkspaceFolder[], placeHolder: stri
   return selected.folder
 })
 }
+
+export function callWithCounter<T extends any[]> (callback: (count: number, ...args: T) => unknown) {
+  let count = 0
+
+  return (...args: T) => {
+    callback(count++, ...args)
+  }
+}
