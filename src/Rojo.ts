@@ -243,7 +243,7 @@ export class Rojo extends vscode.Disposable {
         parent[name] = {
           ...(parent === currentConfig.tree && isConfigRootDataModel) ? {
             $className: name
-          } : {
+          } : ancestors.length > 0 && {
             $className: 'Folder'
           }
         } as treeBranch
