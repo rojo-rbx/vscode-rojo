@@ -1,6 +1,6 @@
 # Release Notes
 
-# Next
+# 1.9.0
 
 - Add $path or $className required to schema validator for .project.json(c) files.
 - "Sync from here" option can now be used when the tree root is not DataModel.
