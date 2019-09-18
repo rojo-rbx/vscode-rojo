@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.10.1
+
+- Fix a bug preventing startup.
+
 # 1.10.0
 
 - Handles releases with zipped executables
