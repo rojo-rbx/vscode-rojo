@@ -11,6 +11,8 @@ export const TEXT_RUNNING = '$(eye) Rojo'
 export const ROJO_GIT_URL = 'https://github.com/rojo-rbx/rojo.git'
 export const RELEASE_URL = 'https://latest-rojo-release.3.workers.dev'
 export const BINARY_NAME = 'rojo.exe'
+export const BINARY_PATTERN = /^rojo\.exe$/
+export const BINARY_ZIP_PATTERN = /^rojo(?:-|-.*-)win64.zip$/
 export const PLUGIN_PATTERN = /.+\.rbxmx?/
 
 export const CONFIG_NAME_04 = 'rojo.json'

@@ -54,7 +54,10 @@ export function activate (context: vscode.ExtensionContext) {
     // If `bridge.ready` is still false after the promise comes back, then that means installation failed.
     // The bridge makes its own error messages, so we just bail out here.
     const bridge = await getBridge()
-    if (!bridge.ready) return
+    if (!bridge.ready) {
+      getBridge = BridgeFactory(context, statusButton)
+      return
+    }
 
     // Ask the user to pick which workspace root folder to start Rojo in. If the workspace only has one folder,
     // this returns instantly with that folder. If it's undefined, the user closed the box.

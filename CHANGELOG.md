@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Handles releases with zipped executables
+
 # 1.9.0
 
 - Add $path or $className required to schema validator for .project.json(c) files.
