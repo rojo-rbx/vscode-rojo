@@ -1,9 +1,10 @@
-import * as path from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
+import * as path from 'path'
+import { Duplex } from 'stream'
 import * as vscode from 'vscode'
-import Interface from './Interface'
 import { Bridge } from './Bridge'
+import Interface from './Interface'
 
 export function getConfiguration (): vscode.WorkspaceConfiguration {
   return vscode.workspace.getConfiguration('rojo')
@@ -88,8 +89,10 @@ export function isInterfaceOpened (): boolean {
  * @param {fs.WriteStream} stream The stream to promisify
  * @returns {Promise<any>} A promise that resolves or rejects based on the status of the stream.
  */
-export function promisifyStream (stream: fs.WriteStream): Promise<any> {
+export function promisifyStream (stream: fs.ReadStream | fs.WriteStream | Duplex): Promise<any> {
   return new Promise((resolve, reject) => {
+    stream.on('close', resolve)
+    stream.on('finish', resolve)
     stream.on('end', resolve)
     stream.on('error', reject)
   })

@@ -4,10 +4,11 @@ import * as fs from 'fs-extra'
 import * as os from 'os'
 import * as path from 'path'
 import * as vscode from 'vscode'
+import unzipper from 'unzipper'
 import { outputChannel, sendToOutput } from './extension'
 import { Rojo } from './Rojo'
 import StatusButton, { ButtonState } from './StatusButton'
-import { BINARY_NAME, CONFIG_NAME_04, CONFIG_NAME_05, PLUGIN_PATTERN, RELEASE_URL, ROJO_GIT_URL } from './Strings'
+import { BINARY_NAME, CONFIG_NAME_04, CONFIG_NAME_05, PLUGIN_PATTERN, RELEASE_URL, ROJO_GIT_URL, BINARY_ZIP_PATTERN, BINARY_PATTERN } from './Strings'
 import Telemetry, { TelemetryEvent } from './Telemetry'
 import { getCargoPath, getLocalPluginPath, getPluginIsManaged, getTargetVersion, getReleaseBranch, promisifyStream } from './Util'
 import assert from 'assert'
@@ -277,10 +278,16 @@ export class Bridge extends vscode.Disposable {
     return fs.existsSync(this.rojoPath)
   }
 
-  private async installWin32Binary (assets: GithubAsset[], version: string): Promise < boolean > {
+  private async installWin32Binary (assets: GithubAsset[], version: string): Promise<boolean> {
 
-    // Look for one that matches `rojo.exe`.
-    const binary = assets.find(file => file.name === BINARY_NAME && file.content_type === 'application/x-msdownload')
+    // Look for the binary we want.
+    const binary = assets.find(file => (
+      file.name === BINARY_NAME
+      && file.content_type === 'application/x-msdownload')
+      || (
+        file.name.match(BINARY_ZIP_PATTERN) !== null
+      )
+    )
 
     // If no matching file is found, just give up for now.
     if (!binary) {
@@ -296,23 +303,56 @@ export class Bridge extends vscode.Disposable {
     })
 
     const writeStream = fs.createWriteStream(this.rojoPath)
-    download.data.pipe(writeStream)
 
-    // Wrap in a try/catch because lots of things can go wrong when downloading files.
-    try {
-      // Wait for the download to complete (or fail)
-      await promisifyStream(download .data)
+    if (binary.name.endsWith('.zip')) {
+      try {
+        const unzip = download.data
+          .pipe(unzipper.ParseOne(BINARY_PATTERN, {}))
 
-      // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
-      // If we don't close the stream, the file will still be marked as busy.
-      writeStream.close()
-    } catch (e) {
-      console.log(e)
-      Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary download fail', this.version)
-      Telemetry.trackException(e)
-      vscode.window.showErrorMessage("Couldn't fetch latest Rojo: an error occurred while downloading the latest binary.")
-      this.button.setState(ButtonState.Hidden)
-      return false
+        const file = unzip.pipe(writeStream)
+
+        setTimeout(() => {
+          console.log(unzip)
+          console.log(file)
+        }, 1000)
+
+        await promisifyStream(unzip)
+
+        if (file.bytesWritten === 0) {
+          file.close()
+
+          fs.unlinkSync(this.rojoPath)
+
+          vscode.window.showErrorMessage('rojo.exe missing from release ZIP file!')
+          this.button.setState(ButtonState.Start)
+          return false
+        } else {
+          await promisifyStream(file)
+        }
+      } catch (e) {
+        console.log(e)
+        vscode.window.showErrorMessage('Error ocurred while unzipping: ' + e.toString())
+        this.button.setState(ButtonState.Start)
+        return false
+      }
+    } else {
+      try {
+        download.data.pipe(writeStream)
+
+        // Wait for the download to complete (or fail)
+        await promisifyStream(download.data)
+
+        // Important to close the stream since we're spawning the binary with child_process immediately afterwards.
+        // If we don't close the stream, the file will still be marked as busy.
+        writeStream.close()
+      } catch (e) {
+        console.log(e)
+        Telemetry.trackEvent(TelemetryEvent.InstallationError, 'Binary download fail', this.version)
+        Telemetry.trackException(e)
+        vscode.window.showErrorMessage("Couldn't fetch latest Rojo: an error occurred while downloading the latest binary.")
+        this.button.setState(ButtonState.Hidden)
+        return false
+      }
     }
 
     return true
@@ -406,7 +446,7 @@ export class Bridge extends vscode.Disposable {
     // that rojo.json doesn't exist so the "Rojo: Start server" command dropped out before setting the button.
     this.button.setState(ButtonState.Start)
 
-    return true
+    return installedBinary
   }
 }
 
