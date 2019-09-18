@@ -446,7 +446,7 @@ export class Bridge extends vscode.Disposable {
     // that rojo.json doesn't exist so the "Rojo: Start server" command dropped out before setting the button.
     this.button.setState(ButtonState.Start)
 
-    return installedBinary
+    return true
   }
 }
 
