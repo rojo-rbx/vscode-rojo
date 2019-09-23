@@ -1,7 +1,14 @@
-import * as vscode from 'vscode'
-import * as Strings from './Strings'
+import * as vscode from "vscode"
+import * as Strings from "./Strings"
 
-export enum ButtonState { Start, Running, Downloading, Installing, Updating, Hidden }
+export enum ButtonState {
+  Start,
+  Running,
+  Downloading,
+  Installing,
+  Updating,
+  Hidden
+}
 
 /**
  * A class to manage our status bar button.
@@ -15,10 +22,13 @@ export default class StatusButton extends vscode.Disposable {
    * Creates the status bar item and sets it to its default state.
    * @memberof StatusButton
    */
-  constructor () {
+  constructor() {
     super(() => this.dispose())
 
-    this.button = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 200)
+    this.button = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Right,
+      200
+    )
 
     this.setState(ButtonState.Start)
   }
@@ -27,7 +37,7 @@ export default class StatusButton extends vscode.Disposable {
    * Cleans up the button.
    * @memberof StatusButton
    */
-  public dispose (): void {
+  public dispose(): void {
     this.button.dispose()
   }
 
@@ -37,17 +47,17 @@ export default class StatusButton extends vscode.Disposable {
    * @param {string} [version=''] The running state displays the version to the user.
    * @memberof StatusButton
    */
-  public setState (state: ButtonState, version: string = ''): void {
+  public setState(state: ButtonState, version = ""): void {
     this.button.show()
 
     switch (state) {
       case ButtonState.Start:
         this.button.text = Strings.TEXT_START
-        this.button.command = 'rojo.start'
+        this.button.command = "rojo.start"
         break
       case ButtonState.Running:
         this.button.text = `${Strings.TEXT_RUNNING} ${version}`
-        this.button.command = 'rojo.stop'
+        this.button.command = "rojo.stop"
         break
       case ButtonState.Updating:
         this.button.text = Strings.TEXT_UPDATING
@@ -56,7 +66,6 @@ export default class StatusButton extends vscode.Disposable {
       case ButtonState.Downloading:
         this.button.text = Strings.TEXT_DOWNLOADING
         this.button.command = undefined
-        break
         break
       case ButtonState.Installing:
         this.button.text = Strings.TEXT_INSTALLING

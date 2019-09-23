@@ -1,7 +1,11 @@
-import * as vscode from 'vscode'
-import { getLocalPluginPath, getPluginIsManaged, setPluginIsManaged } from './Util'
-import { Bridge } from './Bridge'
-import Telemetry, { TelemetryEvent } from './Telemetry'
+import * as vscode from "vscode"
+import { Bridge } from "./Bridge"
+import Telemetry, { TelemetryEvent } from "./Telemetry"
+import {
+  getLocalPluginPath,
+  getPluginIsManaged,
+  setPluginIsManaged
+} from "./Util"
 
 /**
  * The WebView welcome screen interface.
@@ -12,55 +16,77 @@ import Telemetry, { TelemetryEvent } from './Telemetry'
 export default class Interface extends vscode.Disposable {
   public panel: vscode.WebviewPanel
   private context: vscode.ExtensionContext
-  private getBridge: () => Promise<Bridge>
+  private getBridge: () => Promise<Bridge | undefined>
 
-  constructor (context: vscode.ExtensionContext, getBridge: () => Promise<Bridge>) {
+  constructor(
+    context: vscode.ExtensionContext,
+    getBridge: () => Promise<Bridge | undefined>
+  ) {
     super(() => this.dispose())
 
     this.context = context
     this.getBridge = getBridge
 
-    this.panel = vscode.window.createWebviewPanel('rojoWelcome', 'Welcome to Rojo', vscode.ViewColumn.One, {
-      enableScripts: true
-    })
+    this.panel = vscode.window.createWebviewPanel(
+      "rojoWelcome",
+      "Welcome to Rojo",
+      vscode.ViewColumn.One,
+      {
+        enableScripts: true
+      }
+    )
     this.initialize()
   }
 
-  public dispose (): void {
+  public dispose(): void {
     this.panel.dispose()
   }
 
-  private async initialize (): Promise<void> {
+  private async initialize(): Promise<void> {
     // Handle communication from the webview.
     this.panel.webview.onDidReceiveMessage(message => {
       switch (message.type) {
-        case 'GET_STATE':
-          this.panel.webview.postMessage({ type: 'STATE', state: {
-            pluginManagement: getPluginIsManaged(),
-            pluginPath: getLocalPluginPath(),
-            isFolderOpen: vscode.workspace.workspaceFolders != null
-          }})
+        case "GET_STATE":
+          this.panel.webview.postMessage({
+            type: "STATE",
+            state: {
+              pluginManagement: getPluginIsManaged(),
+              pluginPath: getLocalPluginPath(),
+              isFolderOpen: vscode.workspace.workspaceFolders != null
+            }
+          })
           break
-        case 'SET_MANAGEMENT':
+        case "SET_MANAGEMENT":
           setPluginIsManaged(message.value)
 
-          Telemetry.trackEvent(TelemetryEvent.PluginManagedChanged, 'WebView', message.value)
+          Telemetry.trackEvent(
+            TelemetryEvent.PluginManagedChanged,
+            "WebView",
+            message.value
+          )
 
           // Reinstall if this changes
           if (message.value) {
-            this.getBridge().then(bridge => bridge.reinstall())
+            this.getBridge().then(bridge => bridge && bridge.reinstall())
           } else {
-            this.getBridge().then(bridge => bridge.uninstallPlugin())
+            this.getBridge().then(bridge => bridge && bridge.uninstallPlugin())
           }
           break
         default:
-          throw new Error('Invalid IPC message type')
+          throw new Error("Invalid IPC message type")
       }
     })
 
     // Open the HTML and send it to the webview to load.
-    const doc = await vscode.workspace.openTextDocument(this.context.asAbsolutePath('ui/index.html'))
+    const doc = await vscode.workspace.openTextDocument(
+      this.context.asAbsolutePath("ui/index.html")
+    )
     // Replace {{root}} with an absolute path to our resources folder.
-    this.panel.webview.html = doc.getText().replace(/{{root}}/g, vscode.Uri.file(this.context.asAbsolutePath('./ui/')).with({ scheme: 'vscode-resource' }).toString())
+    this.panel.webview.html = doc.getText().replace(
+      /{{root}}/g,
+      vscode.Uri.file(this.context.asAbsolutePath("./ui/"))
+        .with({ scheme: "vscode-resource" })
+        .toString()
+    )
   }
 }

@@ -1,5 +1,8 @@
 # Release Notes
 
+# Next
+- Refactored extension code significantly.
+
 # 1.10.1
 
 - Fix a bug preventing startup.
