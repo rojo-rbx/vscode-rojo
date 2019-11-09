@@ -32,7 +32,7 @@
 					"type": "object"
 				}
 			},
-			"oneOf": [
+			"anyOf": [
 				{ "required": [ "$className" ] },
 				{ "required": [ "$path" ] }
 			],
