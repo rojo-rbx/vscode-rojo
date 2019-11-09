@@ -1,7 +1,9 @@
 # Release Notes
 
-# Next
+# 1.11.0
 - Refactored extension code significantly.
+- Support for future Rojo version 0.6.0.
+- Fix schema being too strict for project files (#20).
 
 # 1.10.1
 
