@@ -99,7 +99,8 @@
                     "type": "string",
                     "enum": [
                         "0.4.x",
-                        "0.5.x"
+                        "0.5.x",
+                        "0.6.x"
                     ],
                     "default": "0.5.x",
                     "description": "The release branch to install."
@@ -149,7 +150,7 @@
         "eslint": "^6.4.0",
         "eslint-config-prettier": "^6.3.0",
         "prettier": "^1.18.2",
-        "typescript": "^3.4.1",
+        "typescript": "^3.7.2",
         "vscode": "^1.1.33"
     },
     "dependencies": {

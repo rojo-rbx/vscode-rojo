@@ -2,10 +2,10 @@ import * as childProcess from "child_process"
 import fs from "fs-extra"
 import path from "path"
 import vscode from "vscode"
-import { Version } from "."
+import { Version, VersionInfo } from "."
 import { Rojo } from "../Rojo"
 import { getConfiguration } from "../Util"
-import { V04Partial } from "./V04"
+import { V04Info } from "./V04"
 
 type treeBranch = {
   $path?: string
@@ -17,31 +17,29 @@ export type V05Project = {
   tree?: treeBranch
 }
 
-export class V05Partial implements Partial<Version> {
-  readonly canSyncPointsBeNonServices = true
+export const V05Info: VersionInfo = {
+  canSyncPointsBeNonServices: true,
+  configChangeRestartsRojo: true,
 
   getProjectFileName() {
     return "default.project.json"
-  }
+  },
 
-  getPreviousVersionPartial() {
-    return new V04Partial()
-  }
+  getPreviousVersionInfo() {
+    return V04Info
+  },
 
   isUpgraderAvailable(folderPath: string) {
     return fs.existsSync(
-      path.join(
-        folderPath,
-        this.getPreviousVersionPartial().getProjectFileName()
-      )
+      path.join(folderPath, this.getPreviousVersionInfo().getProjectFileName())
     )
   }
 }
 
-export class V05 extends V05Partial implements Version {
-  constructor(private rojo: Rojo<V05Project>) {
-    super()
-  }
+export class V05 implements Version {
+  public info = V05Info
+
+  constructor(private rojo: Rojo<V05Project>) {}
 
   getDefaultProjectFilePath(): string {
     return path.join(this.rojo.getWorkspacePath(), "default.project.json")

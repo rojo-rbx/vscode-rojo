@@ -25,7 +25,6 @@ export function reset() {
  */
 export function activate(context: vscode.ExtensionContext) {
   console.log('"vscode-rojo" is now active!')
-  console.log(`Storage directory: ${context.extensionPath}`)
 
   extensionContext = context
   statusButton = new StatusButton()

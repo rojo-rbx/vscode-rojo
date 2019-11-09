@@ -1,4 +1,3 @@
-import assert from "assert"
 import axios from "axios"
 import * as childProcess from "child_process"
 import * as fs from "fs-extra"
@@ -26,7 +25,7 @@ import {
   getTargetVersion,
   promisifyStream
 } from "./Util"
-import { getAppropriatePartialVersion } from "./versions"
+import { getAppropriateVersionInfo } from "./versions"
 
 interface GithubAsset {
   name: string
@@ -91,8 +90,8 @@ export class Bridge extends vscode.Disposable {
     return path.join(getLocalPluginPath(), "rojo.rbxm")
   }
 
-  public getPartialVersion() {
-    return getAppropriatePartialVersion(this.version)
+  public getVersionInfo() {
+    return getAppropriateVersionInfo(this.version)
   }
 
   /**
@@ -442,13 +441,14 @@ export class Bridge extends vscode.Disposable {
     let release: any
 
     try {
+      const options = { validateStatus: () => true }
       if (targetVersion) {
-        release = (await axios.get(`${RELEASE_URL}/${targetVersion}$`)).data
+        release = (await axios.get(`${RELEASE_URL}/${targetVersion}$`, options))
+          .data
       } else {
-        release = (await axios.get(`${RELEASE_URL}/${releaseBranch}`)).data
+        release = (await axios.get(`${RELEASE_URL}/${releaseBranch}`, options))
+          .data
       }
-
-      assert(release != null)
     } catch (e) {
       console.error(e)
       sendToOutput(e)
@@ -466,6 +466,14 @@ export class Bridge extends vscode.Disposable {
         )
         return false
       }
+    }
+
+    if (release == null) {
+      this.button.setState(ButtonState.Start)
+      vscode.window.showErrorMessage(
+        `Rojo: No releases are available for the selected release branch (${releaseBranch})`
+      )
+      return false
     }
 
     // Save the current timestamp as the last time we fetched.

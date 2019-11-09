@@ -1,28 +1,30 @@
 import { Rojo } from "../Rojo"
-import { V04, V04Partial } from "./V04"
-import { V05, V05Partial } from "./V05"
+import { V04, V04Info } from "./V04"
+import { V05, V05Info } from "./V05"
+import { V06, V06Info } from "./V06"
+
+export interface VersionInfo {
+  getProjectFileName(): string
+  canSyncPointsBeNonServices: boolean
+  getPreviousVersionInfo(): VersionInfo
+  isUpgraderAvailable(folderPath: string): boolean
+  configChangeRestartsRojo: boolean
+}
 
 export interface Version {
+  info: VersionInfo
   getDefaultProjectFilePath(): string
   getProjectFilePaths(): string[]
-  getProjectFileName(): string
-
-  canSyncPointsBeNonServices: boolean
   createSyncPoint(path: string, target: string): Promise<boolean>
-
   build(): Promise<void>
-
-  isConfigRootDataModel(): boolean
-
-  isUpgraderAvailable(folderPath: string): boolean
   upgrade(): Promise<void>
-
-  getPreviousVersionPartial(): Partial<Version>
+  isConfigRootDataModel(): boolean
 }
 
 const versions = {
-  "v0.4": [V04Partial, V04],
-  "v0.5": [V05Partial, V05]
+  "v0.4": [V04Info, V04],
+  "v0.5": [V05Info, V05],
+  "v0.6": [V06Info, V06]
 } as const
 
 function getVersion(versionString: string) {
@@ -37,10 +39,10 @@ function getVersion(versionString: string) {
   return version
 }
 
-export function getAppropriatePartialVersion(versionString: string) {
-  const [, [partial]] = getVersion(versionString)
+export function getAppropriateVersionInfo(versionString: string) {
+  const [, [info]] = getVersion(versionString)
 
-  return new partial()
+  return info
 }
 
 export function getAppropriateVersion(

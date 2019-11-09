@@ -45,16 +45,14 @@ export async function pickRojo(
 
   // Ensure `rojo.json` exists in the workspace unless allowUnitialized is true.
 
-  const partialVersion = bridge.getPartialVersion()
-  const projectFileName = partialVersion.getProjectFileName()
+  const versionInfo = bridge.getVersionInfo()
+  const projectFileName = versionInfo.getProjectFileName()
 
   if (
     !options.allowUninitialized &&
     !fs.existsSync(path.join(folder.uri.fsPath, projectFileName))
   ) {
-    const upgradeAvailable = partialVersion.isUpgraderAvailable(
-      folder.uri.fsPath
-    )
+    const upgradeAvailable = versionInfo.isUpgraderAvailable(folder.uri.fsPath)
 
     vscode.window
       .showErrorMessage(

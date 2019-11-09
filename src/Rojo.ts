@@ -58,6 +58,8 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
     )
 
     this.rojoPath = bridge.rojoPath
+
+    console.log(`Rojo path: ${this.rojoPath}`)
   }
 
   public getWorkspacePath() {
@@ -85,7 +87,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   }
 
   public async attemptUpgrade() {
-    if (!this.version.isUpgraderAvailable(this.getWorkspacePath())) {
+    if (!this.version.info.isUpgraderAvailable(this.getWorkspacePath())) {
       vscode.window.showInformationMessage(
         "No upgrader is available for this version."
       )
@@ -107,7 +109,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
 
   public shouldSyncPathBeginWithService() {
     return (
-      this.version.canSyncPointsBeNonServices &&
+      this.version.info.canSyncPointsBeNonServices &&
       this.version.isConfigRootDataModel()
     )
   }
@@ -152,8 +154,10 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
 
     Rojo.stack.push(this)
 
-    // Start watching for "rojo.json" changes.
-    this.watch()
+    if (this.version.info.configChangeRestartsRojo) {
+      // Start watching for project file changes.
+      this.watch()
+    }
   }
 
   /**

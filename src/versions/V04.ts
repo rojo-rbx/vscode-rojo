@@ -1,36 +1,39 @@
 import fs from "fs"
 import path from "path"
 import vscode from "vscode"
-import { Version } from "."
+import { Version, VersionInfo } from "."
 import { Rojo } from "../Rojo"
 
 export type V04Project = {
   partitions: { [index: string]: { path: string; target: string } }
 }
 
-export class V04Partial implements Partial<Version> {
-  readonly canSyncPointsBeNonServices = false
+export const V04Info: VersionInfo = {
+  canSyncPointsBeNonServices: false,
+  configChangeRestartsRojo: true,
 
   getProjectFileName() {
     return "rojo.json"
-  }
+  },
 
   isUpgraderAvailable() {
     return false
-  }
+  },
 
-  getPreviousVersionPartial(): never {
+  getPreviousVersionInfo(): never {
     throw new Error("No previous version to 0.4.x")
   }
 }
 
-export class V04 extends V04Partial implements Version {
-  constructor(private rojo: Rojo<V04Project>) {
-    super()
-  }
+export class V04 implements Version {
+  public info = V04Info
+  constructor(private rojo: Rojo<V04Project>) {}
 
   getDefaultProjectFilePath() {
-    return path.join(this.rojo.getWorkspacePath(), this.getProjectFileName())
+    return path.join(
+      this.rojo.getWorkspacePath(),
+      this.info.getProjectFileName()
+    )
   }
 
   getProjectFilePaths() {
