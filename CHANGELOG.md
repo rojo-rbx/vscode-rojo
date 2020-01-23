@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Fix v0.6 restarting server on config change.
+
 # 1.11.0
 - Refactored extension code significantly.
 - Support for future Rojo version 0.6.0.

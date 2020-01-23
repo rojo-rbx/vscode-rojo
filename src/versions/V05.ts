@@ -18,6 +18,7 @@ export type V05Project = {
 }
 
 export const V05Info: VersionInfo = {
+  name: "v0.5",
   canSyncPointsBeNonServices: true,
   configChangeRestartsRojo: true,
 

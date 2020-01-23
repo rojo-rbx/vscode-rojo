@@ -9,6 +9,7 @@ export interface VersionInfo {
   getPreviousVersionInfo(): VersionInfo
   isUpgraderAvailable(folderPath: string): boolean
   configChangeRestartsRojo: boolean
+  name: string
 }
 
 export interface Version {
@@ -27,7 +28,9 @@ const versions = {
   "v0.6": [V06Info, V06]
 } as const
 
-function getVersion(versionString: string) {
+function getVersion(
+  versionString: string
+): [string, [VersionInfo, new (rojo: Rojo) => Version]] {
   const version = Object.entries(versions).find(([ver]) =>
     versionString.startsWith(ver)
   )
@@ -36,7 +39,10 @@ function getVersion(versionString: string) {
     throw new Error("This version of Rojo is unsupported.")
   }
 
-  return version
+  return (version as unknown) as [
+    string,
+    [VersionInfo, new (rojo: Rojo) => Version]
+  ]
 }
 
 export function getAppropriateVersionInfo(versionString: string) {

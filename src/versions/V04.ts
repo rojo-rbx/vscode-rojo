@@ -9,6 +9,7 @@ export type V04Project = {
 }
 
 export const V04Info: VersionInfo = {
+  name: "v0.4",
   canSyncPointsBeNonServices: false,
   configChangeRestartsRojo: true,
 
