@@ -1,6 +1,6 @@
 # Release Notes
 
-# Next
+# 1.11.1
 
 - Fix v0.6 restarting server on config change.
 
