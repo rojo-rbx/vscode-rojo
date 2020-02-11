@@ -134,8 +134,7 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "watch": "tsc -watch -p ./"
     },
     "devDependencies": {
         "@types/fs-extra": "^5.0.5",
@@ -144,14 +143,14 @@
         "@types/universal-analytics": "^0.4.2",
         "@types/unzipper": "^0.10.0",
         "@types/uuid": "^3.4.4",
+        "@types/vscode": "^1.32.0",
         "@typescript-eslint/eslint-plugin": "^2.3.0",
         "@typescript-eslint/parser": "^2.3.0",
         "dts-gen": "^0.5.7",
         "eslint": "^6.4.0",
         "eslint-config-prettier": "^6.3.0",
         "prettier": "^1.18.2",
-        "typescript": "^3.7.2",
-        "vscode": "^1.1.33"
+        "typescript": "^3.7.2"
     },
     "dependencies": {
         "axios": "^0.18.1",
