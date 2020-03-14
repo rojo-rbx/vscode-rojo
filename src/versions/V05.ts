@@ -52,8 +52,9 @@ export class V05 implements Version {
 
   async build(): Promise<void> {
     const outputConfig = getConfiguration().get("buildOutputPath") as string
+    const levelFileType = getConfiguration().get("levelFileType") as string
     const outputFile = `${outputConfig}.${
-      this.isConfigRootDataModel() ? "rbxl" : "rbxm"
+      this.isConfigRootDataModel() ? levelFileType : "rbxm"
     }`
     const outputPath = path.join(this.rojo.getWorkspacePath(), outputFile)
 

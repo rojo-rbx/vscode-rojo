@@ -113,6 +113,15 @@
                     "type": "string",
                     "default": "build",
                     "description": "The output path of the build command, relative to your root folder."
+                },
+                "rojo.levelFileType": {
+                    "type": "string",
+                    "enum": [
+                        "rbxl",
+                        "rbxlx"
+                    ],
+                    "default": "rbxl",
+                    "description": "The file type rojo should save the level as."
                 }
             }
         },
