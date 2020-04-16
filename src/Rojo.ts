@@ -71,9 +71,13 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
    * @memberof Rojo
    */
   public init(): void {
-    childProcess.execFileSync(this.rojoPath, ["init"], {
-      cwd: this.getWorkspacePath()
-    })
+    childProcess.execFileSync(
+      this.rojoPath,
+      ["init", ...this.version.info.cliOptions],
+      {
+        cwd: this.getWorkspacePath()
+      }
+    )
 
     this.openConfiguration()
   }
@@ -124,9 +128,13 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
       this.stop()
     }
 
-    this.server = childProcess.spawn(this.rojoPath, ["serve"], {
-      cwd: this.getWorkspacePath()
-    })
+    this.server = childProcess.spawn(
+      this.rojoPath,
+      ["serve", ...this.version.info.cliOptions],
+      {
+        cwd: this.getWorkspacePath()
+      }
+    )
 
     this.server.stdout.on(
       "data",
@@ -134,7 +142,17 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
         this.sendToOutput(data)
 
         if (count === 0) {
-          vscode.window.showInformationMessage(data.toString())
+          const stringData = data.toString()
+          const link = stringData.match(/(https?:\/\/[^\s]*\b)/)
+
+          vscode.window
+            .showInformationMessage(
+              stringData,
+              ...(link ? ["Visit in Browser"] : [])
+            )
+            .then(() => {
+              if (link) vscode.env.openExternal(vscode.Uri.parse(link[1]))
+            })
         } else if (count === 1) {
           this.outputChannel.show()
         }

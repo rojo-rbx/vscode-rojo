@@ -1,172 +1,212 @@
 {
-    "name": "vscode-rojo",
-    "displayName": "Rojo - Roblox Studio Sync",
-    "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
-    "version": "1.11.1",
-    "repository": "https://github.com/evaera/vscode-rojo",
-    "publisher": "evaera",
-    "engines": {
-        "vscode": "^1.32.0"
+  "name": "vscode-rojo",
+  "displayName": "Rojo - Roblox Studio Sync",
+  "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
+  "version": "1.12.0",
+  "repository": "https://github.com/evaera/vscode-rojo",
+  "publisher": "evaera",
+  "engines": {
+    "vscode": "^1.32.0"
+  },
+  "categories": [
+    "Extension Packs"
+  ],
+  "icon": "assets/extension-icon.png",
+  "activationEvents": [
+    "workspaceContains:rojo.json",
+    "workspaceContains:*.project.json",
+    "onCommand:rojo.init",
+    "onCommand:rojo.start",
+    "onCommand:rojo.welcome"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rojo.init",
+        "title": "Initialize",
+        "category": "Rojo"
+      },
+      {
+        "command": "rojo.convert",
+        "title": "Convert rojo.json to default.project.json",
+        "category": "Rojo"
+      },
+      {
+        "command": "rojo.build",
+        "title": "Build place/model file",
+        "category": "Rojo"
+      },
+      {
+        "command": "rojo.start",
+        "title": "Start server",
+        "category": "Rojo"
+      },
+      {
+        "command": "rojo.stop",
+        "title": "Stop server",
+        "category": "Rojo"
+      },
+      {
+        "command": "rojo.welcome",
+        "title": "Show welcome screen",
+        "category": "Rojo"
+      },
+      {
+        "command": "rojo.createPartition",
+        "title": "Rojo: Sync from here...",
+        "category": "Rojo"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "rojo.createPartition",
+          "group": "2_workspace"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "rojo.createPartition",
+          "when": "never"
+        }
+      ]
     },
-    "categories": [
-        "Extension Packs"
-    ],
-    "icon": "assets/extension-icon.png",
-    "activationEvents": [
-        "workspaceContains:rojo.json",
-        "workspaceContains:*.project.json",
-        "onCommand:rojo.init",
-        "onCommand:rojo.start",
-        "onCommand:rojo.welcome"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "commands": [
-            {
-                "command": "rojo.init",
-                "title": "Initialize",
-                "category": "Rojo"
-            },
-            {
-                "command": "rojo.convert",
-                "title": "Convert rojo.json to default.project.json",
-                "category": "Rojo"
-            },
-            {
-                "command": "rojo.build",
-                "title": "Build place/model file",
-                "category": "Rojo"
-            },
-            {
-                "command": "rojo.start",
-                "title": "Start server",
-                "category": "Rojo"
-            },
-            {
-                "command": "rojo.stop",
-                "title": "Stop server",
-                "category": "Rojo"
-            },
-            {
-                "command": "rojo.welcome",
-                "title": "Show welcome screen",
-                "category": "Rojo"
-            },
-            {
-                "command": "rojo.createPartition",
-                "title": "Rojo: Sync from here...",
-                "category": "Rojo"
-            }
-        ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "rojo.createPartition",
-                    "group": "2_workspace"
-                }
-            ],
-            "commandPalette": [
-                {
-                    "command": "rojo.createPartition",
-                    "when": "never"
-                }
-            ]
+    "configuration": {
+      "title": "Rojo configuration",
+      "properties": {
+        "rojo.pluginManagement": {
+          "type": "boolean",
+          "default": null,
+          "description": "Whether or not Rojo will manage installing the Rojo plugin rbxmx file into the Roblox Studio plugins folder or not."
         },
         "configuration": {
-            "title": "Rojo configuration",
-            "properties": {
-                "rojo.pluginManagement": {
-                    "type": "boolean",
-                    "default": null,
-                    "description": "Whether or not Rojo will manage installing the Rojo plugin rbxmx file into the Roblox Studio plugins folder or not."
-                },
-                "rojo.robloxStudioPluginsPath": {
-                    "type": "string",
-                    "default": "",
-                    "description": "The plugins for for Roblox Studio, if this extension is managing plugin installation."
-                },
-                "rojo.cargo": {
-                    "type": "string",
-                    "default": "cargo",
-                    "description": "Name or full path `cargo` executable used to build and install Rojo from source on macOS"
-                },
-                "rojo.enableTelemetry": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether or not to send basic, anonymous usage reports to this extension's maintainer (does not gather any information about your files or game)."
-                },
-                "rojo.releaseBranch": {
-                    "type": "string",
-                    "enum": [
-                        "0.4.x",
-                        "0.5.x",
-                        "0.6.x"
-                    ],
-                    "default": "0.5.x",
-                    "description": "The release branch to install."
-                },
-                "rojo.targetVersion": {
-                    "type": "string",
-                    "description": "The specific target version tag to install. This setting overrides the releaseBranch setting."
-                },
-                "rojo.buildOutputPath": {
-                    "type": "string",
-                    "default": "build",
-                    "description": "The output path of the build command, relative to your root folder."
-                },
-                "rojo.levelFileType": {
-                    "type": "string",
-                    "enum": [
-                        "rbxl",
-                        "rbxlx"
-                    ],
-                    "default": "rbxl",
-                    "description": "The file type rojo should save the level as."
-                }
+          "title": "Rojo configuration",
+          "properties": {
+            "rojo.pluginManagement": {
+              "type": "boolean",
+              "default": null,
+              "description": "Whether or not Rojo will manage installing the Rojo plugin rbxmx file into the Roblox Studio plugins folder or not."
+            },
+            "rojo.robloxStudioPluginsPath": {
+              "type": "string",
+              "default": "",
+              "description": "The plugins for for Roblox Studio, if this extension is managing plugin installation."
+            },
+            "rojo.cargo": {
+              "type": "string",
+              "default": "cargo",
+              "description": "Name or full path `cargo` executable used to build and install Rojo from source on macOS"
+            },
+            "rojo.enableTelemetry": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether or not to send basic, anonymous usage reports to this extension's maintainer (does not gather any information about your files or game)."
+            },
+            "rojo.releaseBranch": {
+              "type": "string",
+              "enum": [
+                "0.4.x",
+                "0.5.x",
+                "0.6.x"
+              ],
+              "default": "0.5.x",
+              "description": "The release branch to install."
+            },
+            "rojo.targetVersion": {
+              "type": "string",
+              "description": "The specific target version tag to install. This setting overrides the releaseBranch setting."
+            },
+            "rojo.buildOutputPath": {
+              "type": "string",
+              "default": "build",
+              "description": "The output path of the build command, relative to your root folder."
+            },
+            "rojo.levelFileType": {
+              "type": "string",
+              "enum": [
+                "rbxl",
+                "rbxlx"
+              ],
+              "default": "rbxl",
+              "description": "The file type rojo should save the level as."
             }
+          }
         },
-        "jsonValidation": [
-            {
-                "fileMatch": "rojo.json",
-                "url": "./schemas/rojo.schema.json"
-            },
-            {
-                "fileMatch": "*.project.json",
-                "url": "./schemas/project.schema.json"
-            },
-            {
-                "fileMatch": "*.project.jsonc",
-                "url": "./schemas/project.schema.json"
-            }
-        ]
+        "rojo.cargo": {
+          "type": "string",
+          "default": "cargo",
+          "description": "Name or full path `cargo` executable used to build and install Rojo from source on macOS"
+        },
+        "rojo.enableTelemetry": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether or not to send basic, anonymous usage reports to this extension's maintainer (does not gather any information about your files or game)."
+        },
+        "rojo.releaseBranch": {
+          "type": "string",
+          "enum": [
+            "0.4.x",
+            "0.5.x",
+            "0.6.x",
+            "6.x"
+          ],
+          "default": "0.5.x",
+          "description": "The release branch to install."
+        },
+        "rojo.targetVersion": {
+          "type": "string",
+          "description": "The specific target version tag to install. This setting overrides the releaseBranch setting."
+        },
+        "rojo.buildOutputPath": {
+          "type": "string",
+          "default": "build",
+          "description": "The output path of the build command, relative to your root folder."
+        }
+      }
     },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "@types/fs-extra": "^5.0.5",
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^8.10.59",
-        "@types/universal-analytics": "^0.4.2",
-        "@types/unzipper": "^0.10.0",
-        "@types/uuid": "^3.4.4",
-        "@typescript-eslint/eslint-plugin": "^2.3.0",
-        "@typescript-eslint/parser": "^2.3.0",
-        "dts-gen": "^0.5.7",
-        "eslint": "^6.4.0",
-        "eslint-config-prettier": "^6.3.0",
-        "prettier": "^1.18.2",
-        "typescript": "^3.7.2",
-        "vscode": "^1.1.33"
-    },
-    "dependencies": {
-        "axios": "^0.18.1",
-        "fs-extra": "^7.0.1",
-        "universal-analytics": "^0.4.20",
-        "unzipper": "^0.10.5",
-        "uuid": "^3.3.2"
-    }
+    "jsonValidation": [
+      {
+        "fileMatch": "rojo.json",
+        "url": "./schemas/rojo.schema.json"
+      },
+      {
+        "fileMatch": "*.project.json",
+        "url": "./schemas/project.schema.json"
+      },
+      {
+        "fileMatch": "*.project.jsonc",
+        "url": "./schemas/project.schema.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.5",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^8.10.59",
+    "@types/universal-analytics": "^0.4.2",
+    "@types/unzipper": "^0.10.0",
+    "@types/uuid": "^3.4.4",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
+    "dts-gen": "^0.5.7",
+    "eslint": "^6.4.0",
+    "eslint-config-prettier": "^6.3.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.7.2",
+    "vscode": "^1.1.33"
+  },
+  "dependencies": {
+    "axios": "^0.18.1",
+    "fs-extra": "^7.0.1",
+    "universal-analytics": "^0.4.20",
+    "unzipper": "^0.10.5",
+    "uuid": "^3.3.2"
+  }
 }
