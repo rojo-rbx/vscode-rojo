@@ -6,6 +6,8 @@ export const V06Info: VersionInfo = {
 
   name: "v0.6",
 
+  cliOptions: [],
+
   configChangeRestartsRojo: false,
 
   getPreviousVersionInfo() {

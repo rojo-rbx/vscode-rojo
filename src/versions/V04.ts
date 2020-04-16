@@ -13,6 +13,8 @@ export const V04Info: VersionInfo = {
   canSyncPointsBeNonServices: false,
   configChangeRestartsRojo: true,
 
+  cliOptions: [],
+
   getProjectFileName() {
     return "rojo.json"
   },

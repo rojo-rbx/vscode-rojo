@@ -2,6 +2,7 @@ import { Rojo } from "../Rojo"
 import { V04, V04Info } from "./V04"
 import { V05, V05Info } from "./V05"
 import { V06, V06Info } from "./V06"
+import { V6, V6Info } from "./V6"
 
 export interface VersionInfo {
   getProjectFileName(): string
@@ -10,6 +11,7 @@ export interface VersionInfo {
   isUpgraderAvailable(folderPath: string): boolean
   configChangeRestartsRojo: boolean
   name: string
+  cliOptions: string[]
 }
 
 export interface Version {
@@ -25,7 +27,8 @@ export interface Version {
 const versions = {
   "v0.4": [V04Info, V04],
   "v0.5": [V05Info, V05],
-  "v0.6": [V06Info, V06]
+  "v0.6": [V06Info, V06],
+  v6: [V6Info, V6]
 } as const
 
 function getVersion(

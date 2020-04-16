@@ -21,6 +21,7 @@ export const V05Info: VersionInfo = {
   name: "v0.5",
   canSyncPointsBeNonServices: true,
   configChangeRestartsRojo: true,
+  cliOptions: [],
 
   getProjectFileName() {
     return "default.project.json"
