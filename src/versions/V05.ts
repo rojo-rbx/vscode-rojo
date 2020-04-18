@@ -53,10 +53,31 @@ export class V05 implements Version {
 
   async build(): Promise<void> {
     const outputConfig = getConfiguration().get("buildOutputPath") as string
-    const levelFileType = getConfiguration().get("levelFileType") as string
-    const outputFile = `${outputConfig}.${
-      this.isConfigRootDataModel() ? levelFileType : "rbxm"
-    }`
+    const buildFileFormat = getConfiguration().get("buildFileFormat") as string
+
+    let outputFileType: string;
+    if (this.isConfigRootDataModel()) {
+        outputFileType = "rbxmx";
+        if (buildFileFormat) {
+            if (buildFileFormat === "XML") {
+                outputFileType = "rbxmx"
+            } else if (buildFileFormat === "binary") {
+                outputFileType = "rbxm"
+            }
+        }
+    } else {
+        // Level file
+        outputFileType = "rbxlx";
+        if (buildFileFormat) {
+            if (buildFileFormat === "XML") {
+                outputFileType = "rbxlx";
+            } else if (buildFileFormat === "binary") {
+                outputFileType = "rbxl";
+            }
+        }
+    }
+
+    const outputFile = `${outputConfig}.${outputFileType}`
     const outputPath = path.join(this.rojo.getWorkspacePath(), outputFile)
 
     await fs.ensureDir(path.dirname(outputPath))

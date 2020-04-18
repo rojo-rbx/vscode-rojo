@@ -122,14 +122,14 @@
               "default": "build",
               "description": "The output path of the build command, relative to your root folder."
             },
-            "rojo.levelFileType": {
+            "rojo.buildFileFormat": {
               "type": "string",
               "enum": [
-                "rbxl",
-                "rbxlx"
+                "XML",
+                "binary"
               ],
-              "default": "rbxl",
-              "description": "The file type rojo should save the level as."
+              "default": "XML",
+              "description": "The file format used by the build command."
             }
           }
         },
@@ -162,6 +162,15 @@
           "type": "string",
           "default": "build",
           "description": "The output path of the build command, relative to your root folder."
+        },
+        "rojo.buildFileFormat": {
+          "type": "string",
+          "enum": [
+            "XML",
+            "binary"
+          ],
+          "default": "XML",
+          "description": "The file format used by the build command."
         }
       }
     },
