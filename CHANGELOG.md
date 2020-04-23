@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Update plugin link on welcome screen
+
 # 1.12.0
 
 - Support Rojo v6 (#26)
