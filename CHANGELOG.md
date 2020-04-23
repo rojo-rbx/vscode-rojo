@@ -1,6 +1,6 @@
 # Release Notes
 
-# Next
+# 1.12.1
 
 - Update plugin link on welcome screen
 - Make notification not open rojo localhost website when it's closed
