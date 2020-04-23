@@ -150,8 +150,9 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
               stringData,
               ...(link ? ["Visit in Browser"] : [])
             )
-            .then(() => {
-              if (link) vscode.env.openExternal(vscode.Uri.parse(link[1]))
+            .then(buttonClicked => {
+              if (link && buttonClicked)
+                vscode.env.openExternal(vscode.Uri.parse(link[1]))
             })
         } else if (count === 1) {
           this.outputChannel.show()
