@@ -114,6 +114,15 @@
           "type": "string",
           "default": "build",
           "description": "The output path of the build command, relative to your root folder."
+        },
+        "rojo.buildFileFormat": {
+          "type": "string",
+          "enum": [
+            "XML",
+            "Binary"
+          ],
+          "default": "XML",
+          "description": "The file format used by the build command."
         }
       }
     },
