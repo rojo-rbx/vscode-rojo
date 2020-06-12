@@ -58,6 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
+  Rojo.stopAll()    // Attempting to shut all the random instances down
   console.log('"vscode-rojo" has deactivated.')
 }
 
