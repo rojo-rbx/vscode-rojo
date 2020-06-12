@@ -4,6 +4,11 @@
 
 - Add option to change build format between binary and XML. Default is XML.
 
+# 1.12.1
+
+- Update plugin link on welcome screen
+- Make notification not open rojo localhost website when it's closed
+
 # 1.12.0
 
 - Support Rojo v6 (#26)
