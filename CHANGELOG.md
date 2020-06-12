@@ -1,8 +1,9 @@
 # Release Notes
 
-# Next
+# 1.12.2
 
 - Add option to change build format between binary and XML. Default is XML.
+- Fix a bug where Rojo wouldn't clean up executables on macOS (#28)
 
 # 1.12.1
 
