@@ -1,5 +1,9 @@
 # Release Notes
 
+# Next
+
+- Add option to change build format between binary and XML. Default is XML.
+
 # 1.12.0
 
 - Support Rojo v6 (#26)
