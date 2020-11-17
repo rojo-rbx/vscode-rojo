@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.12.3
+
+- Change latest release endpoint
+
 # 1.12.2
 
 - Add option to change build format between binary and XML. Default is XML.
