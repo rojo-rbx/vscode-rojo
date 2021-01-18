@@ -6,7 +6,7 @@ Works on both Windows and macOS.
 
 ## How to use
 
-- **If you are a new user**, please open the command panel (`Ctrl+Shift+P`) and run `Rojo: Open welcome screen` to see a guide.
+- **If you are a new user**, please open the command panel (`Ctrl+Shift+P`) and run `Rojo: Show welcome screen` to see a guide.
 - Otherwise, the extension will automatically activate whenever you have a `rojo.json` or `default.project.json` file in the root of your workspace or when you run a Rojo command.
 
 ## Features
@@ -15,7 +15,7 @@ Works on both Windows and macOS.
 - Can automatically install the Roblox Studio plugin as well.
 - Start and stop Rojo in one click, no need to touch the command line.
 - Generates (and provides schema helpers for) Rojo projects.
-- Includes a quick start guide to help new users get started (`Rojo: Open welcome screen`)
+- Includes a quick start guide to help new users get started (`Rojo: Show welcome screen`)
 
 ## Requirements
 
