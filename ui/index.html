@@ -16,11 +16,8 @@
     </header>
 
     <section class="news" id="news">
-      <h2>News</h2>
+      <h3><strong>Rojo 6</strong> is now the recommended release branch!</h3>
       <ul>
-        <li><strong>Rojo v0.5.x is now out of alpha!</strong> Check out <a href="https://rojo.space/docs/latest/guide/migrating-to-epiphany/">this page</a> for details on how to migrate your project.</li>
-        <li>You can use the "Rojo: Convert rojo.json to default.project.json" option in the Command Panel (Ctrl+Shift+P) to attempt to migrate automatically.</li>
-        <li>The "releaseType" option which previously allowed you to select pre-release or release has been removed in favor of a "releaseBranch" setting which allows you to specify the major release version you want to use. 0.5.x is now the default major release version.</li>
         <li>You can still bind projects to specific Rojo versions by setting the "targetVersion" option at the workspace level.</li>
       </ul>
     </section>
@@ -32,10 +29,15 @@
       <div class="buttons">
         <p id="must-choose" class="transition">You <strong>must</strong> choose one of these two options in order to use Rojo with Roblox Studio.</p>
         <br>
-        <a href="https://www.roblox.com/library/1997686364/Rojo-0-5-4" target="_blank" class="button" id="manage-type-false">Roblox.com Plugin</a>
-        <button class="button" id="manage-type-true">Manage it for me</button>
+        <a href="https://www.roblox.com/library/4048317704/" target="_blank" class="button" id="manage-type-false">Roblox.com Plugin <small>(not recommended)</small></a>
+        <button class="button" id="manage-type-true">Manage it for me <small>(recommended)</small></button>
         <p class="hidden transition">Will write plugin to <code id="plugins-path"></code><br><small>You can change this in the extension's configuration.</small></p>
       </div>
+    </section>
+
+    <section>
+      <h2>Note for macOS</h2>
+      <p>If you are running on macOS, you need to install XCode from the App Store, launch it to agree to the developer terms, and then install <a href="https://doc.rust-lang.org/cargo/getting-started/installation.html">cargo</a> before running this extension.</p>
     </section>
 
     <section>
@@ -43,8 +45,8 @@
       <p>If you want to learn more about how to use Rojo, check out the official docs:</p>
 
       <ul>
-        <li><a href="https://rojo.space/docs/0.5.x/reference/project-format/">Project file format</a></li>
-        <li><a href="https://rojo.space/docs/0.5.x/reference/sync-details/">Sync details</a></li>
+        <li><a href="https://rojo.space/docs/6.x/project-format/">Project file format</a></li>
+        <li><a href="https://rojo.space/docs/6.x/sync-details/">Sync details</a></li>
       </ul>
     </section>
 
@@ -53,9 +55,9 @@
       <p>Here are some extensions that work well with vscode-rojo. Search them in the extensions panel to install.</p>
       <ul>
         <li>Roblox Lua Autocompletes by Kampfkarren</li>
-        <li>vscode-rbxlua by AmaranthineCodices</li>
-        <li>Lua by sumneko</li>
-        <li>vscode-lua by trixnz</li>
+        <li>Luau by UnderMyWheel</li>
+        <li>Roblox LSP by Nightrains</li>
+        <li>StyLua by JohnnyMorganz</li>
         <li>TabNine by TabNine</li>
       </ul>
     </section>

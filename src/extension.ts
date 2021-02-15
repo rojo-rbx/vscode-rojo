@@ -51,14 +51,14 @@ export function activate(context: vscode.ExtensionContext) {
 
   if (
     getPluginIsManaged() === null ||
-    shouldShowNews("rojo0.5release", context)
+    shouldShowNews("rojo6release", context)
   ) {
     createOrShowInterface(context, getBridge)
   }
 }
 
 export function deactivate() {
-  Rojo.stopAll()    // Attempting to shut all the random instances down
+  Rojo.stopAll() // Attempting to shut all the random instances down
   console.log('"vscode-rojo" has deactivated.')
 }
 

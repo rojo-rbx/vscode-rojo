@@ -29,7 +29,7 @@ export default class Interface extends vscode.Disposable {
 
     this.panel = vscode.window.createWebviewPanel(
       "rojoWelcome",
-      "Welcome to Rojo",
+      "Welcome to Rojo 6",
       vscode.ViewColumn.One,
       {
         enableScripts: true
