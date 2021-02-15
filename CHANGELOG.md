@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.12.5
+
+- Fix downgrading not installing older plugins
+
 # 1.12.4
 
 - Change default version to 6
