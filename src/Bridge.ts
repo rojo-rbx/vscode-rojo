@@ -483,6 +483,10 @@ export class Bridge extends vscode.Disposable {
     // Get an array of all of the assets included with the latest release, and
     const assets: GithubAsset[] = release.assets
     let installedBinary = false
+    let versionChanged = version !== this.context.globalState.get("rojoVersion")
+
+    // Update the saved version text to reflect what version we have now.
+    this.context.globalState.update("rojoVersion", version)
 
     // TODO: ensure the download finishes before setting this.
     this.setVersion(version)
@@ -490,10 +494,6 @@ export class Bridge extends vscode.Disposable {
     if (fs.existsSync(this.rojoPath) === false) {
       // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
       this.button.setState(ButtonState.Downloading)
-
-      // Update the saved version text to reflect what version we have now.
-
-      this.context.globalState.update("rojoVersion", version)
 
       if (os.platform() === "win32") {
         installedBinary = await this.installWin32Binary(assets, version)
@@ -505,7 +505,7 @@ export class Bridge extends vscode.Disposable {
     // Now handle the plugin business
     let installedPlugin = false
     if (
-      (installedBinary || !this.isPluginInstalled()) &&
+      (installedBinary || !this.isPluginInstalled() || versionChanged) &&
       getPluginIsManaged()
     ) {
       installedPlugin = await this.installPlugin(assets)
