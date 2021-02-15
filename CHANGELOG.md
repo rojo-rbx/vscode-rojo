@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.12.4
+
+- Change default version to 6
+
 # 1.12.3
 
 - Change latest release endpoint
