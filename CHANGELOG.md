@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.12.7
+
+- Add descriptions to release branches
+
 # 1.12.6
 
 - Support for Rojo 7

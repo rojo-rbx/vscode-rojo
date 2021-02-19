@@ -103,6 +103,12 @@
             "6.x",
             "7.x"
           ],
+          "enumDescriptions": [
+            "Rojo 0.4: Not recommended; support will be removed soon.",
+            "Rojo 0.5: Previous release",
+            "Rojo 6: Recommended release",
+            "Rojo 7: Alpha release"
+          ],
           "default": "6.x",
           "description": "The release branch to install."
         },
