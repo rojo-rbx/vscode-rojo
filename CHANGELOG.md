@@ -1,5 +1,10 @@
 # Release Notes
 
+# 1.12.6
+
+- Support for Rojo 7
+- Add better error reporting for start fails
+
 # 1.12.5
 
 - Fix downgrading not installing older plugins
