@@ -34,7 +34,9 @@ export const startCommand = vscode.commands.registerCommand(
           os.platform()
         )
         Telemetry.trackException(e)
-        vscode.window.showErrorMessage("An error occurred while spawning Rojo.")
+        vscode.window.showErrorMessage(
+          `An error occurred while spawning Rojo: ${e}`
+        )
         return
       }
       // One final check to make sure that `rojo.serving` is true. If it's not, something caused the serve function to stop prematurely.
