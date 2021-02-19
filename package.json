@@ -100,7 +100,8 @@
           "enum": [
             "0.4.x",
             "0.5.x",
-            "6.x"
+            "6.x",
+            "7.x"
           ],
           "default": "6.x",
           "description": "The release branch to install."

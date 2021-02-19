@@ -3,6 +3,7 @@ import { V04, V04Info } from "./V04"
 import { V05, V05Info } from "./V05"
 import { V06, V06Info } from "./V06"
 import { V6, V6Info } from "./V6"
+import { V7, V7Info } from "./V7"
 
 export interface VersionInfo {
   getProjectFileName(): string
@@ -28,7 +29,8 @@ const versions = {
   "v0.4": [V04Info, V04],
   "v0.5": [V05Info, V05],
   "v0.6": [V06Info, V06],
-  v6: [V6Info, V6]
+  v6: [V6Info, V6],
+  v7: [V7Info, V7]
 } as const
 
 function getVersion(
