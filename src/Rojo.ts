@@ -44,11 +44,13 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   /**
    * Creates an instance of RojoWin32.
    * @param {vscode.WorkspaceFolder} workspace The workspace folder for which this Rojo instance belongs.
+   * @param {string} projectFilePath A relative path to the project file.
    * @param {string} rojoPath The path to the rojo binary.
    * @memberof Rojo
    */
   constructor(
     public workspace: vscode.WorkspaceFolder,
+    private projectFilePath: string,
     private bridge: Bridge
   ) {
     super(() => this.dispose())
@@ -64,6 +66,15 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
 
   public getWorkspacePath() {
     return this.workspace.uri.fsPath
+  }
+
+  public getProjectFilePath() {
+    return this.projectFilePath
+  }
+
+  public setProjectFilePath(path: string) {
+    this.projectFilePath = path
+    return this
   }
 
   /**
@@ -87,7 +98,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
    * @memberof Rojo
    */
   public async build(): Promise<void> {
-    return this.version.build()
+    return this.version.build(this.projectFilePath)
   }
 
   public async attemptUpgrade() {
@@ -130,7 +141,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
 
     this.server = childProcess.spawn(
       this.rojoPath,
-      ["serve", ...this.version.info.cliOptions],
+      ["serve", this.projectFilePath, ...this.version.info.cliOptions],
       {
         cwd: this.getWorkspacePath()
       }
@@ -214,9 +225,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   }
 
   public loadProjectConfig(): C {
-    return JSON.parse(
-      fs.readFileSync(this.version.getDefaultProjectFilePath(), "utf8")
-    )
+    return JSON.parse(fs.readFileSync(this.projectFilePath, "utf8"))
   }
 
   /**
@@ -226,7 +235,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   public openConfiguration(): void {
     // Open in column #2 if the interface is open so we don't make people lose progress on the guide
     vscode.workspace
-      .openTextDocument(this.version.getDefaultProjectFilePath())
+      .openTextDocument(this.projectFilePath)
       .then(doc =>
         vscode.window.showTextDocument(
           doc,
@@ -241,7 +250,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
    * @memberof Rojo
    */
   private watch(): void {
-    this.watcher = fs.watch(this.version.getDefaultProjectFilePath(), () => {
+    this.watcher = fs.watch(this.projectFilePath, () => {
       this.stop()
       this.outputChannel.appendLine(
         "Project configuration changed, reloading Rojo."

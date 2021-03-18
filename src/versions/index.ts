@@ -20,7 +20,7 @@ export interface Version {
   getDefaultProjectFilePath(): string
   getProjectFilePaths(): string[]
   createSyncPoint(path: string, target: string): Promise<boolean>
-  build(): Promise<void>
+  build(projectFilePath: string): Promise<void>
   upgrade(): Promise<void>
   isConfigRootDataModel(): boolean
 }

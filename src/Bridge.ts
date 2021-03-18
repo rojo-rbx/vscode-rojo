@@ -98,19 +98,20 @@ export class Bridge extends vscode.Disposable {
    * Gets or creates the proper Rojo instance for the given workspace folder.
    * Only usable when the bridge is ready.
    * @param {vscode.WorkspaceFolder} workspace The workspace for which to get the Rojo instance.
+   * @param {string} projectFile The path to the project file to use.
    * @returns {Rojo} The Rojo instance for the given workspace.
    * @memberof Bridge
    */
-  public getRojo(workspace: vscode.WorkspaceFolder): Rojo {
+  public getRojo(workspace: vscode.WorkspaceFolder, projectFile: string): Rojo {
     if (!this.ready) {
       throw new Error("Attempt to get Rojo instance before bridge was ready")
     }
 
     if (!this.rojoMap.has(workspace)) {
-      this.rojoMap.set(workspace, new Rojo(workspace, this))
+      this.rojoMap.set(workspace, new Rojo(workspace, projectFile, this))
     }
 
-    return this.rojoMap.get(workspace) as Rojo
+    return (this.rojoMap.get(workspace) as Rojo).setProjectFilePath(projectFile)
   }
 
   /**
