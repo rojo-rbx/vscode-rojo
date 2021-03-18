@@ -38,6 +38,11 @@
         "category": "Rojo"
       },
       {
+        "command": "rojo.buildOverridePath",
+        "title": "Build place/model file using project file...",
+        "category": "Rojo"
+      },
+      {
         "command": "rojo.start",
         "title": "Start server",
         "category": "Rojo"

@@ -1,5 +1,6 @@
 import * as childProcess from "child_process"
 import * as fs from "fs-extra"
+import * as path from "path"
 import * as vscode from "vscode"
 import { Bridge } from "./Bridge"
 import { callWithCounter, isInterfaceOpened } from "./Util"
@@ -225,7 +226,12 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   }
 
   public loadProjectConfig(): C {
-    return JSON.parse(fs.readFileSync(this.projectFilePath, "utf8"))
+    return JSON.parse(
+      fs.readFileSync(
+        path.join(this.workspace.uri.fsPath, this.projectFilePath),
+        "utf8"
+      )
+    )
   }
 
   /**
