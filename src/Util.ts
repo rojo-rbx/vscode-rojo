@@ -48,6 +48,17 @@ export function getReleaseBranch(): string | undefined {
   return getConfiguration().get("releaseBranch")
 }
 
+export function getProjectFilePath(): string | undefined {
+  return getConfiguration().get("projectFilePath")
+}
+
+export function updateProjectFilePath(
+  value: string,
+  target?: vscode.ConfigurationTarget | boolean
+) {
+  return getConfiguration().update("projectFilePath", value, target)
+}
+
 export function isTelemetryEnabled(): boolean {
   return getConfiguration().get("enableTelemetry") as boolean
 }
