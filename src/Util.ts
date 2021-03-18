@@ -154,6 +154,66 @@ export function pickFolder(
     })
 }
 
+/**
+ * Creates a picker menu so that the user can select which project file path they want to use.
+ * Once they have picked, we will also prompt to ask them if they wish to save it for the future.
+ * @param folder The folder to allow picking file path from
+ * @param placeHolder The prompt that's in the box so the user knows what's up
+ * @param defaultProjectPath The path to the default project json file
+ */
+export async function pickFilePath(
+  folder: vscode.WorkspaceFolder,
+  placeHolder: string,
+  defaultProjectPath: string
+) {
+  return vscode.window
+    .showOpenDialog({
+      canSelectFiles: true,
+      canSelectFolders: false,
+      canSelectMany: false,
+      filters: {
+        "Project Files (*.project.json)": ["project.json"]
+      },
+      defaultUri: folder.uri,
+      openLabel: "Select"
+    })
+    .then(selected => {
+      if (!selected) {
+        return undefined
+      }
+
+      const path = selected[0]
+      const relativePath = vscode.workspace.asRelativePath(path, false)
+
+      vscode.window
+        .showInformationMessage(
+          `Would you like to set ${relativePath} as the default project file to use when running Rojo?`,
+          "Set for Workspace",
+          "Set Globally",
+          "Not now"
+        )
+        .then(option => {
+          switch (option) {
+            case "Set for Workspace": {
+              updateProjectFilePath(relativePath, false)
+              vscode.window.showInformationMessage(
+                `Set ${relativePath} as the default project file to use for this workspace`
+              )
+              break
+            }
+            case "Set Globally": {
+              updateProjectFilePath(relativePath, true)
+              vscode.window.showInformationMessage(
+                `Set ${relativePath} as the default project file to use for all Rojo instances`
+              )
+              break
+            }
+          }
+        })
+      return selected[0]
+    })
+}
+
 export function callWithCounter<T extends unknown[]>(
   callback: (count: number, ...args: T) => unknown
 ) {
