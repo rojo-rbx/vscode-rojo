@@ -43,6 +43,11 @@
         "category": "Rojo"
       },
       {
+        "command": "rojo.startOverridePath",
+        "title": "Start server using project file...",
+        "category": "Rojo"
+      },
+      {
         "command": "rojo.stop",
         "title": "Stop server",
         "category": "Rojo"
@@ -115,6 +120,10 @@
         "rojo.targetVersion": {
           "type": "string",
           "description": "The specific target version tag to install. This setting overrides the releaseBranch setting."
+        },
+        "rojo.projectFilePath": {
+          "type": "string",
+          "description": "The path of the project file to use when building or serving, relative to your root folder. If not provided, the default project file is used."
         },
         "rojo.buildOutputPath": {
           "type": "string",
