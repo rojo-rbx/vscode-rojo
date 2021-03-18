@@ -2,13 +2,14 @@ import fs from "fs"
 import path from "path"
 import vscode from "vscode"
 import { Rojo } from "../Rojo"
-import { pickFolder } from "../Util"
+import { getProjectFilePath, pickFilePath, pickFolder } from "../Util"
 import { getBridge, resetBridge } from "./getBridge"
 
 export interface PickRojoOptions {
   noFoldersError: string
   prompt: string
   allowUninitialized?: boolean
+  promptForProjectFilePath?: boolean
 }
 
 /**
@@ -43,14 +44,27 @@ export async function pickRojo(
   const folder = await pickFolder(folders, options.prompt)
   if (!folder) return
 
-  // Ensure `rojo.json` exists in the workspace unless allowUnitialized is true.
+  // Ensure the project file exists in the workspace unless allowUnitialized is true.
+  // If `promptForProjectFilePath` is enabled, then we prompt the user to pick the file path.
+  // If not present, we fall back to the file path provided in user-defined settings.
+  // If both not present, we fall back to the default project file name for the version.
 
   const versionInfo = bridge.getVersionInfo()
-  const projectFileName = versionInfo.getProjectFileName()
+  const projectFileName =
+    (options.promptForProjectFilePath &&
+      (await pickFilePath(
+        folder,
+        "Select Project File Path",
+        versionInfo.getProjectFileName()
+      ))) ||
+    getProjectFilePath() ||
+    versionInfo.getProjectFileName()
+
+  const relativePath = vscode.workspace.asRelativePath(projectFileName)
 
   if (
     !options.allowUninitialized &&
-    !fs.existsSync(path.join(folder.uri.fsPath, projectFileName))
+    !fs.existsSync(path.join(folder.uri.fsPath, relativePath))
   ) {
     const upgradeAvailable = versionInfo.isUpgraderAvailable(folder.uri.fsPath)
 
@@ -73,5 +87,5 @@ export async function pickRojo(
   }
 
   // All checks passed, so we return the actual Rojo instance.
-  return bridge.getRojo(folder)
+  return bridge.getRojo(folder, relativePath)
 }
