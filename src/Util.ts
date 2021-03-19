@@ -52,11 +52,8 @@ export function getProjectFilePath(): string | undefined {
   return getConfiguration().get("projectFilePath")
 }
 
-export function updateProjectFilePath(
-  value: string,
-  target?: vscode.ConfigurationTarget | boolean
-) {
-  return getConfiguration().update("projectFilePath", value, target)
+export function updateProjectFilePath(value: string) {
+  return getConfiguration().update("projectFilePath", value, false)
 }
 
 export function isTelemetryEnabled(): boolean {
@@ -189,25 +186,14 @@ export async function pickFilePath(
         .showInformationMessage(
           `Would you like to set ${relativePath} as the default project file to use when running Rojo?`,
           "Set for Workspace",
-          "Set Globally",
           "Not now"
         )
         .then(option => {
-          switch (option) {
-            case "Set for Workspace": {
-              updateProjectFilePath(relativePath, false)
-              vscode.window.showInformationMessage(
-                `Set ${relativePath} as the default project file to use for this workspace`
-              )
-              break
-            }
-            case "Set Globally": {
-              updateProjectFilePath(relativePath, true)
-              vscode.window.showInformationMessage(
-                `Set ${relativePath} as the default project file to use for all Rojo instances`
-              )
-              break
-            }
+          if (option === "Set for Workspace") {
+            updateProjectFilePath(relativePath)
+            vscode.window.showInformationMessage(
+              `Set ${relativePath} as the default project file to use for this workspace`
+            )
           }
         })
       return selected[0]
