@@ -1,4 +1,5 @@
 import vscode from "vscode"
+import { PickRojoMode } from "../util/pickRojo"
 import { startRojo } from "../util/startRojo"
 
 /**
@@ -6,5 +7,5 @@ import { startRojo } from "../util/startRojo"
  */
 export const startCommand = vscode.commands.registerCommand(
   "rojo.start",
-  async () => startRojo(false)
+  async () => startRojo(PickRojoMode.Prompt)
 )

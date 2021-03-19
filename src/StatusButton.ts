@@ -58,7 +58,7 @@ export default class StatusButton extends vscode.Disposable {
     switch (state) {
       case ButtonState.Start:
         this.button.text = Strings.TEXT_START
-        this.button.command = "rojo.start"
+        this.button.command = "rojo.startLastUsed"
         break
       case ButtonState.Running:
         this.button.text = `${Strings.TEXT_RUNNING} ${version} ${

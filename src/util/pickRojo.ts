@@ -1,15 +1,19 @@
-import fs from "fs"
-import path from "path"
 import vscode from "vscode"
+import { extensionContext } from "../extension"
 import { Rojo } from "../Rojo"
-import { getProjectFilePath, pickFilePath, pickFolder } from "../Util"
+import { pickFolder, pickProjectFile } from "../Util"
 import { getBridge, resetBridge } from "./getBridge"
+
+export enum PickRojoMode {
+  Prompt,
+  LastUsed
+}
 
 export interface PickRojoOptions {
   noFoldersError: string
   prompt: string
   allowUninitialized?: boolean
-  promptForProjectFilePath?: boolean
+  pickMode?: PickRojoMode
 }
 
 /**
@@ -39,38 +43,62 @@ export async function pickRojo(
     return
   }
 
-  // Ask the user to pick which workspace root folder to start Rojo in. If the workspace only has one folder,
-  // this returns instantly with that folder. If it's undefined, the user closed the box.
-  const folder = await pickFolder(folders, options.prompt)
-  if (!folder) return
-
-  // Ensure the project file exists in the workspace unless allowUnitialized is true.
-  // If `promptForProjectFilePath` is enabled, then we prompt the user to pick the file path.
-  // If not present, we fall back to the file path provided in user-defined settings.
-  // If both not present, we fall back to the default project file name for the version.
-
   const versionInfo = bridge.getVersionInfo()
-  const projectFileName =
-    (options.promptForProjectFilePath &&
-      (await pickFilePath(
-        folder,
-        "Select Project File Path",
-        versionInfo.getProjectFileName()
-      ))) ||
-    getProjectFilePath() ||
-    versionInfo.getProjectFileName()
 
-  const relativePath = vscode.workspace.asRelativePath(projectFileName)
+  // Only pick workspace folder if we know there aren't any files to pick from.
+  if (options.allowUninitialized) {
+    const workspaceFolder = await pickFolder(folders, options.prompt)
 
-  if (
-    !options.allowUninitialized &&
-    !fs.existsSync(path.join(folder.uri.fsPath, relativePath))
-  ) {
-    const upgradeAvailable = versionInfo.isUpgraderAvailable(folder.uri.fsPath)
+    if (!workspaceFolder) return
+
+    return bridge.getRojo(
+      workspaceFolder,
+      vscode.workspace.asRelativePath(versionInfo.getProjectFileName(), false)
+    )
+  }
+
+  // Check if we have a valid last used path
+  if (options.pickMode === PickRojoMode.LastUsed) {
+    const lastFilePath:
+      | string
+      | undefined = extensionContext.workspaceState.get("rojoLastPath")
+
+    if (lastFilePath) {
+      try {
+        const uri = vscode.Uri.parse(lastFilePath)
+
+        // This throws if the file doesn't exist
+        await vscode.workspace.fs.stat(uri)
+
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)
+
+        if (workspaceFolder) {
+          return bridge.getRojo(
+            workspaceFolder,
+            vscode.workspace.asRelativePath(uri, false)
+          )
+        }
+      } catch (e) {
+        // fall through
+      }
+    }
+  }
+
+  // Let the user pick which project file they want to use from all possible roots.
+  const path = await pickProjectFile(folders, options.prompt)
+  if (path === null) {
+    // User cancelled prompt
+    return
+  } else if (!path) {
+    // No files exist
+
+    const upgradeAvailable = versionInfo.isUpgraderAvailable(
+      folders[0].uri.fsPath
+    )
 
     vscode.window
       .showErrorMessage(
-        `${projectFileName} is missing from this workspace.`,
+        "There are no project files in this workspace. Do you want to initialize one now?",
         ...["Initialize", ...(upgradeAvailable ? ["Convert rojo.json"] : [])]
       )
       .then(button => {
@@ -86,6 +114,13 @@ export async function pickRojo(
     return
   }
 
+  extensionContext.workspaceState.update("rojoLastPath", path.toString(true))
+
+  const relativePath = vscode.workspace.asRelativePath(path, false)
+
   // All checks passed, so we return the actual Rojo instance.
-  return bridge.getRojo(folder, relativePath)
+  return bridge.getRojo(
+    vscode.workspace.getWorkspaceFolder(path)!,
+    relativePath
+  )
 }

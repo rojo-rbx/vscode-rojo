@@ -48,14 +48,6 @@ export function getReleaseBranch(): string | undefined {
   return getConfiguration().get("releaseBranch")
 }
 
-export function getProjectFilePath(): string | undefined {
-  return getConfiguration().get("projectFilePath")
-}
-
-export function updateProjectFilePath(value: string) {
-  return getConfiguration().update("projectFilePath", value, false)
-}
-
 export function isTelemetryEnabled(): boolean {
   return getConfiguration().get("enableTelemetry") as boolean
 }
@@ -126,7 +118,7 @@ interface WorkspaceFolderItem extends vscode.QuickPickItem {
  * @returns {(Thenable<vscode.WorkspaceFolder | undefined>)} The chosen folder, or undefined if it was closed.
  */
 export function pickFolder(
-  folders: vscode.WorkspaceFolder[],
+  folders: readonly vscode.WorkspaceFolder[],
   placeHolder: string
 ): Thenable<vscode.WorkspaceFolder | undefined> {
   if (folders.length === 1) {
@@ -151,52 +143,45 @@ export function pickFolder(
     })
 }
 
-/**
- * Creates a picker menu so that the user can select which project file path they want to use.
- * Once they have picked, we will also prompt to ask them if they wish to save it for the future.
- * @param folder The folder to allow picking file path from
- * @param placeHolder The prompt that's in the box so the user knows what's up
- * @param defaultProjectPath The path to the default project json file
- */
-export async function pickFilePath(
-  folder: vscode.WorkspaceFolder,
-  placeHolder: string,
-  defaultProjectPath: string
-) {
+export async function pickProjectFile(
+  folders: readonly vscode.WorkspaceFolder[],
+  placeHolder: string
+): Promise<vscode.Uri | undefined | null> {
+  const options: {
+    label: string
+    description: string
+    path: vscode.Uri
+  }[] = []
+
+  for (const workspaceFolder of folders) {
+    const fileNames = (await vscode.workspace.fs.readDirectory(
+      workspaceFolder.uri
+    ))
+      .filter(([, fileType]) => fileType === vscode.FileType.File)
+      .map(([fileName]) => fileName)
+      .filter(fileName => fileName.endsWith(".project.json"))
+
+    for (const fileName of fileNames) {
+      options.push({
+        label: fileName,
+        description: workspaceFolder.name,
+        path: vscode.Uri.joinPath(workspaceFolder.uri, fileName)
+      })
+    }
+  }
+
+  if (options.length === 0) {
+    return
+  }
+
   return vscode.window
-    .showOpenDialog({
-      canSelectFiles: true,
-      canSelectFolders: false,
-      canSelectMany: false,
-      filters: {
-        "Project Files (*.project.json)": ["project.json"]
-      },
-      defaultUri: folder.uri,
-      openLabel: "Select"
-    })
+    .showQuickPick(options, { placeHolder: placeHolder })
     .then(selected => {
       if (!selected) {
-        return undefined
+        return null
       }
 
-      const path = selected[0]
-      const relativePath = vscode.workspace.asRelativePath(path, false)
-
-      vscode.window
-        .showInformationMessage(
-          `Would you like to set ${relativePath} as the default project file to use when running Rojo?`,
-          "Set for Workspace",
-          "Not now"
-        )
-        .then(option => {
-          if (option === "Set for Workspace") {
-            updateProjectFilePath(relativePath)
-            vscode.window.showInformationMessage(
-              `Set ${relativePath} as the default project file to use for this workspace`
-            )
-          }
-        })
-      return selected[0]
+      return selected.path
     })
 }
 

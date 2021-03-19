@@ -9,7 +9,7 @@ export const buildCommand = vscode.commands.registerCommand(
   async () => {
     const rojo = await pickRojo({
       noFoldersError: "You must open a workspace folder to build.",
-      prompt: "Select a folder to build."
+      prompt: "Select a project file for Rojo to build."
     })
 
     if (!rojo) return

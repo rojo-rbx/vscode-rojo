@@ -3,8 +3,13 @@ import * as fs from "fs-extra"
 import * as path from "path"
 import * as vscode from "vscode"
 import { Bridge } from "./Bridge"
+import { statusButton } from './extension'
+import { ButtonState } from './StatusButton'
 import { callWithCounter, isInterfaceOpened } from "./Util"
+import { getBridge } from './util/getBridge'
 import { getAppropriateVersion } from "./versions"
+
+const PICK_DIFFERENT = "Use another project file"
 
 /**
  * Windows-specific Rojo instance. Handles interfacing with the binary.
@@ -25,7 +30,35 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   public static stopLast() {
     if (this.isAnyRunning()) {
       this.stack.pop()!.stop()
+      this.updateRunningButton()
     }
+  }
+
+  public static async updateRunningButton() {
+    if (!this.isAnyRunning()) return
+
+    const bridge = await getBridge()
+    if (!bridge) return
+
+    const projects = []
+
+    for (const rojo of this.stack) {
+        let projectName = rojo.getTruncatedProjectFileName()
+
+
+        if ((vscode.workspace.workspaceFolders?.length ?? 0) > 1) {
+          projectName = `${path.basename(rojo.getWorkspacePath())}/${projectName}`
+        }
+
+        projects.push(projectName)
+    }
+
+    // Add the saved Rojo version to the button while setting it to Running.
+    statusButton.setState(
+      ButtonState.Running,
+      bridge.version,
+      projects.join(", ")
+    )
   }
 
   public static stopAll() {
@@ -71,6 +104,10 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
 
   public getProjectFilePath() {
     return this.projectFilePath
+  }
+
+  public getTruncatedProjectFileName() {
+    return this.projectFilePath.replace(".project.json", "")
   }
 
   public setProjectFilePath(path: string) {
@@ -154,16 +191,20 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
         this.sendToOutput(data)
 
         if (count === 0) {
+          const prependText = `[${this.getTruncatedProjectFileName()}] `
           const stringData = data.toString()
           const link = stringData.match(/(https?:\/\/[^\s]*\b)/)
 
           vscode.window
             .showInformationMessage(
-              stringData,
+              prependText + stringData,
+              PICK_DIFFERENT,
               ...(link ? ["Visit in Browser"] : [])
             )
             .then(buttonClicked => {
-              if (link && buttonClicked)
+              if (buttonClicked === PICK_DIFFERENT) {
+                vscode.commands.executeCommand("rojo.start")
+              } else if (link && buttonClicked)
                 vscode.env.openExternal(vscode.Uri.parse(link[1]))
             })
         } else if (count === 1) {

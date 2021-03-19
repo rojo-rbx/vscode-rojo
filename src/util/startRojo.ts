@@ -1,25 +1,24 @@
 import os from "os"
 import vscode from "vscode"
-import { statusButton } from "../extension"
-import { ButtonState } from "../StatusButton"
+import { Rojo } from "../Rojo"
 import Telemetry, { TelemetryEvent } from "../Telemetry"
 import { getBridge } from "../util/getBridge"
-import { pickRojo } from "../util/pickRojo"
+import { pickRojo, PickRojoMode } from "../util/pickRojo"
 
 /**
  * Starts a new rojo serve instance. Used for the `rojo.start` and `rojo.startOverridePath` commands.
  * @param projectFilePath An optional override path to the project file we should use
  * @returns
  */
-export async function startRojo(promptForProjectFilePath: boolean) {
+export async function startRojo(pickMode: PickRojoMode) {
   try {
     const bridge = await getBridge()
     // Get the correct Rojo instance the user wants to start.
     const rojo = await pickRojo({
       noFoldersError:
         "Rojo can only start if VS Code is opened on a workspace folder.",
-      prompt: "Select a workspace to start Rojo in.",
-      promptForProjectFilePath
+      prompt: "Select a project file for Rojo to serve.",
+      pickMode
     })
     // Will be undefined if user closed the box
     if (!rojo || !bridge) return
@@ -50,12 +49,7 @@ export async function startRojo(promptForProjectFilePath: boolean) {
       )
     }
 
-    // Add the saved Rojo version to the button while setting it to Running.
-    statusButton.setState(
-      ButtonState.Running,
-      bridge.version,
-      rojo.getProjectFilePath()
-    )
+    Rojo.updateRunningButton()
   } catch (e) {
     vscode.window.showErrorMessage(
       `An error occurred while starting Rojo: ${e}`
