@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.13.0
+
+- Add support for multiple project files (#41) (Thank you @JohnnyMorganz!)
+
 # 1.12.7
 
 - Add descriptions to release branches
