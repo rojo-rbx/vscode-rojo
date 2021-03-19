@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.13.1
+
+- Fix bugs where the default project path was used instead of the configured one.
+
 # 1.13.0
 
 - Add support for multiple project files (#41) (Thank you @JohnnyMorganz!)

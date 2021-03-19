@@ -78,13 +78,13 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   /**
    * Creates an instance of RojoWin32.
    * @param {vscode.WorkspaceFolder} workspace The workspace folder for which this Rojo instance belongs.
-   * @param {string} projectFilePath A relative path to the project file.
+   * @param {string} projectFileName A relative path to the project file.
    * @param {string} rojoPath The path to the rojo binary.
    * @memberof Rojo
    */
   constructor(
     public workspace: vscode.WorkspaceFolder,
-    private projectFilePath: string,
+    private projectFileName: string,
     private bridge: Bridge
   ) {
     super(() => this.dispose())
@@ -102,16 +102,16 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
     return this.workspace.uri.fsPath
   }
 
-  public getProjectFilePath() {
-    return this.projectFilePath
+  public getProjectFileName() {
+    return this.projectFileName
   }
 
   public getTruncatedProjectFileName() {
-    return this.projectFilePath.replace(".project.json", "")
+    return this.projectFileName.replace(".project.json", "")
   }
 
-  public setProjectFilePath(path: string) {
-    this.projectFilePath = path
+  public setProjectFileName(path: string) {
+    this.projectFileName = path
     return this
   }
 
@@ -136,7 +136,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
    * @memberof Rojo
    */
   public async build(): Promise<void> {
-    return this.version.build(this.projectFilePath)
+    return this.version.build(this.projectFileName)
   }
 
   public async attemptUpgrade() {
@@ -179,7 +179,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
 
     this.server = childProcess.spawn(
       this.rojoPath,
-      ["serve", this.projectFilePath, ...this.version.info.cliOptions],
+      ["serve", this.projectFileName, ...this.version.info.cliOptions],
       {
         cwd: this.getWorkspacePath()
       }
@@ -281,7 +281,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   public loadProjectConfig(): C {
     return JSON.parse(
       fs.readFileSync(
-        path.join(this.workspace.uri.fsPath, this.projectFilePath),
+        path.join(this.workspace.uri.fsPath, this.projectFileName),
         "utf8"
       )
     )
@@ -294,7 +294,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
   public openConfiguration(): void {
     // Open in column #2 if the interface is open so we don't make people lose progress on the guide
     vscode.workspace
-      .openTextDocument(this.projectFilePath)
+      .openTextDocument(path.join(this.getWorkspacePath(), this.getProjectFileName()))
       .then(doc =>
         vscode.window.showTextDocument(
           doc,
@@ -309,7 +309,9 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
    * @memberof Rojo
    */
   private watch(): void {
-    this.watcher = fs.watch(this.projectFilePath, () => {
+    const projectFilePath = path.join(this.getWorkspacePath(), this.getProjectFileName())
+
+    this.watcher = fs.watch(projectFilePath, () => {
       this.stop()
       this.outputChannel.appendLine(
         "Project configuration changed, reloading Rojo."

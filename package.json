@@ -2,7 +2,7 @@
   "name": "vscode-rojo",
   "displayName": "Rojo - Roblox Studio Sync",
   "description": "Build robust Roblox games using Rojo directly from VS Code to sync your scripts into Roblox Studio.",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "repository": "https://github.com/evaera/vscode-rojo",
   "publisher": "evaera",
   "engines": {
@@ -175,7 +175,7 @@
     "typescript": "^3.9.9"
   },
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "fs-extra": "^7.0.1",
     "universal-analytics": "^0.4.20",
     "unzipper": "^0.10.5",

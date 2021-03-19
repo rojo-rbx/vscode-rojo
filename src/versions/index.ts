@@ -18,7 +18,6 @@ export interface VersionInfo {
 export interface Version {
   info: VersionInfo
   getDefaultProjectFilePath(): string
-  getProjectFilePaths(): string[]
   createSyncPoint(path: string, target: string): Promise<boolean>
   build(projectFilePath: string): Promise<void>
   upgrade(): Promise<void>

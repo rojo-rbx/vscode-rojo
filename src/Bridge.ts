@@ -111,7 +111,7 @@ export class Bridge extends vscode.Disposable {
       this.rojoMap.set(workspace, new Rojo(workspace, projectFile, this))
     }
 
-    return (this.rojoMap.get(workspace) as Rojo).setProjectFilePath(projectFile)
+    return (this.rojoMap.get(workspace) as Rojo).setProjectFileName(projectFile)
   }
 
   /**
