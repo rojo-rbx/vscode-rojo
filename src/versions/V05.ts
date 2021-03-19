@@ -32,9 +32,7 @@ export const V05Info: VersionInfo = {
   },
 
   isUpgraderAvailable(folderPath: string) {
-    return fs.existsSync(
-      path.join(folderPath, this.getPreviousVersionInfo().getProjectFileName())
-    )
+    return fs.existsSync(path.join(folderPath, "rojo.json"))
   }
 }
 
