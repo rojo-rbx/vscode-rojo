@@ -39,10 +39,6 @@ export class V04 implements Version {
     )
   }
 
-  getProjectFilePaths() {
-    return [this.getDefaultProjectFilePath()]
-  }
-
   async build() {
     vscode.window.showErrorMessage(
       "Rojo Build is only supported on 0.5.x or newer."

@@ -45,10 +45,6 @@ export class V05 implements Version {
     return path.join(this.rojo.getWorkspacePath(), "default.project.json")
   }
 
-  getProjectFilePaths(): string[] {
-    return [this.getDefaultProjectFilePath()]
-  }
-
   async build(projectFilePath: string): Promise<void> {
     const outputConfig = getConfiguration().get("buildOutputPath") as string
     const buildFileFormat = getConfiguration().get("buildFileFormat") as string
@@ -123,7 +119,7 @@ export class V05 implements Version {
       .replace(/\\/g, "/")
 
     fs.writeFileSync(
-      this.getDefaultProjectFilePath(),
+      path.join(this.rojo.getWorkspacePath(), this.rojo.getProjectFileName()),
       JSON.stringify(currentConfig, undefined, 2)
     )
 
