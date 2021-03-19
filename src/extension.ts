@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   if (
     getPluginIsManaged() === null ||
-    shouldShowNews("rojo6release", context)
+    shouldShowNews("multipleProjectFiles", context)
   ) {
     createOrShowInterface(context, getBridge)
   }

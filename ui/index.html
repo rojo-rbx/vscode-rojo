@@ -16,18 +16,13 @@
     </header>
 
     <section class="news" id="news">
-      <h3><strong>Rojo 6</strong> is now the recommended release branch!</h3>
+      <h3><strong>Multiple project files</strong> are now supported.</h3>
       <ul>
-        <li>You will be automatically updated to this version the next time you start Rojo.</li>
-        <li>If you have any problems, please report them by <a href="https://github.com/rojo-rbx/rojo/issues">opening an issue</a> or <a href="https://discord.gg/3RtsgXyqRV">asking in the channel</a>.</li>
-        <li>You can still bind projects to specific Rojo branches by changing the option at the workspace level:</li>
-        <ul>
-          <li>Press <kbd>Ctrl/Cmd</kbd> + <kbd>,</kbd></li>
-          <li>Click "Workspace" instead of "User" under the search bar</li>
-          <li>Search "rojo" in the settings search bar</li>
-          <li>Change "Release Branch" to 0.5.x</li>
-          <li>Restart Rojo if necessary.</li>
-        </ul>
+        <li>When starting Rojo for the first time in a project, you will select which project file you want to use.</li>
+        <li>For subsequent starts with the Start Rojo button, your choice will be remembered.</li>
+        <li>You can start with a specific project file by using the Rojo: Start server with project file... command.</li>
+        <li>You can name your project files anything, as long as they end with <code>.project.json</code></li>
+        <li>For libraries, your <code>default.project.json</code> should not be a test place. Instead, create a separate <code>test.project.json</code> for your test place. Your default project should represent how your project should be included inside of other projects (i.e., you should <strong>not</strong> assume the root class is DataModel).</li>
       </ul>
     </section>
 
