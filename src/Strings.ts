@@ -7,6 +7,7 @@ export const TEXT_UPDATING = "$(sync) Checking for Rojo update..."
 export const TEXT_INSTALLING = "$(sync) Installing Rojo using cargo..."
 export const TEXT_START = "$(zap) Start Rojo"
 export const TEXT_RUNNING = "$(eye) Rojo"
+export const TEXT_CRASHED = "$(warning) Rojo Crashed!"
 
 export const ROJO_GIT_URL = "https://github.com/rojo-rbx/rojo.git"
 export const RELEASE_URL = "https://latest-rojo-release.eryn.workers.dev"

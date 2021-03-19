@@ -4,6 +4,7 @@ import * as Strings from "./Strings"
 export enum ButtonState {
   Start,
   Running,
+  Crashed,
   Downloading,
   Installing,
   Updating,
@@ -64,6 +65,10 @@ export default class StatusButton extends vscode.Disposable {
         this.button.text = `${Strings.TEXT_RUNNING} ${version} ${
           projectFileName ? `[${projectFileName}]` : ""
         }`
+        this.button.command = "rojo.stop"
+        break
+      case ButtonState.Crashed:
+        this.button.text = Strings.TEXT_CRASHED
         this.button.command = "rojo.stop"
         break
       case ButtonState.Updating:
