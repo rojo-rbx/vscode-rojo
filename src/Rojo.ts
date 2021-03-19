@@ -224,6 +224,18 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
       })
     )
 
+    this.server.on(
+      "exit",
+      // Code can possibly be "null", for example if the SIGTERM signal is sent
+      (code: number | null, _signal) => {
+        // Check if exited with a non-zero exit code (i.e. an error occured)
+        if (code && code !== 0) {
+          this.outputChannel.show()
+          statusButton.setState(ButtonState.Crashed)
+        }
+      }
+    )
+
     Rojo.stack.push(this)
 
     if (this.version.info.configChangeRestartsRojo) {
