@@ -32,9 +32,7 @@ export const V05Info: VersionInfo = {
   },
 
   isUpgraderAvailable(folderPath: string) {
-    return fs.existsSync(
-      path.join(folderPath, this.getPreviousVersionInfo().getProjectFileName())
-    )
+    return fs.existsSync(path.join(folderPath, "rojo.json"))
   }
 }
 
@@ -51,7 +49,7 @@ export class V05 implements Version {
     return [this.getDefaultProjectFilePath()]
   }
 
-  async build(): Promise<void> {
+  async build(projectFilePath: string): Promise<void> {
     const outputConfig = getConfiguration().get("buildOutputPath") as string
     const buildFileFormat = getConfiguration().get("buildFileFormat") as string
 
@@ -71,7 +69,7 @@ export class V05 implements Version {
       this.rojo.sendToOutput(
         childProcess.execFileSync(
           this.rojo.rojoPath,
-          ["build", "-o", outputPath],
+          ["build", projectFilePath, "-o", outputPath],
           {
             cwd: this.rojo.getWorkspacePath()
           }

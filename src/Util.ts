@@ -118,7 +118,7 @@ interface WorkspaceFolderItem extends vscode.QuickPickItem {
  * @returns {(Thenable<vscode.WorkspaceFolder | undefined>)} The chosen folder, or undefined if it was closed.
  */
 export function pickFolder(
-  folders: vscode.WorkspaceFolder[],
+  folders: readonly vscode.WorkspaceFolder[],
   placeHolder: string
 ): Thenable<vscode.WorkspaceFolder | undefined> {
   if (folders.length === 1) {
@@ -140,6 +140,48 @@ export function pickFolder(
         return undefined
       }
       return selected.folder
+    })
+}
+
+export async function pickProjectFile(
+  folders: readonly vscode.WorkspaceFolder[],
+  placeHolder: string
+): Promise<vscode.Uri | undefined | null> {
+  const options: {
+    label: string
+    description: string
+    path: vscode.Uri
+  }[] = []
+
+  for (const workspaceFolder of folders) {
+    const fileNames = (await vscode.workspace.fs.readDirectory(
+      workspaceFolder.uri
+    ))
+      .filter(([, fileType]) => fileType === vscode.FileType.File)
+      .map(([fileName]) => fileName)
+      .filter(fileName => fileName.endsWith(".project.json"))
+
+    for (const fileName of fileNames) {
+      options.push({
+        label: fileName,
+        description: workspaceFolder.name,
+        path: vscode.Uri.joinPath(workspaceFolder.uri, fileName)
+      })
+    }
+  }
+
+  if (options.length === 0) {
+    return
+  }
+
+  return vscode.window
+    .showQuickPick(options, { placeHolder: placeHolder })
+    .then(selected => {
+      if (!selected) {
+        return null
+      }
+
+      return selected.path
     })
 }
 

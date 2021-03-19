@@ -45,18 +45,25 @@ export default class StatusButton extends vscode.Disposable {
    * Updates the button state to show what's going on right now.
    * @param {ButtonState} state The button state to show
    * @param {string} [version=''] The running state displays the version to the user.
+   * @param {string?} projectFileName The project file used to serve Rojo.
    * @memberof StatusButton
    */
-  public setState(state: ButtonState, version = ""): void {
+  public setState(
+    state: ButtonState,
+    version = "",
+    projectFileName?: string
+  ): void {
     this.button.show()
 
     switch (state) {
       case ButtonState.Start:
         this.button.text = Strings.TEXT_START
-        this.button.command = "rojo.start"
+        this.button.command = "rojo.startLastUsed"
         break
       case ButtonState.Running:
-        this.button.text = `${Strings.TEXT_RUNNING} ${version}`
+        this.button.text = `${Strings.TEXT_RUNNING} ${version} ${
+          projectFileName ? `[${projectFileName}]` : ""
+        }`
         this.button.command = "rojo.stop"
         break
       case ButtonState.Updating:
