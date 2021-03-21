@@ -90,11 +90,6 @@
           "default": "",
           "description": "The plugins for for Roblox Studio, if this extension is managing plugin installation."
         },
-        "rojo.cargo": {
-          "type": "string",
-          "default": "cargo",
-          "description": "Name or full path `cargo` executable used to build and install Rojo from source on macOS"
-        },
         "rojo.enableTelemetry": {
           "type": "boolean",
           "default": true,
