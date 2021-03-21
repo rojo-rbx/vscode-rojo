@@ -7,12 +7,7 @@ import * as vscode from "vscode"
 import { outputChannel, sendToOutput } from "./extension"
 import { Rojo } from "./Rojo"
 import StatusButton, { ButtonState } from "./StatusButton"
-import {
-  BINARY_NAME,
-  BINARY_PATTERN,
-  PLUGIN_PATTERN,
-  RELEASE_URL
-} from "./Strings"
+import { BINARY_NAME, PLUGIN_PATTERN, RELEASE_URL } from "./Strings"
 import Telemetry, { TelemetryEvent } from "./Telemetry"
 import {
   getLocalPluginPath,
@@ -278,6 +273,18 @@ export class Bridge extends vscode.Disposable {
     return true
   }
 
+  private getBinaryFilenamePattern(): RegExp | undefined {
+    switch (os.platform()) {
+      case "win32":
+        return /^rojo\.exe$/
+      // case "linux":
+      case "darwin":
+        return /^rojo$/
+      default:
+        return undefined
+    }
+  }
+
   private getBinaryZipPattern(): RegExp | undefined {
     switch (os.platform()) {
       case "win32":
@@ -344,7 +351,12 @@ export class Bridge extends vscode.Disposable {
 
     if (binary.name.endsWith(".zip")) {
       try {
-        const unzip = download.data.pipe(unzipper.ParseOne(BINARY_PATTERN, {}))
+        const filenamePattern = this.getBinaryFilenamePattern()
+        if (!filenamePattern) {
+          throw new Error("Platform not supported")
+        }
+
+        const unzip = download.data.pipe(unzipper.ParseOne(filenamePattern, {}))
 
         const file = unzip.pipe(writeStream)
 
@@ -361,7 +373,7 @@ export class Bridge extends vscode.Disposable {
           fs.unlinkSync(this.rojoPath)
 
           vscode.window.showErrorMessage(
-            "rojo.exe missing from release ZIP file!"
+            "rojo binary missing from release ZIP file!"
           )
           this.button.setState(ButtonState.Start)
           return false
