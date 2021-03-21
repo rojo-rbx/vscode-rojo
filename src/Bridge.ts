@@ -11,8 +11,7 @@ import {
   BINARY_NAME,
   BINARY_PATTERN,
   PLUGIN_PATTERN,
-  RELEASE_URL,
-  ROJO_GIT_URL
+  RELEASE_URL
 } from "./Strings"
 import Telemetry, { TelemetryEvent } from "./Telemetry"
 import {

@@ -5,7 +5,6 @@ export enum ButtonState {
   Start,
   Running,
   Downloading,
-  Installing,
   Updating,
   Hidden
 }
@@ -72,10 +71,6 @@ export default class StatusButton extends vscode.Disposable {
         break
       case ButtonState.Downloading:
         this.button.text = Strings.TEXT_DOWNLOADING
-        this.button.command = undefined
-        break
-      case ButtonState.Installing:
-        this.button.text = Strings.TEXT_INSTALLING
         this.button.command = undefined
         break
       default:
