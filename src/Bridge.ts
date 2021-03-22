@@ -222,6 +222,19 @@ export class Bridge extends vscode.Disposable {
    * @memberof Bridge
    */
   private async installPlugin(assets: GithubAsset[]): Promise<boolean> {
+    const platform = os.platform()
+    if (platform !== "win32" && platform !== "darwin") {
+      vscode.window.showWarningMessage(
+        "Couldn't install Rojo plugin: your platform is not supported"
+      )
+      Telemetry.trackEvent(
+        TelemetryEvent.InstallationError,
+        "Platform not supported for plugin",
+        platform
+      )
+      return false
+    }
+
     const plugin = assets.find(
       file =>
         file.name.match(PLUGIN_PATTERN) != null &&
@@ -277,7 +290,7 @@ export class Bridge extends vscode.Disposable {
     switch (os.platform()) {
       case "win32":
         return /^rojo\.exe$/
-      // case "linux":
+      case "linux":
       case "darwin":
         return /^rojo$/
       default:
@@ -291,8 +304,8 @@ export class Bridge extends vscode.Disposable {
         return /^rojo(?:-|-.*-)win64.zip$/
       case "darwin":
         return /^rojo(?:-|-.*-)macos.zip$/
-      // case "linux":
-      //   return /^rojo(?:-|-.*-)linux.zip$/
+      case "linux":
+        return /^rojo(?:-|-.*-)linux.zip$/
       default:
         return undefined
     }
