@@ -29,7 +29,11 @@
 					"type": "string"
 				},
 				"$properties": {
-					"type": "object"
+					"type": "object",
+					"properties": {
+						"Name": false,
+						"Parent": false
+					}
 				}
 			},
 			"anyOf": [
