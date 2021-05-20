@@ -1,5 +1,10 @@
 # Release Notes
 
+# 1.13.2
+
+- macOS now downloads prebuilt binaries from releases instead of building from source.
+- Upgraded all dependencies.
+
 # 1.13.1
 
 - Fix bugs where the default project path was used instead of the configured one.
