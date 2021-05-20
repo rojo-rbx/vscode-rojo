@@ -392,6 +392,10 @@ export class Bridge extends vscode.Disposable {
           return false
         } else {
           await promisifyStream(file)
+
+          if (os.platform() !== "win32") {
+            fs.chmod(this.rojoPath, 0o755)
+          }
         }
       } catch (e) {
         console.log(e)
