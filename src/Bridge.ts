@@ -1,5 +1,4 @@
 import axios from "axios"
-import * as childProcess from "child_process"
 import * as fs from "fs-extra"
 import * as os from "os"
 import * as path from "path"
@@ -8,17 +7,9 @@ import * as vscode from "vscode"
 import { outputChannel, sendToOutput } from "./extension"
 import { Rojo } from "./Rojo"
 import StatusButton, { ButtonState } from "./StatusButton"
-import {
-  BINARY_NAME,
-  BINARY_PATTERN,
-  BINARY_ZIP_PATTERN,
-  PLUGIN_PATTERN,
-  RELEASE_URL,
-  ROJO_GIT_URL
-} from "./Strings"
+import { BINARY_NAME, PLUGIN_PATTERN, RELEASE_URL } from "./Strings"
 import Telemetry, { TelemetryEvent } from "./Telemetry"
 import {
-  getCargoPath,
   getLocalPluginPath,
   getPluginIsManaged,
   getReleaseBranch,
@@ -44,7 +35,6 @@ export class Bridge extends vscode.Disposable {
   public context: vscode.ExtensionContext
   private button: StatusButton
   public rojoPath!: string
-  private rojoInstallPath!: string
   private rojoMap: Map<vscode.WorkspaceFolder, Rojo> = new Map()
 
   constructor(context: vscode.ExtensionContext, button: StatusButton) {
@@ -179,13 +169,6 @@ export class Bridge extends vscode.Disposable {
       storePath,
       `rojo-${version}${os.platform() === "win32" ? ".exe" : ""}`
     )
-
-    if (os.platform() !== "win32") {
-      this.rojoInstallPath = this.rojoPath
-      this.rojoPath = this.rojoPath + "/bin/rojo"
-
-      fs.ensureDirSync(this.rojoInstallPath)
-    }
   }
 
   /**
@@ -239,6 +222,19 @@ export class Bridge extends vscode.Disposable {
    * @memberof Bridge
    */
   private async installPlugin(assets: GithubAsset[]): Promise<boolean> {
+    const platform = os.platform()
+    if (platform !== "win32" && platform !== "darwin") {
+      vscode.window.showWarningMessage(
+        "Couldn't install Rojo plugin: your platform is not supported"
+      )
+      Telemetry.trackEvent(
+        TelemetryEvent.InstallationError,
+        "Platform not supported for plugin",
+        platform
+      )
+      return false
+    }
+
     const plugin = assets.find(
       file =>
         file.name.match(PLUGIN_PATTERN) != null &&
@@ -289,56 +285,60 @@ export class Bridge extends vscode.Disposable {
 
     return true
   }
-  private async installBinaryViaCargo(version: string): Promise<boolean> {
-    this.button.setState(ButtonState.Installing)
 
-    const compileProcess = childProcess.spawn(getCargoPath(), [
-      "install",
-      "--git",
-      ROJO_GIT_URL,
-      "--tag",
-      version,
-      "--root",
-      this.rojoInstallPath
-    ])
-
-    compileProcess.stdout.on("data", data => sendToOutput(data))
-    compileProcess.stderr.on("data", data => sendToOutput(data))
-    outputChannel.show()
-
-    try {
-      await new Promise((resolve, reject) => {
-        compileProcess.on("exit", resolve)
-        compileProcess.on("error", reject)
-      })
-    } catch (e) {
-      console.log(e)
-      Telemetry.trackEvent(
-        TelemetryEvent.InstallationError,
-        "Rojo installation failed",
-        this.version
-      )
-      Telemetry.trackException(e)
-      vscode.window.showErrorMessage(
-        "Couldn't install latest Rojo: an error occurred while compiling the latest binary."
-      )
-      this.button.setState(ButtonState.Hidden)
-      return false
+  private getBinaryFilenamePattern(): RegExp | undefined {
+    switch (os.platform()) {
+      case "win32":
+        return /^rojo\.exe$/
+      case "linux":
+      case "darwin":
+        return /^rojo$/
+      default:
+        return undefined
     }
-
-    return fs.existsSync(this.rojoPath)
   }
 
-  private async installWin32Binary(
+  private getBinaryZipPattern(): RegExp | undefined {
+    switch (os.platform()) {
+      case "win32":
+        return /^rojo(?:-|-.*-)win64.zip$/
+      case "darwin":
+        return /^rojo(?:-|-.*-)macos.zip$/
+      case "linux":
+        return /^rojo(?:-|-.*-)linux.zip$/
+      default:
+        return undefined
+    }
+  }
+
+  private async installGitHubBinary(
     assets: GithubAsset[],
     version: string
   ): Promise<boolean> {
+    const platform = os.platform()
+
+    // Get the zip pattern to look for
+    const zipPattern = this.getBinaryZipPattern()
+    if (!zipPattern) {
+      Telemetry.trackEvent(
+        TelemetryEvent.InstallationError,
+        "Platform not supported",
+        platform
+      )
+      vscode.window.showErrorMessage(
+        "Couldn't fetch Rojo: your platform is not supported."
+      )
+      this.button.setState(ButtonState.Start)
+      return false
+    }
+
     // Look for the binary we want.
     const binary = assets.find(
       file =>
-        (file.name === BINARY_NAME &&
+        (platform == "win32" &&
+          file.name === BINARY_NAME &&
           file.content_type === "application/x-msdownload") ||
-        file.name.match(BINARY_ZIP_PATTERN) !== null
+        file.name.match(zipPattern) !== null
     )
 
     // If no matching file is found, just give up for now.
@@ -364,7 +364,12 @@ export class Bridge extends vscode.Disposable {
 
     if (binary.name.endsWith(".zip")) {
       try {
-        const unzip = download.data.pipe(unzipper.ParseOne(BINARY_PATTERN, {}))
+        const filenamePattern = this.getBinaryFilenamePattern()
+        if (!filenamePattern) {
+          throw new Error("Platform not supported")
+        }
+
+        const unzip = download.data.pipe(unzipper.ParseOne(filenamePattern, {}))
 
         const file = unzip.pipe(writeStream)
 
@@ -381,12 +386,16 @@ export class Bridge extends vscode.Disposable {
           fs.unlinkSync(this.rojoPath)
 
           vscode.window.showErrorMessage(
-            "rojo.exe missing from release ZIP file!"
+            "rojo binary missing from release ZIP file!"
           )
           this.button.setState(ButtonState.Start)
           return false
         } else {
           await promisifyStream(file)
+
+          if (os.platform() !== "win32") {
+            fs.chmod(this.rojoPath, 0o755)
+          }
         }
       } catch (e) {
         console.log(e)
@@ -424,8 +433,9 @@ export class Bridge extends vscode.Disposable {
 
     return true
   }
+
   /**
-   * Rojo installer for Windows platforms.
+   * Rojo installer
    * @private
    * @returns {boolean} Successful?
    * @memberof Bridge
@@ -484,7 +494,8 @@ export class Bridge extends vscode.Disposable {
     // Get an array of all of the assets included with the latest release, and
     const assets: GithubAsset[] = release.assets
     let installedBinary = false
-    let versionChanged = version !== this.context.globalState.get("rojoVersion")
+    const versionChanged =
+      version !== this.context.globalState.get("rojoVersion")
 
     // Update the saved version text to reflect what version we have now.
     this.context.globalState.update("rojoVersion", version)
@@ -496,11 +507,7 @@ export class Bridge extends vscode.Disposable {
       // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
       this.button.setState(ButtonState.Downloading)
 
-      if (os.platform() === "win32") {
-        installedBinary = await this.installWin32Binary(assets, version)
-      } else {
-        installedBinary = await this.installBinaryViaCargo(version)
-      }
+      installedBinary = await this.installGitHubBinary(assets, version)
     }
 
     // Now handle the plugin business

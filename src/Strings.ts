@@ -4,7 +4,6 @@
 
 export const TEXT_DOWNLOADING = "$(cloud-download) Downloading Rojo..."
 export const TEXT_UPDATING = "$(sync) Checking for Rojo update..."
-export const TEXT_INSTALLING = "$(sync) Installing Rojo using cargo..."
 export const TEXT_START = "$(zap) Start Rojo"
 export const TEXT_RUNNING = "$(eye) Rojo"
 export const TEXT_CRASHED = "$(warning) Rojo Crashed!"
@@ -12,8 +11,6 @@ export const TEXT_CRASHED = "$(warning) Rojo Crashed!"
 export const ROJO_GIT_URL = "https://github.com/rojo-rbx/rojo.git"
 export const RELEASE_URL = "https://latest-rojo-release.eryn.workers.dev"
 export const BINARY_NAME = "rojo.exe"
-export const BINARY_PATTERN = /^rojo\.exe$/
-export const BINARY_ZIP_PATTERN = /^rojo(?:-|-.*-)win64.zip$/
 export const PLUGIN_PATTERN = /.+\.rbxmx?/
 
 export const VALID_SERVICES = [

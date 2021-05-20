@@ -28,10 +28,6 @@ export function getLocalPluginPath(): string {
   return path.resolve(expandEnvironmentVars(pluginsPath))
 }
 
-export function getCargoPath(): string {
-  return expandEnvironmentVars(getConfiguration().get("cargo") as string)
-}
-
 export function getPluginIsManaged(): boolean | null {
   return getConfiguration().get("pluginManagement") as boolean | null
 }

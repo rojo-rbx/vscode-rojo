@@ -20,7 +20,7 @@ Works on both Windows and macOS.
 ## Requirements
 
 - Windows, or
-- macOS with [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) and XCode installed
+- macOS
 
 ## License
 
