@@ -185,7 +185,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
       }
     )
 
-    this.server.stdout.on(
+    this.server.stdout!.on(
       "data",
       callWithCounter((count, data) => {
         this.sendToOutput(data)
@@ -213,7 +213,7 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
       })
     )
 
-    this.server.stderr.on(
+    this.server.stderr!.on(
       "data",
       callWithCounter((count, data) => {
         this.sendToOutput(data)

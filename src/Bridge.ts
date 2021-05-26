@@ -503,7 +503,25 @@ export class Bridge extends vscode.Disposable {
     // TODO: ensure the download finishes before setting this.
     this.setVersion(version)
     // Check if the version we have now is still current. If it is, no need to download again.
-    if (fs.existsSync(this.rojoPath) === false) {
+
+    let shouldInstall = false
+
+    try {
+      const stat = await fs.stat(this.rojoPath)
+
+      if (!stat.isFile()) {
+        console.log("Removing file")
+
+        fs.rmdirSync(this.rojoPath, { recursive: true })
+
+        shouldInstall = true
+      }
+    } catch (e) {
+      console.error(e)
+      shouldInstall = true
+    }
+
+    if (shouldInstall) {
       // Our `rojo.exe` either doesn't exist or is out of date, so we show the user we're downloading.
       this.button.setState(ButtonState.Downloading)
 
