@@ -1,5 +1,9 @@
 # Release Notes
 
+# 1.13.3
+
+- Fix bug where installation would fail when an old Rojo installation was lingering around from an old version of this extension.
+
 # 1.13.2
 
 - macOS now downloads prebuilt binaries from releases instead of building from source.
