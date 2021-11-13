@@ -12,6 +12,7 @@ import Telemetry, { TelemetryEvent } from "./Telemetry"
 import {
   getLocalPluginPath,
   getPluginIsManaged,
+  usesCustomPluginPath,
   getReleaseBranch,
   getTargetVersion,
   promisifyStream
@@ -223,9 +224,9 @@ export class Bridge extends vscode.Disposable {
    */
   private async installPlugin(assets: GithubAsset[]): Promise<boolean> {
     const platform = os.platform()
-    if (platform !== "win32" && platform !== "darwin") {
+    if (platform !== "win32" && platform !== "darwin" && !usesCustomPluginPath()) {
       vscode.window.showWarningMessage(
-        "Couldn't install Rojo plugin: your platform is not supported"
+        "Couldn't install Rojo plugin: your platform is not supported. Try setting the Studio Plugin Path in extension settings."
       )
       Telemetry.trackEvent(
         TelemetryEvent.InstallationError,
