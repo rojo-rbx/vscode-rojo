@@ -28,6 +28,11 @@ export function getLocalPluginPath(): string {
   return path.resolve(expandEnvironmentVars(pluginsPath))
 }
 
+export function usesCustomPluginPath(): boolean {
+  const pluginsPath = getConfiguration().get("robloxStudioPluginsPath") as string
+  return (pluginsPath && pluginsPath.length !== 0) as boolean
+}
+
 export function getPluginIsManaged(): boolean | null {
   return getConfiguration().get("pluginManagement") as boolean | null
 }
