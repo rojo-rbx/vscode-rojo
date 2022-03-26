@@ -176,12 +176,17 @@ export class Rojo<C extends object = {}> extends vscode.Disposable {
     if (this.server) {
       this.stop()
     }
+    
+    // Sanitise env to be able to open electron apps from rojo 
+    const processEnv: any = {...process.env}
+    delete processEnv['ELECTRON_RUN_AS_NODE']
 
     this.server = childProcess.spawn(
       this.rojoPath,
       ["serve", this.projectFileName, ...this.version.info.cliOptions],
       {
-        cwd: this.getWorkspacePath()
+        cwd: this.getWorkspacePath(),
+        env: processEnv
       }
     )
 
