@@ -169,7 +169,7 @@
     "typescript": "^3.9.9"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "fs-extra": "^7.0.1",
     "universal-analytics": "^0.4.23",
     "unzipper": "^0.10.11",
