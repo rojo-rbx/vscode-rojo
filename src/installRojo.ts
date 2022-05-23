@@ -17,6 +17,10 @@ export async function installRojo(folder: string) {
     throw new Error("Not implemented")
   }
 
+  await exec("aftman trust rojo-rbx/rojo", {
+    cwd: folder,
+  })
+
   const aftmanToml = await lstat(path.join(folder, "aftman.toml")).catch(
     () => null
   )
