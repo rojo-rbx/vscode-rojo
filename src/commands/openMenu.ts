@@ -98,7 +98,7 @@ function showSwitchMessage(install: RojoInstall) {
     } else if (installType === InstallType.foreman) {
       details =
         " Aftman is similar to Foreman, but is more robust and easier to use. " +
-        "Additionally, all currently-released versions of Foreman (as of v1.0.2) " +
+        "Additionally, all currently-released versions of Foreman (as of v1.0.4) " +
         "have a bug that makes killing the launched Rojo process leave a Rojo process running forever."
     }
 
