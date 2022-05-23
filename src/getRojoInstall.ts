@@ -7,23 +7,24 @@ import path = require("path")
 const exec = promisify(childProcess.exec)
 
 export enum InstallType {
-  Aftman = "aftman",
-  Foreman = "foreman",
-  Global = "global",
+  aftman = "Aftman",
+  foreman = "Foreman",
+  global = "global",
 }
 export type RojoInstall = {
   version: string
   installType: InstallType
+  resolvedPath: string
 }
 
 function getInstallType(resolvedPath: string) {
   if (resolvedPath.includes(".aftman")) {
-    return InstallType.Aftman
+    return InstallType.aftman
   } else if (resolvedPath.includes(".foreman")) {
-    return InstallType.Foreman
+    return InstallType.foreman
   }
 
-  return InstallType.Global
+  return InstallType.global
 }
 
 export async function getRojoInstall(
@@ -55,6 +56,7 @@ export async function getRojoInstall(
     return {
       version,
       installType: getInstallType(resolvedPath),
+      resolvedPath,
     }
   } else {
     return null

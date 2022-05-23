@@ -1,10 +1,11 @@
+import * as fs from "fs/promises"
 import * as path from "path"
 import * as vscode from "vscode"
 import { buildProject } from "../buildProject"
 import { createProjectFile } from "../createProjectFile"
 import { State } from "../extension"
 import { findProjectFiles, ProjectFile } from "../findProjectFiles"
-import { getRojoInstall, InstallType } from "../getRojoInstall"
+import { getRojoInstall, InstallType, RojoInstall } from "../getRojoInstall"
 import { installRojo } from "../installRojo"
 import { result } from "../result"
 import { serveProject } from "../serveProject"
@@ -33,6 +34,12 @@ const rojoNotInstalled = [
     description: "Not installed",
     detail: "Rojo is not installed in this project\n",
     info: true,
+  },
+  {
+    label: "$(comments-view-icon) Need help?",
+    description: "Click to join the Roblox Open Source Discord",
+    info: true,
+    action: "openDiscord",
   },
   {
     label: "$(desktop-download) Install Rojo now",
@@ -66,14 +73,74 @@ function getInstallDetail(
     return "Rojo install method differs by project file."
   }
 
-  const opinion =
-    installType !== InstallType.Aftman ? " Consider switching to Aftman." : ""
-
-  if (installType === InstallType.Global) {
-    return "Rojo is globally installed." + opinion
+  if (installType === InstallType.global) {
+    return "Rojo is globally installed."
   }
 
-  return `Rojo is managed by ${installType}.` + opinion
+  return `Rojo is managed by ${installType}.`
+}
+
+let aftmanMessageSent = false
+
+function showSwitchMessage(install: RojoInstall) {
+  const installType = install.installType
+
+  // Tell the user about Aftman once per session
+  if (installType !== InstallType.aftman && !aftmanMessageSent) {
+    aftmanMessageSent = true
+
+    let details = ""
+
+    if (installType === InstallType.global) {
+      details =
+        " Aftman is a toolchain manager. " +
+        "It enables installing project-specific command line tools and switching between them seamlessly."
+    } else if (installType === InstallType.foreman) {
+      details =
+        " Aftman is similar to Foreman, but is more robust and easier to use. " +
+        "Additionally, all currently-released versions of Foreman (as of v1.0.2) " +
+        "have a bug that makes killing the launched Rojo process leave a Rojo process running forever."
+    }
+
+    vscode.window
+      .showInformationMessage(
+        `${getInstallDetail(
+          installType,
+          false
+        )} You should consider using Aftman instead to manage your tool chains.` +
+          details,
+        "Switch to Aftman"
+      )
+      .then(() => {
+        vscode.window
+          .showWarningMessage(
+            `This will delete the rojo.exe in your path from ${install.resolvedPath}.` +
+              ` After that, we will prompt you to install Rojo with Aftman. Is this OK?`,
+            "Yes",
+            "No"
+          )
+          .then((answer) => {
+            if (answer !== "Yes") {
+              return
+            }
+
+            // User might have multiple rojo's in their path, reset this to allow showing the message again
+            aftmanMessageSent = false
+
+            return fs.unlink(install.resolvedPath)
+          })
+          .then(
+            () => {
+              vscode.commands.executeCommand("vscode-rojo.openMenu")
+            },
+            (e) => {
+              vscode.window.showErrorMessage(
+                `Could not complete operation: ${e}`
+              )
+            }
+          )
+      })
+  }
 }
 
 async function generateProjectMenu(
@@ -97,6 +164,8 @@ async function generateProjectMenu(
       } else if (installType !== install.installType) {
         mixed = true
       }
+
+      showSwitchMessage(install)
     }
 
     projectFileRojoVersions.set(projectFile, install ? install.version : null)
@@ -161,6 +230,12 @@ async function generateProjectMenu(
       label: "$(link-external) Open Rojo Docs",
       info: true,
       action: "openDocs",
+    },
+    {
+      label: "$(comments-view-icon) Need help?",
+      description: "Click to join the Roblox Open Source Discord",
+      info: true,
+      action: "openDiscord",
     },
     {
       label: "―――――――――――― $(versions) Projects in this workspace ―――――――――――",
@@ -319,6 +394,12 @@ export const openMenuCommand = (state: State) =>
         case "openDocs": {
           vscode.env.openExternal(
             vscode.Uri.parse("https://rojo.space/docs/v7/")
+          )
+          break
+        }
+        case "openDiscord": {
+          vscode.env.openExternal(
+            vscode.Uri.parse("https://discord.gg/wH5ncNS")
           )
           break
         }
