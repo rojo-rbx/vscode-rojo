@@ -104,12 +104,12 @@
             "7.x"
           ],
           "enumDescriptions": [
-            "Rojo 0.4: Not recommended; support will be removed soon.",
-            "Rojo 0.5: Previous release",
-            "Rojo 6: Recommended release",
-            "Rojo 7: Alpha release"
+            "Rojo 0.4: Not recommended",
+            "Rojo 0.5: Not recommended",
+            "Rojo 6: Previous release",
+            "Rojo 7: Recommended release"
           ],
-          "default": "6.x",
+          "default": "7.x",
           "description": "The release branch to install."
         },
         "rojo.targetVersion": {

@@ -49,10 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
     configurationChangeSignal
   )
 
-  if (
-    getPluginIsManaged() === null ||
-    shouldShowNews("multipleProjectFiles", context)
-  ) {
+  if (getPluginIsManaged() === null || shouldShowNews("rojo7", context)) {
     createOrShowInterface(context, getBridge)
   }
 }
