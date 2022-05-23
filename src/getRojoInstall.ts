@@ -1,13 +1,34 @@
 import * as childProcess from "child_process"
 import { promisify } from "util"
+import * as which from "which"
 import { ProjectFile } from "./findProjectFiles"
 import path = require("path")
 
 const exec = promisify(childProcess.exec)
 
-export async function getRojoVersion(
+export enum InstallType {
+  Aftman = "aftman",
+  Foreman = "foreman",
+  Global = "global",
+}
+export type RojoInstall = {
+  version: string
+  installType: InstallType
+}
+
+function getInstallType(resolvedPath: string) {
+  if (resolvedPath.includes(".aftman")) {
+    return InstallType.Aftman
+  } else if (resolvedPath.includes(".foreman")) {
+    return InstallType.Foreman
+  }
+
+  return InstallType.Global
+}
+
+export async function getRojoInstall(
   projectFile: ProjectFile
-): Promise<string | null> {
+): Promise<RojoInstall | null> {
   const projectFilePath = projectFile.path.fsPath
   const projectFileFolder = path.dirname(projectFilePath)
 
@@ -29,7 +50,12 @@ export async function getRojoVersion(
       return null
     }
 
-    return version
+    const resolvedPath = await which("rojo")
+
+    return {
+      version,
+      installType: getInstallType(resolvedPath),
+    }
   } else {
     return null
   }
