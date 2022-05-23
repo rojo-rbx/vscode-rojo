@@ -34,6 +34,31 @@ export function activate(context: vscode.ExtensionContext) {
       runningProject.stop()
     }
   }
+
+  if (
+    context.globalState.get("news::rojo7") ||
+    context.globalState.get("news::multipleProjectFiles")
+  ) {
+    vscode.window
+      .showInformationMessage(
+        "The Rojo extension has received a major upgrade. We recommend reading the extension description page.",
+        "Open extension page",
+        "Don't show this again"
+      )
+      .then((option) => {
+        if (option?.includes("Open")) {
+          vscode.env.openExternal(
+            vscode.Uri.from({
+              scheme: vscode.env.uriScheme,
+              path: "extension/evaera.vscode-rojo",
+            })
+          )
+        }
+
+        context.globalState.update("news::rojo7", undefined)
+        context.globalState.update("news::multipleProjectFiles", undefined)
+      })
+  }
 }
 
 export function deactivate() {

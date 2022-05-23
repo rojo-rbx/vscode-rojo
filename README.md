@@ -40,6 +40,27 @@ If you want to learn more, see the [Differences from Foreman](https://github.com
 
 When you open the extension for the first time, if you are not using Aftman, a message will appear in the bottom-right. If you click "Switch to Aftman" on that message, your old `rojo.exe` will automatically be removed from your system PATH, and you will see another prompt that will install Aftman and Rojo for you.
 
+## Coming from V1 of this extension
+
+The release of V2 of this extension has changed how it works drastically, both internally and how you interact with it. However, we hope that these changes do not negatively affect your workflow.
+
+- All sub-commands have been removed in favor of a single menu.
+- The extension no longer uses its own bespoke installation of Rojo. It shares whatever version of Rojo you have installed on your system.
+- When the extension installs Rojo for you, it is installed in a way so that you can use it from the command line.
+- Versions of Rojo before Rojo 6 are no longer supported.
+- The extension will not automatically update Rojo for you. When Rojo is installed via Aftman, you can change your installed Rojo version by editing the `aftman.toml` file in your project.
+
+If something about this new extension breaks your workflow, please tell us about it!
+- Join the [Roblox Open Source Discord Server](https://discord.gg/wH5ncNS)
+- [Open an issue](https://github.com/rojo-rbx/vscode-rojo/issues) on the project repo
+
+You can always temporarily revert to V1 by [clicking the cog on the extension page and choosing "Install another version"](https://i.eryn.io/2222/2q0w1H3I.png).
+
+## Help me!
+
+- Read the [Rojo docs](https://rojo.space/docs/v7/)
+- Join the [Roblox Open Source Discord Server](https://discord.gg/wH5ncNS)
+
 ## Supported platforms
 
 - Windows
