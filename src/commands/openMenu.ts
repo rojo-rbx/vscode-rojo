@@ -6,6 +6,7 @@ import { createProjectFile } from "../createProjectFile"
 import { State } from "../extension"
 import { findProjectFiles, ProjectFile } from "../findProjectFiles"
 import { getRojoInstall, InstallType, RojoInstall } from "../getRojoInstall"
+import { installPlugin } from "../installPlugin"
 import { installRojo } from "../installRojo"
 import { result } from "../result"
 import { serveProject } from "../serveProject"
@@ -227,6 +228,13 @@ async function generateProjectMenu(
       info: true,
     },
     {
+      label: "$(plug) Install Roblox Studio Plugin",
+      description: "Click to install.",
+      info: true,
+      action: "installPlugin",
+      projectFile: projectFiles[0],
+    },
+    {
       label: "$(link-external) Open Rojo Docs",
       info: true,
       action: "openDocs",
@@ -418,6 +426,16 @@ export const openMenuCommand = (state: State) =>
                 `Could not create Rojo project: ${e}`
               )
             })
+          break
+        }
+        case "installPlugin": {
+          if (!selectedItem.projectFile) {
+            return
+          }
+
+          installPlugin(selectedItem.projectFile).catch((e) => {
+            vscode.window.showErrorMessage(`Could not install plugin: ${e}`)
+          })
           break
         }
         case "install": {

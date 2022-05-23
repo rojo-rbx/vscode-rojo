@@ -16,6 +16,8 @@ All actions are performed via the Rojo menu, as seen above. To open the Rojo men
 
 If you do not have Rojo installed, the extension will ask you if you want it to be automatically installed for you. If you do, it will be installed via [Aftman](https://github.com/LPGhatguy/aftman), a toolchain manager. This will create an `aftman.toml` file in your project directory, which will pin the current version of Rojo in your project.
 
+You must click "Install Roblox Studio plugin" at least once if you want to live-sync from Studio!
+
 ### Aftman bin on Non-Windows platforms
 
 On macOS and Linux, after aftman is installed, you need to add the Aftman bin to your user PATH: `~/.aftman/bin`. On windows, this is done automatically, but otherwise you must do it yourself for the extension to work properly.
