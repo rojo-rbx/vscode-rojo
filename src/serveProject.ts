@@ -13,6 +13,8 @@ export type RunningProject = {
 export function serveProject(state: State, projectFile: ProjectFile) {
   const projectFilePath = projectFile.path.fsPath
 
+  state.context.workspaceState.update("rojoLastPath", projectFilePath)
+
   if (state.running[projectFilePath]) {
     throw new Error("This project is already running")
   }

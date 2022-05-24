@@ -4,8 +4,9 @@ import { RunningProject } from "./serveProject"
 import { updateButton } from "./updateButton"
 
 export type State = {
-  button: vscode.StatusBarItem
+  resumeButton: vscode.StatusBarItem
   running: { [index: string]: RunningProject }
+  context: vscode.ExtensionContext
 }
 
 let cleanup: undefined | (() => void)
@@ -14,16 +15,24 @@ export function activate(context: vscode.ExtensionContext) {
   console.log("vscode-rojo activated")
 
   const state: State = {
-    button: vscode.window.createStatusBarItem(
+    resumeButton: vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      200
+      199
     ),
     running: {},
+    context,
   }
 
+  const button = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    200
+  )
+  button.command = "vscode-rojo.openMenu"
+  button.text = "$(rocket) Rojo"
+  button.show()
+
   updateButton(state)
-  state.button.command = "vscode-rojo.openMenu"
-  state.button.show()
+  state.resumeButton.show()
 
   context.subscriptions.push(
     ...Object.values(commands).map((command) => command(state))
