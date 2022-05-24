@@ -198,6 +198,12 @@ export async function installRojo(folder: string) {
     }
   }
 
+  if ("PATH" in process.env) {
+    const envPath = process.env.PATH!.split(path.delimiter)
+    envPath.push(path.join(os.homedir(), ".aftman", "bin"))
+    process.env.PATH = envPath.join(path.delimiter)
+  }
+
   await exec("aftman trust rojo-rbx/rojo", {
     cwd: folder,
   })

@@ -1,6 +1,7 @@
 import * as path from "path"
 import * as vscode from "vscode"
 import { State } from "../extension"
+import { getRojoInstall } from "../getRojoInstall"
 import { serveProject } from "../serveProject"
 
 export const serveRecentCommand = (state: State) =>
@@ -18,11 +19,17 @@ export const serveRecentCommand = (state: State) =>
         const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)
 
         if (workspaceFolder) {
-          return serveProject(state, {
+          const projectFile = {
             name: path.basename(lastFilePath),
             workspaceFolderName: workspaceFolder.name,
             path: uri,
-          })
+          }
+
+          const install = await getRojoInstall(projectFile)
+
+          if (install) {
+            return serveProject(state, projectFile)
+          }
         }
       } catch (e) {
         // fall through
