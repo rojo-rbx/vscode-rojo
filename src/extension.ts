@@ -46,6 +46,10 @@ export function activate(context: vscode.ExtensionContext) {
         "Don't show this again"
       )
       .then((option) => {
+        if (!option) {
+          return
+        }
+
         if (option?.includes("Open")) {
           vscode.env.openExternal(
             vscode.Uri.from({

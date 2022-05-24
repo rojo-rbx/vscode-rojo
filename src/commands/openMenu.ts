@@ -112,7 +112,11 @@ function showSwitchMessage(install: RojoInstall) {
           details,
         "Switch to Aftman"
       )
-      .then(() => {
+      .then((response) => {
+        if (!response) {
+          return
+        }
+
         vscode.window
           .showWarningMessage(
             `This will delete the rojo.exe in your path from ${install.resolvedPath}.` +

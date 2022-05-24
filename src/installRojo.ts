@@ -182,7 +182,11 @@ export async function installRojo(folder: string) {
             " of the README if you need help.",
           "Open README"
         )
-        .then(() => {
+        .then((response) => {
+          if (!response) {
+            return
+          }
+
           vscode.env.openExternal(
             vscode.Uri.from({
               scheme: vscode.env.uriScheme,
