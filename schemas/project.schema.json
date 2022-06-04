@@ -4,16 +4,14 @@
 	"type": "object",
 	"properties": {
 		"name": {
-      "type": "string",
-      "title": "Project name",
-      "examples": [
-        "your-project-name"
-      ]
+			"type": "string",
+			"title": "Project name",
+			"examples": [ "your-project-name" ]
 		},
 		"servePort": {
-      "type": "integer",
-      "title": "Serve port",
-      "description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo."
+			"type": "integer",
+			"title": "Serve port",
+			"description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo."
 		},
 		"tree": {
 			"$id": "/properties/tree",
