@@ -168,40 +168,16 @@ export async function installRojo(folder: string) {
 
     await exec(`${tempPath} self-install`)
 
-    if (os.platform() === "win32") {
-      vscode.window.showInformationMessage(
-        "Successfully installed Aftman on your system. " +
-          "It has been added to your system PATH, and is usable from the command line if needed. "
-      )
-    } else {
-      vscode.window
-        .showWarningMessage(
-          "[User Action Required] Aftman was installed to `~/.aftman/bin`. " +
-            "You MUST add this folder to your system path, and restart VS Code, before continuing. " +
-            'Click the button below and read the "Aftman bin on Non-Windows platforms" section' +
-            " of the README if you need help.",
-          "Open README"
-        )
-        .then((response) => {
-          if (!response) {
-            return
-          }
+    vscode.window.showInformationMessage(
+      "Successfully installed Aftman on your system. " +
+        "It has been added to your system PATH, and is usable from the command line if needed. "
+    )
 
-          vscode.env.openExternal(
-            vscode.Uri.from({
-              scheme: vscode.env.uriScheme,
-              path: "extension/evaera.vscode-rojo",
-            })
-          )
-        })
-      return
+    if ("PATH" in process.env) {
+      const envPath = process.env.PATH!.split(path.delimiter)
+      envPath.push(path.join(os.homedir(), ".aftman", "bin"))
+      process.env.PATH = envPath.join(path.delimiter)
     }
-  }
-
-  if ("PATH" in process.env) {
-    const envPath = process.env.PATH!.split(path.delimiter)
-    envPath.push(path.join(os.homedir(), ".aftman", "bin"))
-    process.env.PATH = envPath.join(path.delimiter)
   }
 
   await exec("aftman trust rojo-rbx/rojo", {
