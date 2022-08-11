@@ -24,18 +24,18 @@
         "title": "Open Menu",
         "category": "Rojo"
       }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "*.project.json",
+        "url": "./schemas/project.schema.json"
+      },
+      {
+        "fileMatch": "*.project.jsonc",
+        "url": "./schemas/project.schema.json"
+      }
     ]
   },
-  "jsonValidation": [
-    {
-      "fileMatch": "*.project.json",
-      "url": "./schemas/project.schema.json"
-    },
-    {
-      "fileMatch": "*.project.jsonc",
-      "url": "./schemas/project.schema.json"
-    }
-  ],
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
