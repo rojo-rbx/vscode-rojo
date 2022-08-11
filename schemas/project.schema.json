@@ -45,7 +45,55 @@
       }
     },
     "tree": {
-      "$ref": "#/$defs/treeNormal"
+      "if": {
+        "properties": {
+          "$className": {
+            "const": "DataModel"
+          }
+        },
+        "required": ["$className"]
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/tree"
+          },
+          {
+            "properties": {
+              "StarterPlayer": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/tree"
+                  },
+                  {
+                    "properties": {
+                      "StarterPlayerScripts": {
+                        "$ref": "#/$defs/treeService"
+                      },
+                      "StarterCharacterScripts": {
+                        "$ref": "#/$defs/treeService"
+                      }
+                    },
+                    "patternProperties": {
+                      "^[^\\$].*$": {
+                        "$ref": "#/$defs/treeNormal"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "patternProperties": {
+              "^[^\\$].*$": {
+                "$ref": "#/$defs/treeService"
+              }
+            }
+          }
+        ]
+      },
+      "else": {
+        "$ref": "#/$defs/treeNormal"
+      }
     }
   },
   "$defs": {
@@ -97,6 +145,20 @@
               "required": ["$path"]
             }
           ],
+          "patternProperties": {
+            "^[^\\$].*$": {
+              "$ref": "#/$defs/treeNormal"
+            }
+          }
+        }
+      ]
+    },
+    "treeService": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/tree"
+        },
+        {
           "patternProperties": {
             "^[^\\$].*$": {
               "$ref": "#/$defs/treeNormal"
