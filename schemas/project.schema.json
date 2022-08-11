@@ -19,7 +19,54 @@
 			"description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo."
 		},
 		"tree": {
-			"$id": "/properties/tree",
+			"if": {
+				"properties": {
+					"$className": {
+						"const": "DataModel"
+					}
+				},
+				"required": [
+					"$className"
+				]
+			},
+			"then": {
+				"allOf": [
+					{
+						"$ref": "#/$defs/tree"
+					},
+					{
+						"properties": {
+							"StarterPlayer": {
+								"properties": {
+									"StarterPlayerScripts": {
+										"$ref": "#/$defs/treeService"
+									},
+									"StarterCharacterScripts": {
+										"$ref": "#/$defs/treeService"
+									}
+								},
+								"patternProperties": {
+									"^[^\\$].*$": {
+										"$ref": "#/$defs/treeNormal"
+									}
+								}
+							}
+						},
+						"patternProperties": {
+							"^[^\\$].*$": {
+								"$ref": "#/$defs/treeService"
+							}
+						}
+					}
+				]
+			},
+			"else": {
+				"$ref": "#/$defs/treeNormal"
+			}
+		}
+	},
+	"$defs": {
+		"tree": {
 			"type": "object",
 			"properties": {
 				"$className": {
@@ -38,24 +85,49 @@
 						"Parent": false
 					}
 				}
-			},
-			"anyOf": [
+			}
+		},
+		"treeNormal": {
+			"allOf": [
 				{
-					"required": [
-						"$className"
+					"$ref": "#/$defs/tree"
+				},
+				{
+					"anyOf": [
+						{
+							"required": [
+								"$className"
+							]
+						},
+						{
+							"required": [
+								"$path"
+							]
+						}
 					]
 				},
 				{
-					"required": [
-						"$path"
-					]
+					"patternProperties": {
+						"^[^\\$].*$": {
+							"$ref": "#/$defs/treeNormal"
+						}
+					}
 				}
-			],
-			"patternProperties": {
-				"^[^\\$].*$": {
-					"$ref": "#/properties/tree"
+			]
+		},
+		"treeService": {
+			"allOf": [
+				{
+					"$ref": "#/$defs/tree"
+				},
+				{
+					"patternProperties": {
+						"^[^\\$].*$": {
+							"$ref": "#/$defs/treeNormal"
+						}
+					}
 				}
-			}
+			]
 		}
 	}
 }
