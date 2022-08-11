@@ -28,7 +28,20 @@
           "type": "boolean"
         },
         "$path": {
-          "type": "string"
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "optional": {
+                  "type": "string"
+                }
+              },
+              "required": ["optional"]
+            }
+          ]
         },
         "$properties": {
           "type": "object",
