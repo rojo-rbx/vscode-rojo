@@ -14,7 +14,11 @@
       "description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo."
     },
     "tree": {
-      "$id": "/properties/tree",
+      "$ref": "#/$defs/treeNormal"
+    }
+  },
+  "$defs": {
+    "tree": {
       "type": "object",
       "properties": {
         "$className": {
@@ -33,20 +37,29 @@
             "Parent": false
           }
         }
-      },
-      "anyOf": [
+      }
+    },
+    "treeNormal": {
+      "allOf": [
         {
-          "required": ["$className"]
+          "$ref": "#/$defs/tree"
         },
         {
-          "required": ["$path"]
+          "anyOf": [
+            {
+              "required": ["$className"]
+            },
+            {
+              "required": ["$path"]
+            }
+          ],
+          "patternProperties": {
+            "^[^\\$].*$": {
+              "$ref": "#/$defs/treeNormal"
+            }
+          }
         }
-      ],
-      "patternProperties": {
-        "^[^\\$].*$": {
-          "$ref": "#/properties/tree"
-        }
-      }
+      ]
     }
   }
 }
