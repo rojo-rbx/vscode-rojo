@@ -37,19 +37,26 @@
 					{
 						"properties": {
 							"StarterPlayer": {
-								"properties": {
-									"StarterPlayerScripts": {
-										"$ref": "#/$defs/treeService"
+								"allOf": [
+									{
+										"$ref": "#/$defs/tree"
 									},
-									"StarterCharacterScripts": {
-										"$ref": "#/$defs/treeService"
+									{
+										"properties": {
+											"StarterPlayerScripts": {
+												"$ref": "#/$defs/treeService"
+											},
+											"StarterCharacterScripts": {
+												"$ref": "#/$defs/treeService"
+											}
+										},
+										"patternProperties": {
+											"^[^\\$].*$": {
+												"$ref": "#/$defs/treeNormal"
+											}
+										}
 									}
-								},
-								"patternProperties": {
-									"^[^\\$].*$": {
-										"$ref": "#/$defs/treeNormal"
-									}
-								}
+								]
 							}
 						},
 						"patternProperties": {
