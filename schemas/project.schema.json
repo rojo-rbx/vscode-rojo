@@ -13,6 +13,37 @@
       "title": "Serve port",
       "description": "The port number Rojo will use to communicate with Roblox Studio. This must be unique if you're running more than one instance of Rojo."
     },
+    "servePlaceIds": {
+      "type": "array",
+      "title": "Serve place IDs",
+      "description": "The set of place IDs that this project is compatible with when doing live sync. This setting is intended to help prevent syncing a Rojo project into the wrong Roblox place.",
+      "items": {
+        "type": "number"
+      }
+    },
+    "placeId": {
+      "type": "integer",
+      "title": "Place ID",
+      "description": "Sets the current place's place ID when connecting to the Rojo server from Roblox Studio."
+    },
+    "gameId": {
+      "type": "integer",
+      "title": "Game ID",
+      "description": "Sets the current place's game ID when connecting to the Rojo server from Roblox Studio."
+    },
+    "serveAddress": {
+      "type": "string",
+      "title": "Serve address",
+      "description": "This address will be used in place of the default address, as long as --address is unprovided."
+    },
+    "globIgnorePaths": {
+      "type": "array",
+      "title": "Glob ignore paths",
+      "description": "A list of globs, relative to the folder the project file is in, that match files that should be ignored if Rojo encounters them.",
+      "items": {
+        "type": "string"
+      }
+    },
     "tree": {
       "$ref": "#/$defs/treeNormal"
     }
