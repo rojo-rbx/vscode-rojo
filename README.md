@@ -53,13 +53,6 @@ The release of V2 of this extension has changed how it works drastically, both i
 - Versions of Rojo before Rojo 6 are no longer supported.
 - The extension will not automatically update Rojo for you. When Rojo is installed via Aftman, you can change your installed Rojo version by editing the `aftman.toml` file in your project.
 
-New features:
-
-- Serve multiple projects at once (need to specifically set `servePort`)
-- Auto-complete for top-level services, like `ReplicatedStorage`
-  - `$className` is no longer required by the extension for these services
-- Auto-complete for `$className`, like `Part`
-
 If something about this new extension breaks your workflow, please tell us about it!
 
 - Join the [Roblox Open Source Discord Server](https://discord.gg/wH5ncNS)
