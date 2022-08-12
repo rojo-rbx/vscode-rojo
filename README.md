@@ -5,6 +5,7 @@ Integrates [Rojo](https://github.com/rojo-rbx/rojo) natively with VS Code.
 ![Rojo menu](https://i.eryn.io/2222/chrome-DdVyGHdh.png)
 
 All actions are performed via the Rojo menu, as seen above. To open the Rojo menu, either:
+
 - Open the Command Pallette (`Ctrl` + `Shift` + `P`) and type "Rojo: Open menu"
 - Use the Rojo button in the bottom right corner:
 
@@ -34,7 +35,7 @@ If you are already using Foreman to manage your system Rojo, we recommend switch
 
 If you want to learn more, see the [Differences from Foreman](https://github.com/LPGhatguy/aftman#differences-from-foreman) section of the Aftman README.
 
-> ***Warning*: Stopping Rojo does not work with Foreman**
+> **_Warning_: Stopping Rojo does not work with Foreman**
 >
 > All currently-released versions of Foreman (as of v1.0.4) have a bug that makes killing the launched Rojo process leave a Rojo process running forever. There is [an open issue on the Foreman repo](https://github.com/Roblox/foreman/issues/45) for this problem, but for now you must either not use Rojo managed with Foreman, or kill the process yourself. Aftman does not have this problem.
 
@@ -53,6 +54,7 @@ The release of V2 of this extension has changed how it works drastically, both i
 - The extension will not automatically update Rojo for you. When Rojo is installed via Aftman, you can change your installed Rojo version by editing the `aftman.toml` file in your project.
 
 If something about this new extension breaks your workflow, please tell us about it!
+
 - Join the [Roblox Open Source Discord Server](https://discord.gg/wH5ncNS)
 - [Open an issue](https://github.com/rojo-rbx/vscode-rojo/issues) on the project repo
 
