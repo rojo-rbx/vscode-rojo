@@ -101,7 +101,11 @@
       "type": "object",
       "properties": {
         "$className": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            }
+          ]
         },
         "$ignoreUnknownInstances": {
           "type": "boolean"
