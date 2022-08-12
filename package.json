@@ -28,11 +28,11 @@
     "jsonValidation": [
       {
         "fileMatch": "*.project.json",
-        "url": "./schemas/project.schema.json"
+        "url": "./dist/project.schema.json"
       },
       {
         "fileMatch": "*.project.jsonc",
-        "url": "./schemas/project.schema.json"
+        "url": "./dist/project.schema.json"
       }
     ]
   },
