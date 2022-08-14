@@ -10,6 +10,7 @@ import { installPlugin } from "../installPlugin"
 import { installRojo } from "../installRojo"
 import { result } from "../result"
 import { serveProject } from "../serveProject"
+import which = require("which")
 
 const stopAndServeButton = {
   iconPath: new vscode.ThemeIcon("debug-continue"),
@@ -148,6 +149,25 @@ function showSwitchMessage(install: RojoInstall) {
   }
 }
 
+async function handleInstallError(error: string) {
+  const location = await which("rojo").catch(() => null)
+
+  vscode.window.showErrorMessage(
+    `Trying to use Rojo executable found at ${
+      location ?? "?"
+    } resulted in an error: (${error}).` +
+      `Fix or delete this file manually and try again.`
+  )
+
+  if (error.includes("Foreman") && location) {
+    showSwitchMessage({
+      installType: InstallType.foreman,
+      resolvedPath: location,
+      version: "?",
+    })
+  }
+}
+
 async function generateProjectMenu(
   state: State,
   projectFiles: ProjectFile[]
@@ -159,21 +179,36 @@ async function generateProjectMenu(
   let installType
   let mixed = false
 
-  for (const projectFile of projectFiles) {
-    const install = await getRojoInstall(projectFile)
-    if (install) {
-      rojoVersions[install.version] = true
+  let error: string | undefined
 
-      if (installType === undefined) {
-        installType = install.installType
-      } else if (installType !== install.installType) {
-        mixed = true
+  for (const projectFile of projectFiles) {
+    const installResult = await result<RojoInstall | null, string>(
+      getRojoInstall(projectFile)
+    )
+
+    if (installResult.ok) {
+      const install = installResult.result
+
+      if (install) {
+        rojoVersions[install.version] = true
+
+        if (installType === undefined) {
+          installType = install.installType
+        } else if (installType !== install.installType) {
+          mixed = true
+        }
+
+        showSwitchMessage(install)
       }
 
-      showSwitchMessage(install)
+      projectFileRojoVersions.set(projectFile, install ? install.version : null)
+    } else {
+      error = installResult.error
     }
+  }
 
-    projectFileRojoVersions.set(projectFile, install ? install.version : null)
+  if (error) {
+    handleInstallError(error)
   }
 
   const allRojoVersions = Object.keys(rojoVersions)
@@ -291,23 +326,33 @@ export const openMenuCommand = (state: State) =>
         path: vscode.Uri.joinPath(firstFolder.uri, "default.project.json"),
       }
 
-      const install = await getRojoInstall(defaultProjectFile)
+      const installResult = await result<RojoInstall | null, string>(
+        getRojoInstall(defaultProjectFile)
+      )
 
-      if (install) {
-        pickItems = [
-          {
-            label: "$(rocket) Rojo",
-            detail: "This workspace contains no project files.",
-            info: true,
-          },
-          {
-            label: "$(new-file) Create one now",
-            detail: "This will run the `rojo init` in your workspace folder.",
-            action: "create",
-            projectFile: defaultProjectFile,
-          },
-        ]
+      if (installResult.ok) {
+        const install = installResult.result
+
+        if (install) {
+          pickItems = [
+            {
+              label: "$(rocket) Rojo",
+              detail: "This workspace contains no project files.",
+              info: true,
+            },
+            {
+              label: "$(new-file) Create one now",
+              detail: "This will run the `rojo init` in your workspace folder.",
+              action: "create",
+              projectFile: defaultProjectFile,
+            },
+          ]
+        } else {
+          pickItems = rojoNotInstalled
+        }
       } else {
+        handleInstallError(installResult.error)
+
         pickItems = rojoNotInstalled
       }
     } else {

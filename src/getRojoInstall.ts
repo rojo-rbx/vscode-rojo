@@ -2,6 +2,7 @@ import * as childProcess from "child_process"
 import { promisify } from "util"
 import * as which from "which"
 import { ProjectFile } from "./findProjectFiles"
+import { result } from "./result"
 import path = require("path")
 
 const exec = promisify(childProcess.exec)
@@ -15,6 +16,12 @@ export type RojoInstall = {
   version: string
   installType: InstallType
   resolvedPath: string
+}
+
+type ExecError = {
+  code: number
+  stdout: string
+  stderr: string
 }
 
 function getInstallType(resolvedPath: string) {
@@ -33,14 +40,29 @@ export async function getRojoInstall(
   const projectFilePath = projectFile.path.fsPath
   const projectFileFolder = path.dirname(projectFilePath)
 
-  const output = await exec("rojo --version", {
-    cwd: projectFileFolder,
-  }).catch(() => null)
+  const resolvedPath = await which("rojo").catch(() => null)
 
-  if (output) {
+  if (resolvedPath === null) {
+    return null
+  }
+
+  const outputResult = await result<
+    { stderr: string; stdout: string },
+    ExecError
+  >(
+    exec("rojo --version", {
+      cwd: projectFileFolder,
+    })
+  )
+
+  if (outputResult.ok) {
+    const output = outputResult.result
+
     if (output.stderr.length > 0) {
-      console.error("Rojo version resulted in stderr output")
-      return null
+      // foreman version prior to 1.0.4 don't correctly set status code
+      if (output.stderr.includes("Foreman")) {
+        return Promise.reject(output.stderr)
+      }
     }
 
     const split = output.stdout.split(" ")
@@ -51,14 +73,18 @@ export async function getRojoInstall(
       return null
     }
 
-    const resolvedPath = await which("rojo")
-
     return {
       version,
       installType: getInstallType(resolvedPath),
       resolvedPath,
     }
   } else {
-    return null
+    if (outputResult.error.stderr.includes("aftman")) {
+      return null
+    }
+
+    return Promise.reject(
+      outputResult.error.stderr || outputResult.error.stdout
+    )
   }
 }

@@ -25,7 +25,7 @@ export const serveRecentCommand = (state: State) =>
             path: uri,
           }
 
-          const install = await getRojoInstall(projectFile)
+          const install = await getRojoInstall(projectFile).catch(() => null)
 
           if (install) {
             return serveProject(state, projectFile)
