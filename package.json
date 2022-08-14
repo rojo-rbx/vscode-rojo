@@ -2,7 +2,7 @@
   "name": "vscode-rojo",
   "displayName": "Rojo - Roblox Studio Sync",
   "description": "Rojo for VS Code",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "repository": "https://github.com/rojo-rbx/vscode-rojo",
   "publisher": "evaera",
   "engines": {
