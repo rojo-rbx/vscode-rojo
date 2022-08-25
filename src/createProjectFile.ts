@@ -9,7 +9,7 @@ export async function createProjectFile(folder: string) {
     cwd: folder,
   })
 
-  if (output.stderr) {
+  if (output.stderr.length > 0) {
     vscode.window.showErrorMessage(output.stderr)
   }
 }

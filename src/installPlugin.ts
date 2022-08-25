@@ -15,7 +15,9 @@ export async function installPlugin(projectFile: ProjectFile) {
   })
 
   if (output.stderr.length > 0) {
-    vscode.window.showErrorMessage("Rojo plugin install failed: " + output)
+    vscode.window.showErrorMessage(
+      "Rojo plugin install failed: " + output.stderr
+    )
   } else {
     vscode.window.showInformationMessage(
       "Rojo: " +

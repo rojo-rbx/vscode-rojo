@@ -28,7 +28,7 @@ export async function buildProject(projectFile: ProjectFile) {
   )
 
   if (output.stderr.length > 0) {
-    vscode.window.showErrorMessage("Rojo build failed: " + output)
+    vscode.window.showErrorMessage("Rojo build failed: " + output.stderr)
   } else {
     vscode.window.showInformationMessage("Rojo: " + output.stdout)
   }
