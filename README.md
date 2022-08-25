@@ -19,12 +19,6 @@ If you do not have Rojo installed, the extension will ask you if you want it to 
 
 You must click "Install Roblox Studio plugin" at least once if you want to live-sync from Studio!
 
-### Aftman bin on Non-Windows platforms
-
-On macOS and Linux, after aftman is installed, you need to add the Aftman bin to your user PATH: `~/.aftman/bin`. On windows, this is done automatically, but otherwise you must do it yourself for the extension to work properly.
-
-- [How to add a folder to my PATH?](https://gist.github.com/nex3/c395b2f8fd4b02068be37c961301caa7#mac-os-x)
-
 ## System rojo
 
 This extension uses the `rojo.exe` from your system path. If you already installed Rojo manually to use it from the command line, or with another toolchain manager, this extension will use that version of Rojo automatically. However, we recommend upgrading to Aftman-managed Rojo for the best experience.
