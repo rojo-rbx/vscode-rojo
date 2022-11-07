@@ -166,7 +166,7 @@ export async function installRojo(folder: string) {
       await fs.promises.chmod(tempPath, 0o755)
     }
 
-    await exec(`$"{tempPath}" self-install`)
+    await exec(`"${tempPath}" self-install`)
 
     vscode.window.showInformationMessage(
       "Successfully installed Aftman on your system. " +
