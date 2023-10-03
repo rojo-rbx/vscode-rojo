@@ -86,6 +86,25 @@
                     }
                   }
                 ]
+              },
+              "Workspace": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/tree"
+                  },
+                  {
+                    "properties": {
+                      "Terrain": {
+                        "$ref": "#/$defs/treeService"
+                      }
+                    },
+                    "patternProperties": {
+                      "^[^\\$].*$": {
+                        "$ref": "#/$defs/treeNormal"
+                      }
+                    }
+                  }
+                ]
               }
             },
             "patternProperties": {
