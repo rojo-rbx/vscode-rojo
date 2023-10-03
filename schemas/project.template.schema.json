@@ -44,6 +44,11 @@
         "type": "string"
       }
     },
+    "emitLegacyScripts": {
+      "type": "boolean",
+      "title": "Emit legacy scripts",
+      "description": "Whether to emit scripts using the legacy ClassName or using RunContext."
+    },
     "tree": {
       "if": {
         "properties": {
