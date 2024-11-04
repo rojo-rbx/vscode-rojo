@@ -88,7 +88,7 @@ function showSwitchMessage(install: RojoInstall) {
   const installType = install.installType
 
   // Tell the user about Aftman once per session
-  if (installType !== InstallType.aftman && !aftmanMessageSent) {
+  if (!(installType === InstallType.aftman || installType === InstallType.rokit) && !aftmanMessageSent) {
     aftmanMessageSent = true
 
     let details = ""

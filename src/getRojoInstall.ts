@@ -8,6 +8,7 @@ import path = require("path")
 const exec = promisify(childProcess.exec)
 
 export enum InstallType {
+  rokit = "Rokit",
   aftman = "Aftman",
   foreman = "Foreman",
   global = "global",
@@ -25,7 +26,9 @@ type ExecError = {
 }
 
 function getInstallType(resolvedPath: string) {
-  if (resolvedPath.includes(".aftman")) {
+  if (resolvedPath.includes(".rokit")) {
+    return InstallType.rokit
+  } else if (resolvedPath.includes(".aftman")) {
     return InstallType.aftman
   } else if (resolvedPath.includes(".foreman")) {
     return InstallType.foreman
@@ -79,7 +82,7 @@ export async function getRojoInstall(
       resolvedPath,
     }
   } else {
-    if (outputResult.error.stderr.includes("aftman")) {
+    if (outputResult.error.stderr.includes("aftman") || outputResult.error.stderr.includes("rokit")) {
       return null
     }
 
