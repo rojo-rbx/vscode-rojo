@@ -1,6 +1,5 @@
-import * as path from "path"
 import { State } from "./extension"
-import { formatProjectDisplayName } from "./utils/projectDisplay"
+import { formatProjectDisplayName } from "./projectDisplay"
 
 export function updateButton(state: State) {
   const numRunning = Object.keys(state.running).length

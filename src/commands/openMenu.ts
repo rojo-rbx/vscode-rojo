@@ -10,7 +10,7 @@ import { installPlugin } from "../installPlugin"
 import { installRojo } from "../installRojo"
 import { result } from "../result"
 import { serveProject } from "../serveProject"
-import { formatProjectDisplayName } from "../utils/projectDisplay"
+import { formatProjectDisplayNames } from "../projectDisplay"
 import which = require("which")
 
 const stopAndServeButton = {
@@ -218,8 +218,14 @@ async function generateProjectMenu(
     return rojoNotInstalled
   }
 
+  const allProjectFiles = [
+    ...projectFiles,
+    ...Object.values(state.running).map(r => r.projectFile)
+  ]
+  const displayNames = formatProjectDisplayNames(allProjectFiles)
+
   const runningItems = Object.values(state.running).map(({ projectFile }) => ({
-    label: `$(debug-stop) ${formatProjectDisplayName(projectFile)}`,
+    label: `$(debug-stop) ${displayNames.get(projectFile.path.fsPath) ?? projectFile.name}`,
     description: projectFile.workspaceFolderName,
     projectFile,
     action: "stop",
@@ -239,7 +245,7 @@ async function generateProjectMenu(
 
     projectFileItems.push({
       label: `$(${isInstalled ? "debug-start" : "warning"}) ${
-        formatProjectDisplayName(projectFile)
+        displayNames.get(projectFile.path.fsPath) ?? projectFile.name
       }`,
       description: projectFile.workspaceFolderName,
       detail: !isInstalled

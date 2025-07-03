@@ -47,6 +47,19 @@
           "scope": "resource",
           "title": "Additional Project Paths",
           "description": "Additional folders to search for .project.json files beyond the workspace root"
+        },
+        "rojo.projectPathDisplay": {
+          "type": "string",
+          "enum": ["never", "asNeeded", "always"],
+          "enumDescriptions": [
+            "Show only project file names.",
+            "Show paths only when multiple projects have the same name.",
+            "Always show full relative paths to project files."
+          ],
+          "default": "asNeeded",
+          "scope": "resource",
+          "title": "Project Path Display",
+          "description": "Controls how project file paths are displayed in the project selection menu."
         }
       }
     }

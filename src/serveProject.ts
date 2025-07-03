@@ -3,7 +3,7 @@ import * as vscode from "vscode"
 import { State } from "./extension"
 import { ProjectFile } from "./findProjectFiles"
 import { updateButton } from "./updateButton"
-import { formatProjectDisplayName } from "./utils/projectDisplay"
+import { formatProjectDisplayName } from "./projectDisplay"
 import path = require("path")
 
 export type RunningProject = {
