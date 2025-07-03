@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import * as path from "path"
 import { getAdditionalProjectPaths } from "./configuration"
 
 export type ProjectFile = {
@@ -20,12 +21,25 @@ export async function findProjectFiles(): Promise<ProjectFile[]> {
   const foundPaths = new Set<string>()
 
   for (const workspaceFolder of folders) {
-    await searchForProjectFiles(workspaceFolder, workspaceFolder.uri, projectFiles, foundPaths)
+    await searchForProjectFiles(
+      workspaceFolder,
+      workspaceFolder.uri,
+      projectFiles,
+      foundPaths
+    )
 
     const additionalPaths = getAdditionalProjectPaths()
     for (const additionalPath of additionalPaths) {
-      const searchUri = vscode.Uri.joinPath(workspaceFolder.uri, additionalPath)
-      await searchForProjectFiles(workspaceFolder, searchUri, projectFiles, foundPaths)
+      const searchUri = path.isAbsolute(additionalPath)
+        ? vscode.Uri.file(additionalPath)
+        : vscode.Uri.joinPath(workspaceFolder.uri, additionalPath)
+
+      await searchForProjectFiles(
+        workspaceFolder,
+        searchUri,
+        projectFiles,
+        foundPaths
+      )
     }
   }
 
@@ -39,9 +53,7 @@ async function searchForProjectFiles(
   foundPaths: Set<string>
 ): Promise<void> {
   try {
-    const fileNames = (
-      await vscode.workspace.fs.readDirectory(searchUri)
-    )
+    const fileNames = (await vscode.workspace.fs.readDirectory(searchUri))
       .filter(([, fileType]) => fileType === vscode.FileType.File)
       .map(([fileName]) => fileName)
       .filter((fileName) => fileName.endsWith(".project.json"))
