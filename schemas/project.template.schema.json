@@ -44,6 +44,11 @@
         "type": "string"
       }
     },
+    "emitLegacyScripts": {
+      "type": "boolean",
+      "title": "Emit legacy scripts",
+      "description": "Whether to emit scripts using the legacy ClassName or using RunContext."
+    },
     "tree": {
       "if": {
         "properties": {
@@ -71,6 +76,25 @@
                         "$ref": "#/$defs/treeService"
                       },
                       "StarterCharacterScripts": {
+                        "$ref": "#/$defs/treeService"
+                      }
+                    },
+                    "patternProperties": {
+                      "^[^\\$].*$": {
+                        "$ref": "#/$defs/treeNormal"
+                      }
+                    }
+                  }
+                ]
+              },
+              "Workspace": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/tree"
+                  },
+                  {
+                    "properties": {
+                      "Terrain": {
                         "$ref": "#/$defs/treeService"
                       }
                     },
