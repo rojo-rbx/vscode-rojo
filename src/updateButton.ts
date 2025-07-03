@@ -1,5 +1,6 @@
 import * as path from "path"
 import { State } from "./extension"
+import { formatProjectDisplayName } from "./utils/projectDisplay"
 
 export function updateButton(state: State) {
   const numRunning = Object.keys(state.running).length
@@ -12,7 +13,7 @@ export function updateButton(state: State) {
   } else if (numRunning === 1) {
     state.resumeButton.text =
       "$(radio-tower) " +
-      path.basename(Object.values(state.running)[0].projectFile.path.fsPath)
+      formatProjectDisplayName(Object.values(state.running)[0].projectFile)
   } else {
     state.resumeButton.text = `$(radio-tower) ${numRunning} project files`
   }
