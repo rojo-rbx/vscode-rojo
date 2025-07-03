@@ -1,4 +1,4 @@
-const { readFile, writeFile } = require("fs/promises")
+const { readFile, writeFile, mkdir } = require("fs/promises")
 const https = require('https')
 
 const API_DUMP_URL = "https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/API-Dump.json"
@@ -70,6 +70,7 @@ async function generateSchema() {
 	})
 
 	const newProjectSchema = JSON.stringify(currentProjectSchema)
+	await mkdir("dist", { recursive: true })
 	await writeFile("dist/project.schema.json", newProjectSchema)
 }
 
