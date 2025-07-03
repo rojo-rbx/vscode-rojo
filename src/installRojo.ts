@@ -189,7 +189,7 @@ export async function installRojo(folder: string) {
   )
 
   if (aftmanToml) {
-    await exec("aftman install", {
+    await exec("aftman install --skip-untrusted", {
       cwd: folder,
     })
 
