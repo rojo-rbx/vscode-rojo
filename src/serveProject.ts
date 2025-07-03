@@ -3,6 +3,7 @@ import * as vscode from "vscode"
 import { State } from "./extension"
 import { ProjectFile } from "./findProjectFiles"
 import { updateButton } from "./updateButton"
+import { formatProjectDisplayName } from "./projectDisplay"
 import path = require("path")
 
 export type RunningProject = {
@@ -22,7 +23,7 @@ export function serveProject(state: State, projectFile: ProjectFile) {
   const projectFileFolder = path.dirname(projectFilePath)
 
   const outputChannel = vscode.window.createOutputChannel(
-    `Rojo: ${projectFile.workspaceFolderName}/${projectFile.name}`
+    `Rojo: ${formatProjectDisplayName(projectFile)}`
   )
 
   const child = childProcess.spawn(

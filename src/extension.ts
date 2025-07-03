@@ -10,6 +10,7 @@ export type State = {
 }
 
 let cleanup: undefined | (() => void)
+let configurationDisposable: vscode.Disposable | undefined
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("vscode-rojo activated")
@@ -37,6 +38,19 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     ...Object.values(commands).map((command) => command(state))
   )
+
+  configurationDisposable = vscode.workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration("rojo.additionalProjectPaths")) {
+      console.log("rojo.additionalProjectPaths configuration changed")
+      
+      vscode.window.showInformationMessage(
+        "Rojo: Additional project paths updated. New paths will be searched when opening the project menu.",
+        { modal: false }
+      )
+    }
+  })
+
+  context.subscriptions.push(configurationDisposable)
 
   cleanup = () => {
     for (const runningProject of Object.values(state.running)) {
@@ -78,5 +92,10 @@ export function deactivate() {
   if (cleanup) {
     cleanup()
     cleanup = undefined
+  }
+
+  if (configurationDisposable) {
+    configurationDisposable.dispose()
+    configurationDisposable = undefined
   }
 }
