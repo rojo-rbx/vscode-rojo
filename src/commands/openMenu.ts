@@ -10,7 +10,10 @@ import { installPlugin } from "../installPlugin"
 import { installRojo } from "../installRojo"
 import { result } from "../result"
 import { serveProject } from "../serveProject"
-import { formatProjectDisplayNames } from "../projectDisplay"
+import {
+  formatProjectDisplayNames,
+  getWorkspaceFolderName,
+} from "../projectDisplay"
 import which = require("which")
 
 const stopAndServeButton = {
@@ -89,7 +92,12 @@ function showSwitchMessage(install: RojoInstall) {
   const installType = install.installType
 
   // Tell the user about Aftman once per session
-  if (!(installType === InstallType.aftman || installType === InstallType.rokit) && !aftmanMessageSent) {
+  if (
+    !(
+      installType === InstallType.aftman || installType === InstallType.rokit
+    ) &&
+    !aftmanMessageSent
+  ) {
     aftmanMessageSent = true
 
     let details = ""
@@ -173,7 +181,7 @@ async function generateProjectMenu(
   state: State,
   projectFiles: ProjectFile[]
 ): Promise<PickItem[]> {
-  const projectFileRojoVersions: Map<typeof projectFiles[0], string | null> =
+  const projectFileRojoVersions: Map<(typeof projectFiles)[0], string | null> =
     new Map()
   const rojoVersions: { [index: string]: true } = {}
 
@@ -220,13 +228,15 @@ async function generateProjectMenu(
 
   const allProjectFiles = [
     ...projectFiles,
-    ...Object.values(state.running).map(r => r.projectFile)
+    ...Object.values(state.running).map((r) => r.projectFile),
   ]
   const displayNames = formatProjectDisplayNames(allProjectFiles)
 
   const runningItems = Object.values(state.running).map(({ projectFile }) => ({
-    label: `$(debug-stop) ${displayNames.get(projectFile.path.fsPath) ?? projectFile.name}`,
-    description: projectFile.workspaceFolderName,
+    label: `$(debug-stop) ${
+      displayNames.get(projectFile.path.fsPath) ?? projectFile.name
+    }`,
+    description: getWorkspaceFolderName(projectFile),
     projectFile,
     action: "stop",
     buttons: [openFileButton, buildButton],
@@ -247,9 +257,9 @@ async function generateProjectMenu(
       label: `$(${isInstalled ? "debug-start" : "warning"}) ${
         displayNames.get(projectFile.path.fsPath) ?? projectFile.name
       }`,
-      description: projectFile.workspaceFolderName,
+      description: getWorkspaceFolderName(projectFile),
       detail: !isInstalled
-        ? `        Rojo not detected in ${projectFile.workspaceFolderName}`
+        ? `        Rojo not detected in ${getWorkspaceFolderName(projectFile)}`
         : allRojoVersions.length > 1
         ? `v${projectFileRojoVersions.get(projectFile)}`
         : undefined,

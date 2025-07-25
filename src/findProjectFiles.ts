@@ -34,8 +34,26 @@ export async function findProjectFiles(): Promise<ProjectFile[]> {
         ? vscode.Uri.file(additionalPath)
         : vscode.Uri.joinPath(workspaceFolder.uri, additionalPath)
 
+      // For absolute paths, we might need to determine which workspace folder this belongs to
+      // or use the current one as a default context
+      let contextWorkspaceFolder = workspaceFolder
+
+      if (path.isAbsolute(additionalPath)) {
+        // Try to find the most appropriate workspace folder for this absolute path
+        for (const folder of folders) {
+          const relativePath = path.relative(folder.uri.fsPath, additionalPath)
+          if (
+            !relativePath.startsWith("..") &&
+            !path.isAbsolute(relativePath)
+          ) {
+            contextWorkspaceFolder = folder
+            break
+          }
+        }
+      }
+
       await searchForProjectFiles(
-        workspaceFolder,
+        contextWorkspaceFolder,
         searchUri,
         projectFiles,
         foundPaths

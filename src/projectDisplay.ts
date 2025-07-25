@@ -4,6 +4,31 @@ import { ProjectFile } from "./findProjectFiles"
 import { getProjectPathDisplay, ProjectPathDisplay } from "./configuration"
 
 /**
+ * Checks if a project file is external to the workspace
+ * @param projectFile The project file to check
+ * @returns true if the project is external to all workspace folders
+ */
+export function isExternalProject(projectFile: ProjectFile): boolean {
+  const workspaceFolders = vscode.workspace.workspaceFolders
+  if (!workspaceFolders) {
+    return true
+  }
+
+  // Check if the project file is within any workspace folder
+  for (const folder of workspaceFolders) {
+    const relativePath = path.relative(
+      folder.uri.fsPath,
+      projectFile.path.fsPath
+    )
+    if (!relativePath.startsWith("..") && !path.isAbsolute(relativePath)) {
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
  * Gets the filename of a project file
  */
 function getProjectFilename(projectFile: ProjectFile): string {
@@ -11,21 +36,32 @@ function getProjectFilename(projectFile: ProjectFile): string {
 }
 
 /**
- * Gets the full relative path for a project file, excluding the workspace folder name
+ * Gets the full relative path for a project file, with appropriate handling for external paths
  */
 function getProjectRelativePath(projectFile: ProjectFile): string {
-  const relativePath = vscode.workspace.asRelativePath(projectFile.path)
-  // Normalize to forward slashes for consistency across platforms
-  const normalizedPath = relativePath.replace(/\\/g, "/")
+  if (isExternalProject(projectFile)) {
+    // For external files, show the full path or a shortened representation
+    const fullPath = projectFile.path.fsPath.replace(/\\/g, "/")
+    const fileName = path.basename(fullPath)
+    const dirName = path.dirname(fullPath)
 
-  // Remove the workspace folder name from the beginning of the path
-  // e.g., "a/src/default.project.json" -> "src/default.project.json"
-  const pathParts = normalizedPath.split("/")
-  if (pathParts.length > 1) {
-    return pathParts.slice(1).join("/")
+    // Show parent directory + filename for better context
+    const parentDir = path.basename(dirName)
+    return `${parentDir}/${fileName}`
+  } else {
+    // For files within workspace, use relative path excluding workspace folder name
+    const relativePath = vscode.workspace.asRelativePath(projectFile.path)
+    // Normalize to forward slashes for consistency across platforms
+    const normalizedPath = relativePath.replace(/\\/g, "/")
+    // Remove the workspace folder name from the beginning of the path
+    // e.g., "a/src/default.project.json" -> "src/default.project.json"
+    const pathParts = normalizedPath.split("/")
+    if (pathParts.length > 1) {
+      return pathParts.slice(1).join("/")
+    }
+
+    return normalizedPath
   }
-
-  return normalizedPath
 }
 
 /**
@@ -45,6 +81,102 @@ function getConflictingFilenames(projectFiles: ProjectFile[]): Set<string> {
   }
 
   return duplicates
+}
+
+/**
+ * Groups external projects that would have identical display names using parentDir/filename format
+ */
+function getExternalProjectConflicts(
+  projectFiles: ProjectFile[]
+): Map<string, ProjectFile[]> {
+  const externalProjects = projectFiles.filter(isExternalProject)
+  const displayNameGroups = new Map<string, ProjectFile[]>()
+
+  for (const projectFile of externalProjects) {
+    const fullPath = projectFile.path.fsPath.replace(/\\/g, "/")
+    const fileName = path.basename(fullPath)
+    const dirName = path.dirname(fullPath)
+    const parentDir = path.basename(dirName)
+    const displayName = `${parentDir}/${fileName}`
+
+    if (!displayNameGroups.has(displayName)) {
+      displayNameGroups.set(displayName, [])
+    }
+    displayNameGroups.get(displayName)!.push(projectFile)
+  }
+
+  // Filter to only return groups with conflicts (more than 1 project)
+  const conflicts = new Map<string, ProjectFile[]>()
+  for (const [displayName, projects] of displayNameGroups) {
+    if (projects.length > 1) {
+      conflicts.set(displayName, projects)
+    }
+  }
+
+  return conflicts
+}
+
+/**
+ * Generates unique display paths for conflicting external projects by walking up directory trees
+ */
+function getUniqueDisplayPaths(
+  conflictingProjects: ProjectFile[]
+): Map<string, string> {
+  const result = new Map<string, string>()
+
+  if (conflictingProjects.length <= 1) {
+    // No conflicts, return regular path
+    for (const project of conflictingProjects) {
+      result.set(project.path.fsPath, getProjectRelativePath(project))
+    }
+
+    return result
+  }
+
+  // Split paths into segments for each project
+  const pathSegments = conflictingProjects.map((project) => {
+    const fullPath = project.path.fsPath.replace(/\\/g, "/")
+    const segments = fullPath.split("/").filter((segment) => segment.length > 0)
+    return { project, segments }
+  })
+
+  // Find the minimum depth needed to make all paths unique
+  let depth = 2
+  const maxDepth = Math.max(...pathSegments.map((p) => p.segments.length))
+
+  while (depth <= maxDepth) {
+    const displayPaths = new Set<string>()
+    let allUnique = true
+
+    // Generate display paths at current depth
+    const tempResults = new Map<string, string>()
+    for (const { project, segments } of pathSegments) {
+      const relevantSegments = segments.slice(-depth)
+      const displayPath = relevantSegments.join("/")
+
+      if (displayPaths.has(displayPath)) {
+        allUnique = false
+        break
+      }
+
+      displayPaths.add(displayPath)
+      tempResults.set(project.path.fsPath, displayPath)
+    }
+
+    if (allUnique) {
+      // Found unique paths at this depth
+      return tempResults
+    }
+
+    depth++
+  }
+
+  // Use full paths if we couldn't make them unique
+  for (const { project, segments } of pathSegments) {
+    result.set(project.path.fsPath, segments.join("/"))
+  }
+
+  return result
 }
 
 /**
@@ -106,11 +238,30 @@ export function formatProjectDisplayNames(
 
     case ProjectPathDisplay.AsNeeded: {
       const conflictingFilenames = getConflictingFilenames(projectFiles)
+      const externalConflicts = getExternalProjectConflicts(projectFiles)
+      const conflictingExternalPaths = new Set<string>()
+
+      // Resolve external project conflicts with unique paths
+      for (const [, conflictingProjects] of externalConflicts) {
+        const uniquePaths = getUniqueDisplayPaths(conflictingProjects)
+        for (const [projectPath, displayPath] of uniquePaths) {
+          result.set(projectPath, displayPath)
+          conflictingExternalPaths.add(projectPath)
+        }
+      }
+
+      // Handle remaining projects (workspace projects + non-conflicting external projects)
       for (const projectFile of projectFiles) {
+        if (conflictingExternalPaths.has(projectFile.path.fsPath)) {
+          // Already handled by external conflict resolution
+          continue
+        }
+
         const filename = getProjectFilename(projectFile)
-        const displayName = conflictingFilenames.has(filename)
-          ? getProjectRelativePath(projectFile)
-          : filename
+        const displayName =
+          conflictingFilenames.has(filename) || isExternalProject(projectFile)
+            ? getProjectRelativePath(projectFile)
+            : filename
         result.set(projectFile.path.fsPath, displayName)
       }
       break
@@ -125,4 +276,15 @@ export function formatProjectDisplayNames(
   }
 
   return result
+}
+
+/**
+ * Gets the appropriate description for a project file (workspace name or "external")
+ * @param projectFile The project file
+ * @returns The description string
+ */
+export function getWorkspaceFolderName(projectFile: ProjectFile): string {
+  return isExternalProject(projectFile)
+    ? "external"
+    : projectFile.workspaceFolderName
 }
