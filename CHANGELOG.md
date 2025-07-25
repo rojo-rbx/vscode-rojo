@@ -4,6 +4,19 @@ All notable changes to the "vscode-rojo" extension will be documented in this fi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [Unreleased]
+### Added
+- `rojo.additionalProjectPaths` setting to search for projects beyond workspace
+  root.
+- `rojo.projectPathDisplay` setting to manage how project paths are displayed in
+  the project selection menu
+- `rojo.showFullPaths` setting to show full path display for projects in the
+  project selection menu
+
+### Fixed
+- Webpack build failure with dist directory creation
+- Tool detection to avoid suggesting Aftman when Rokit is installed
+
 ## [2.1.2] - 2022-08-25
 ### Fixed
 - Fixed error messages displaying as `[Object object]` in some cases
