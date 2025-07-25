@@ -13,6 +13,7 @@ import { serveProject } from "../serveProject"
 import {
   formatProjectDisplayNames,
   getWorkspaceFolderName,
+  isExternalProject,
 } from "../projectDisplay"
 import which = require("which")
 
@@ -230,17 +231,23 @@ async function generateProjectMenu(
     ...projectFiles,
     ...Object.values(state.running).map((r) => r.projectFile),
   ]
-  const displayNames = formatProjectDisplayNames(allProjectFiles)
+  const displayInfo = formatProjectDisplayNames(allProjectFiles)
 
-  const runningItems = Object.values(state.running).map(({ projectFile }) => ({
-    label: `$(debug-stop) ${
-      displayNames.get(projectFile.path.fsPath) ?? projectFile.name
-    }`,
-    description: getWorkspaceFolderName(projectFile),
-    projectFile,
-    action: "stop",
-    buttons: [openFileButton, buildButton],
-  }))
+  const runningItems = Object.values(state.running).map(({ projectFile }) => {
+    const info = displayInfo.get(projectFile.path.fsPath)
+    return {
+      label: `$(debug-stop) ${info?.displayName ?? projectFile.name}`,
+      description: getWorkspaceFolderName(projectFile),
+      detail: isExternalProject(projectFile)
+        ? `Full path: ${projectFile.path.fsPath.replace(/\\/g, "/")}`
+        : info?.wasTruncated
+        ? `Full path: ${info.originalName}`
+        : undefined,
+      projectFile,
+      action: "stop",
+      buttons: [openFileButton, buildButton],
+    }
+  })
 
   const isAnyRunning = Object.values(state.running).length > 0
 
@@ -253,16 +260,33 @@ async function generateProjectMenu(
       continue
     }
 
+    const info = displayInfo.get(projectFile.path.fsPath)
+
+    const detailParts: string[] = []
+
+    if (!isInstalled) {
+      detailParts.push(
+        `        Rojo not detected in ${getWorkspaceFolderName(projectFile)}`
+      )
+    } else if (allRojoVersions.length > 1) {
+      detailParts.push(`v${projectFileRojoVersions.get(projectFile)}`)
+    }
+
+    // For external projects, always show full absolute path
+    if (isExternalProject(projectFile)) {
+      const normalizedPath = projectFile.path.fsPath.replace(/\\/g, "/")
+      detailParts.push(`Full path: ${normalizedPath}`)
+    } else if (info?.wasTruncated) {
+      // For workspace projects, only show path if truncated
+      detailParts.push(`Full path: ${info.originalName}`)
+    }
+
     projectFileItems.push({
       label: `$(${isInstalled ? "debug-start" : "warning"}) ${
-        displayNames.get(projectFile.path.fsPath) ?? projectFile.name
+        info?.displayName ?? projectFile.name
       }`,
       description: getWorkspaceFolderName(projectFile),
-      detail: !isInstalled
-        ? `        Rojo not detected in ${getWorkspaceFolderName(projectFile)}`
-        : allRojoVersions.length > 1
-        ? `v${projectFileRojoVersions.get(projectFile)}`
-        : undefined,
+      detail: detailParts.length > 0 ? detailParts.join(" • ") : undefined,
       action: isInstalled ? "start" : undefined,
       projectFile,
       buttons: [

@@ -4,6 +4,15 @@ import { ProjectFile } from "./findProjectFiles"
 import { getProjectPathDisplay, ProjectPathDisplay } from "./configuration"
 
 /**
+ * Interface for project display information
+ */
+export interface ProjectDisplayInfo {
+  displayName: string
+  wasTruncated: boolean
+  originalName: string
+}
+
+/**
  * Checks if a project file is external to the workspace
  * @param projectFile The project file to check
  * @returns true if the project is external to all workspace folders
@@ -209,29 +218,37 @@ export function formatProjectDisplayName(
 }
 
 /**
- * Formats project file display names for multiple projects, considering conflicts for "asNeeded" mode.
+ * Formats project file display names for multiple projects, with truncation and conflict resolution.
  * @param projectFiles Array of project files to format
  * @param displayMode The display mode to use (optional, will read from config if not provided)
- * @returns Map of project file paths to their formatted display names
+ * @param maxLength Maximum length before truncation (default 70)
+ * @returns Map of project file paths to their formatted display information
  */
 export function formatProjectDisplayNames(
   projectFiles: ProjectFile[],
-  displayMode?: ProjectPathDisplay
-): Map<string, string> {
+  displayMode?: ProjectPathDisplay,
+  maxLength: number = 70
+): Map<string, ProjectDisplayInfo> {
   const mode = displayMode ?? getProjectPathDisplay()
-  const result = new Map<string, string>()
+  const projectDisplayMap = new Map<string, string>()
 
   switch (mode) {
     case ProjectPathDisplay.Never: {
       for (const projectFile of projectFiles) {
-        result.set(projectFile.path.fsPath, getProjectFilename(projectFile))
+        projectDisplayMap.set(
+          projectFile.path.fsPath,
+          getProjectFilename(projectFile)
+        )
       }
       break
     }
 
     case ProjectPathDisplay.Always: {
       for (const projectFile of projectFiles) {
-        result.set(projectFile.path.fsPath, getProjectRelativePath(projectFile))
+        projectDisplayMap.set(
+          projectFile.path.fsPath,
+          getProjectRelativePath(projectFile)
+        )
       }
       break
     }
@@ -245,7 +262,7 @@ export function formatProjectDisplayNames(
       for (const [, conflictingProjects] of externalConflicts) {
         const uniquePaths = getUniqueDisplayPaths(conflictingProjects)
         for (const [projectPath, displayPath] of uniquePaths) {
-          result.set(projectPath, displayPath)
+          projectDisplayMap.set(projectPath, displayPath)
           conflictingExternalPaths.add(projectPath)
         }
       }
@@ -262,20 +279,82 @@ export function formatProjectDisplayNames(
           conflictingFilenames.has(filename) || isExternalProject(projectFile)
             ? getProjectRelativePath(projectFile)
             : filename
-        result.set(projectFile.path.fsPath, displayName)
+        projectDisplayMap.set(projectFile.path.fsPath, displayName)
       }
       break
     }
 
     default: {
       for (const projectFile of projectFiles) {
-        result.set(projectFile.path.fsPath, getProjectFilename(projectFile))
+        projectDisplayMap.set(
+          projectFile.path.fsPath,
+          getProjectFilename(projectFile)
+        )
       }
       break
     }
   }
 
+  // Apply truncation to all results
+  const result = new Map<string, ProjectDisplayInfo>()
+  for (const [path, displayName] of projectDisplayMap) {
+    const truncationInfo = truncateDisplayName(displayName, maxLength)
+    result.set(path, {
+      displayName: truncationInfo.name,
+      wasTruncated: truncationInfo.wasTruncated,
+      originalName: truncationInfo.originalName,
+    })
+  }
+
   return result
+}
+
+/**
+ * Truncates a display name if it exceeds the specified length, using smart left-side truncation
+ */
+function truncateDisplayName(
+  displayName: string,
+  maxLength: number = 70
+): { name: string; wasTruncated: boolean; originalName: string } {
+  if (displayName.length <= maxLength) {
+    return { name: displayName, wasTruncated: false, originalName: displayName }
+  }
+
+  const segments = displayName.split("/")
+  const filename = segments[segments.length - 1]
+
+  // If just the filename is too long, truncate it directly
+  if (filename.length > maxLength - 3) {
+    return {
+      name: filename.substring(0, maxLength - 3) + "...",
+      wasTruncated: true,
+      originalName: displayName,
+    }
+  }
+
+  // Use left-side truncation: keep filename and folder context, remove from left
+  // Reserve space for "..." prefix
+  const ellipsisLength = 3
+  const availableLength = maxLength - ellipsisLength
+
+  let result = filename
+  let usedLength = filename.length
+
+  // Add folder segments from right to left while they fit completely
+  for (let i = segments.length - 2; i >= 0; i--) {
+    const segment = segments[i]
+    const segmentWithSlash = segment + "/"
+
+    if (usedLength + segmentWithSlash.length <= availableLength) {
+      result = segmentWithSlash + result
+      usedLength += segmentWithSlash.length
+    } else {
+      result = "..." + result
+      return { name: result, wasTruncated: true, originalName: displayName }
+    }
+  }
+
+  return { name: result, wasTruncated: false, originalName: displayName }
 }
 
 /**
