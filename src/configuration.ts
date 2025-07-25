@@ -1,9 +1,9 @@
 import * as vscode from "vscode"
 
 /**
- * Enum for project path display modes
+ * Enum for three-state configuration options
  */
-export enum ProjectPathDisplay {
+export enum ThreeStateOption {
   Never = "never",
   AsNeeded = "asNeeded",
   Always = "always",
@@ -14,7 +14,8 @@ export enum ProjectPathDisplay {
  */
 export interface RojoConfiguration {
   additionalProjectPaths: string[]
-  projectPathDisplay: ProjectPathDisplay
+  projectPathDisplay: ThreeStateOption
+  showFullPath: ThreeStateOption
 }
 
 /**
@@ -46,30 +47,31 @@ export function getAdditionalProjectPaths(): string[] {
 }
 
 /**
- * Gets the project path display setting
- * @returns The project path display mode
+ * Gets a three-state configuration setting
+ * @param settingName The name of the setting to retrieve
+ * @returns The configuration value as ThreeStateOption
  */
-export function getProjectPathDisplay(): ProjectPathDisplay {
+export function getConfigSetting(settingName: string): ThreeStateOption {
   try {
     const config = getRojoConfiguration()
-    const display = config.get<string>("projectPathDisplay")
+    const value = config.get<string>(settingName)
 
-    switch (display) {
+    switch (value) {
       case "never":
-        return ProjectPathDisplay.Never
+        return ThreeStateOption.Never
       case "asNeeded":
-        return ProjectPathDisplay.AsNeeded
+        return ThreeStateOption.AsNeeded
       case "always":
-        return ProjectPathDisplay.Always
+        return ThreeStateOption.Always
       default:
         console.warn(
-          `Invalid projectPathDisplay setting: ${display}. Defaulting to 'asNeeded'.`
+          `Invalid ${settingName} setting: ${value}. Defaulting to 'asNeeded'.`
         )
-        return ProjectPathDisplay.AsNeeded
+        return ThreeStateOption.AsNeeded
     }
   } catch (error) {
-    console.error("Failed to get project path display configuration:", error)
-    return ProjectPathDisplay.AsNeeded
+    console.error(`Failed to get ${settingName} configuration:`, error)
+    return ThreeStateOption.AsNeeded
   }
 }
 
@@ -80,6 +82,7 @@ export function getProjectPathDisplay(): ProjectPathDisplay {
 export function getRojoConfig(): RojoConfiguration {
   return {
     additionalProjectPaths: getAdditionalProjectPaths(),
-    projectPathDisplay: getProjectPathDisplay(),
+    projectPathDisplay: getConfigSetting("projectPathDisplay"),
+    showFullPath: getConfigSetting("showFullPath"),
   }
 }

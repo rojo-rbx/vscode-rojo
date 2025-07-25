@@ -15,6 +15,7 @@ import {
   getWorkspaceFolderName,
   isExternalProject,
 } from "../projectDisplay"
+import { getConfigSetting, ThreeStateOption } from "../configuration"
 import which = require("which")
 
 const stopAndServeButton = {
@@ -238,11 +239,32 @@ async function generateProjectMenu(
     return {
       label: `$(debug-stop) ${info?.displayName ?? projectFile.name}`,
       description: getWorkspaceFolderName(projectFile),
-      detail: isExternalProject(projectFile)
-        ? `Full path: ${projectFile.path.fsPath.replace(/\\/g, "/")}`
-        : info?.wasTruncated
-        ? `Full path: ${info.originalName}`
-        : undefined,
+      detail: (() => {
+        const showFullPathMode = getConfigSetting("showFullPath")
+        const shouldShowFullPath =
+          showFullPathMode === ThreeStateOption.Always ||
+          (showFullPathMode === ThreeStateOption.AsNeeded &&
+            (isExternalProject(projectFile) || info?.wasTruncated))
+
+        if (!shouldShowFullPath) {
+          return undefined
+        }
+
+        if (isExternalProject(projectFile)) {
+          return `Full path: ${projectFile.path.fsPath.replace(/\\/g, "/")}`
+        } else if (
+          showFullPathMode === ThreeStateOption.Always ||
+          info?.wasTruncated
+        ) {
+          // For workspace projects: show full path if "always" mode or if truncated
+          const pathToShow =
+            showFullPathMode === ThreeStateOption.Always
+              ? projectFile.path.fsPath.replace(/\\/g, "/")
+              : info?.originalName
+          return `Full path: ${pathToShow}`
+        }
+        return undefined
+      })(),
       projectFile,
       action: "stop",
       buttons: [openFileButton, buildButton],
@@ -272,13 +294,28 @@ async function generateProjectMenu(
       detailParts.push(`v${projectFileRojoVersions.get(projectFile)}`)
     }
 
-    // For external projects, always show full absolute path
-    if (isExternalProject(projectFile)) {
-      const normalizedPath = projectFile.path.fsPath.replace(/\\/g, "/")
-      detailParts.push(`Full path: ${normalizedPath}`)
-    } else if (info?.wasTruncated) {
-      // For workspace projects, only show path if truncated
-      detailParts.push(`Full path: ${info.originalName}`)
+    // Show full path based on configuration
+    const showFullPathMode = getConfigSetting("showFullPath")
+    const shouldShowFullPath =
+      showFullPathMode === ThreeStateOption.Always ||
+      (showFullPathMode === ThreeStateOption.AsNeeded &&
+        (isExternalProject(projectFile) || info?.wasTruncated))
+
+    if (shouldShowFullPath) {
+      if (isExternalProject(projectFile)) {
+        const normalizedPath = projectFile.path.fsPath.replace(/\\/g, "/")
+        detailParts.push(`Full path: ${normalizedPath}`)
+      } else if (
+        showFullPathMode === ThreeStateOption.Always ||
+        info?.wasTruncated
+      ) {
+        // For workspace projects: show full path if "always" mode or if truncated
+        const pathToShow =
+          showFullPathMode === ThreeStateOption.Always
+            ? projectFile.path.fsPath.replace(/\\/g, "/")
+            : info?.originalName
+        detailParts.push(`Full path: ${pathToShow}`)
+      }
     }
 
     projectFileItems.push({

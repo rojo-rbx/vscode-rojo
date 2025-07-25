@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import * as path from "path"
 import { ProjectFile } from "./findProjectFiles"
-import { getProjectPathDisplay, ProjectPathDisplay } from "./configuration"
+import { getConfigSetting, ThreeStateOption } from "./configuration"
 
 /**
  * Interface for project display information
@@ -196,18 +196,18 @@ function getUniqueDisplayPaths(
  */
 export function formatProjectDisplayName(
   projectFile: ProjectFile,
-  displayMode?: ProjectPathDisplay
+  displayMode?: ThreeStateOption
 ): string {
-  const mode = displayMode ?? getProjectPathDisplay()
+  const mode = displayMode ?? getConfigSetting("projectPathDisplay")
 
   switch (mode) {
-    case ProjectPathDisplay.Never: {
+    case ThreeStateOption.Never: {
       return getProjectFilename(projectFile)
     }
-    case ProjectPathDisplay.Always: {
+    case ThreeStateOption.Always: {
       return getProjectRelativePath(projectFile)
     }
-    case ProjectPathDisplay.AsNeeded: {
+    case ThreeStateOption.AsNeeded: {
       // For single project context, behave like "never" since we can't detect conflicts
       return getProjectFilename(projectFile)
     }
@@ -226,14 +226,14 @@ export function formatProjectDisplayName(
  */
 export function formatProjectDisplayNames(
   projectFiles: ProjectFile[],
-  displayMode?: ProjectPathDisplay,
+  displayMode?: ThreeStateOption,
   maxLength: number = 70
 ): Map<string, ProjectDisplayInfo> {
-  const mode = displayMode ?? getProjectPathDisplay()
+  const mode = displayMode ?? getConfigSetting("projectPathDisplay")
   const projectDisplayMap = new Map<string, string>()
 
   switch (mode) {
-    case ProjectPathDisplay.Never: {
+    case ThreeStateOption.Never: {
       for (const projectFile of projectFiles) {
         projectDisplayMap.set(
           projectFile.path.fsPath,
@@ -243,7 +243,7 @@ export function formatProjectDisplayNames(
       break
     }
 
-    case ProjectPathDisplay.Always: {
+    case ThreeStateOption.Always: {
       for (const projectFile of projectFiles) {
         projectDisplayMap.set(
           projectFile.path.fsPath,
@@ -253,7 +253,7 @@ export function formatProjectDisplayNames(
       break
     }
 
-    case ProjectPathDisplay.AsNeeded: {
+    case ThreeStateOption.AsNeeded: {
       const conflictingFilenames = getConflictingFilenames(projectFiles)
       const externalConflicts = getExternalProjectConflicts(projectFiles)
       const conflictingExternalPaths = new Set<string>()

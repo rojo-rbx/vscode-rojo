@@ -50,7 +50,11 @@
         },
         "rojo.projectPathDisplay": {
           "type": "string",
-          "enum": ["never", "asNeeded", "always"],
+          "enum": [
+            "never",
+            "asNeeded",
+            "always"
+          ],
           "enumDescriptions": [
             "Show only project file names.",
             "Show paths only when multiple projects have the same name.",
@@ -60,6 +64,23 @@
           "scope": "resource",
           "title": "Project Path Display",
           "description": "Controls how project file paths are displayed in the project selection menu."
+        },
+        "rojo.showFullPath": {
+          "type": "string",
+          "enum": [
+            "never",
+            "asNeeded",
+            "always"
+          ],
+          "enumDescriptions": [
+            "Never show full paths in project details.",
+            "Show full paths only for external projects or when project names are truncated.",
+            "Always show full paths in project details."
+          ],
+          "default": "asNeeded",
+          "scope": "resource",
+          "title": "Show Full Path",
+          "description": "Controls when full file paths are shown in the project selection menu details."
         }
       }
     }
