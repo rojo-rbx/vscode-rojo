@@ -17,6 +17,7 @@ import {
 } from "../projectDisplay"
 import { getConfigSetting, ThreeStateOption } from "../configuration"
 import which = require("which")
+import * as childProcess from "child_process";
 
 const stopAndServeButton = {
   iconPath: new vscode.ThemeIcon("debug-continue"),
@@ -85,34 +86,35 @@ function getInstallDetail(
     return "Rojo is globally installed."
   }
 
-  return `Rojo is managed by ${installType}.`
+  return `Rojo is currently managed by ${installType}.`
 }
 
-let aftmanMessageSent = false
+let rokitMessageSent = false
 
 function showSwitchMessage(install: RojoInstall) {
   const installType = install.installType
 
-  // Tell the user about Aftman once per session
-  if (
-    !(
-      installType === InstallType.aftman || installType === InstallType.rokit
-    ) &&
-    !aftmanMessageSent
-  ) {
-    aftmanMessageSent = true
+  // Rokit is already found, skip prompt.
+  if (installType == InstallType.rokit) {
+    return
+  }
+
+  // Tell the user about Rokit once per session
+  if (!rokitMessageSent) {
+    rokitMessageSent = true
 
     let details = ""
 
-    if (installType === InstallType.global) {
+    if (installType === InstallType.foreman) {
       details =
-        " Aftman is a toolchain manager. " +
-        "It enables installing project-specific command line tools and switching between them seamlessly."
-    } else if (installType === InstallType.foreman) {
-      details =
-        " Aftman is similar to Foreman, but is more robust and easier to use. " +
+        " Rokit is similar to Foreman, but is more robust and easier to use. " +
         "Additionally, all currently-released versions of Foreman (as of v1.0.4) " +
         "have a bug that makes killing the launched Rojo process leave a Rojo process running forever."
+    } else if (installType == InstallType.aftman) {
+      details =
+        " Aftman was depreciated on July 19, 2025, is no longer actively maintained, " +
+        "and lacks support for newer tools. " +
+        "Switching ensures your projects stay up to date with the latest ecosystems."
     }
 
     vscode.window
@@ -120,9 +122,9 @@ function showSwitchMessage(install: RojoInstall) {
         `${getInstallDetail(
           installType,
           false
-        )} You should consider using Aftman instead to manage your tool chains.` +
-          details,
-        "Switch to Aftman"
+        )} We highly suggest switching to a modern toolchain, such as Rokit.` +
+        details,
+        "Switch to Rokit"
       )
       .then((response) => {
         if (!response) {
@@ -132,7 +134,7 @@ function showSwitchMessage(install: RojoInstall) {
         vscode.window
           .showWarningMessage(
             `This will delete the rojo.exe in your path from ${install.resolvedPath}.` +
-              ` After that, we will prompt you to install Rojo with Aftman. Is this OK?`,
+            ` After that, we will prompt you to install Rojo with Rokit. Is this OK?`,
             "Yes",
             "No"
           )
@@ -142,7 +144,15 @@ function showSwitchMessage(install: RojoInstall) {
             }
 
             // User might have multiple rojo's in their path, reset this to allow showing the message again
-            aftmanMessageSent = false
+            rokitMessageSent = false
+
+            // Kill running rojo instances
+            if (process.platform === "win32") {
+              try {
+                childProcess.execSync("taskkill /f /im rojo.exe", { stdio: "ignore" });
+              } catch (e) {
+              }
+            }
 
             return fs.unlink(install.resolvedPath)
           })
@@ -164,10 +174,9 @@ async function handleInstallError(error: string) {
   const location = await which("rojo").catch(() => null)
 
   vscode.window.showErrorMessage(
-    `Trying to use Rojo executable found at ${
-      location ?? "?"
+    `Trying to use Rojo executable found at ${location ?? "?"
     } resulted in an error: (${error}).` +
-      `Fix or delete this file manually and try again.`
+    `Fix or delete this file manually and try again.`
   )
 
   if (error.includes("Foreman") && location) {
@@ -319,9 +328,8 @@ async function generateProjectMenu(
     }
 
     projectFileItems.push({
-      label: `$(${isInstalled ? "debug-start" : "warning"}) ${
-        info?.displayName ?? projectFile.name
-      }`,
+      label: `$(${isInstalled ? "debug-start" : "warning"}) ${info?.displayName ?? projectFile.name
+        }`,
       description: getWorkspaceFolderName(projectFile),
       detail: detailParts.length > 0 ? detailParts.join(" • ") : undefined,
       action: isInstalled ? "start" : undefined,
@@ -473,7 +481,7 @@ export const openMenuCommand = (state: State) =>
           } catch (e) {
             vscode.window.showErrorMessage(
               "Rojo: Something went wrong when starting rojo. Error: " +
-                (e as any).toString()
+              (e as any).toString()
             )
           }
 
@@ -502,7 +510,7 @@ export const openMenuCommand = (state: State) =>
           } catch (e) {
             vscode.window.showErrorMessage(
               "Rojo: Something went wrong when starting rojo. Error: " +
-                (e as any).toString()
+              (e as any).toString()
             )
           }
 
@@ -518,7 +526,7 @@ export const openMenuCommand = (state: State) =>
             } catch (e) {
               vscode.window.showErrorMessage(
                 "Rojo: Couldn't stop Rojo process. Error: " +
-                  (e as any).toString()
+                (e as any).toString()
               )
             }
           }
@@ -586,14 +594,14 @@ export const openMenuCommand = (state: State) =>
           installRojo(folder)
             .then(() => {
               vscode.window.showInformationMessage(
-                "Successfully installed Rojo with Aftman!"
+                "Successfully installed Rojo with Rokit!"
               )
 
               vscode.commands.executeCommand("vscode-rojo.openMenu")
             })
             .catch((e) => {
               vscode.window.showErrorMessage(
-                `Couldn't install Rojo with Aftman: ${e}`
+                `Couldn't install Rojo with Rokit: ${e}`
               )
             })
 
