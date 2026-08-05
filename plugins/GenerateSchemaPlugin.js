@@ -5,21 +5,33 @@ const API_DUMP_URL = "https://raw.githubusercontent.com/CloneTrooper1019/Roblox-
 
 function getAPIDump() {
 	return new Promise((resolve, reject) => {
-		const req = https.get(API_DUMP_URL, res => {
+		https.get(API_DUMP_URL, res => {
+			if (res.statusCode !== 200) {
+				res.resume()
+				reject(new Error(
+					`Could not download the Roblox API dump from ${API_DUMP_URL}: server responded with status ${res.statusCode}`
+				))
+				return
+			}
+
 			let raw = ""
 
+			res.setEncoding("utf8")
+
 			res.on('data', chunk => {
-				raw += chunk;
+				raw += chunk
 			})
 
 			res.on('end', () => {
-				const data = JSON.parse(raw);
-				resolve(data)
+				try {
+					resolve(JSON.parse(raw))
+				} catch (err) {
+					reject(new Error(`Could not parse the Roblox API dump: ${err.message}`))
+				}
 			})
 
-		}).on('error', err => reject)
-
-		req.end()
+			res.on('error', reject)
+		}).on('error', reject)
 	})
 }
 
@@ -76,9 +88,9 @@ async function generateSchema() {
 
 module.exports = class GenerateSchemaPlugin {
 	apply(compiler) {
-		// Generate the schema by reading the template, adding dynamic content, and writing to the main file location
-		compiler.hooks.compile.tap("GenerateSchema", async () => {
-			generateSchema()
-		})
+		// Generate the schema by reading the template, adding dynamic content, and writing to the main file location.
+		// `beforeCompile` is an async hook, so tapping it with a promise makes webpack wait for the schema to be
+		// written before the build continues. `compile` is synchronous and would let the build finish first.
+		compiler.hooks.beforeCompile.tapPromise("GenerateSchema", () => generateSchema())
 	}
 }
